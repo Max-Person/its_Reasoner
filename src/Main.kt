@@ -1,5 +1,5 @@
 import its.model.DomainModel
-import its.reasoner.models.*
+import its.model.dictionaries.*
 import java.lang.NumberFormatException
 import java.util.*
 
@@ -9,11 +9,11 @@ fun run() {
     //val dir = "inputs\\"
 
     DomainModel.collect(
-        RClassesDictionary(),
-        RVarsDictionary(),
-        REnumsDictionary(),
-        RPropertiesDictionary(),
-        RRelationshipsDictionary(),
+        ClassesDictionary(),
+        DecisionTreeVarsDictionary(),
+        EnumsDictionary(),
+        PropertiesDictionary(),
+        RelationshipsDictionary(),
     ).initFrom(dir)
 
 

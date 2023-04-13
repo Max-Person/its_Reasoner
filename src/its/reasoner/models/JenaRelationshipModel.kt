@@ -1,17 +1,10 @@
 package its.reasoner.models
 
-import its.model.models.*
-import its.reasoner.util.JenaUtil.POAS_PREF
-import its.reasoner.util.JenaUtil.genLink
+import its.model.models.RelationshipModel
+import its.reasoner.util.JenaUtil
 import its.reasoner.util.NamingManager
 
-typealias RClassModel = ClassModel
-
-typealias REnumModel = EnumModel
-
-typealias RPropertyModel = PropertyModel
-
-class RRelationshipModel(
+class JenaRelationshipModel(
     name: String,
     parent: String? = null,
     argsClasses: List<String>,
@@ -43,13 +36,13 @@ class RRelationshipModel(
         }
 
         body = if (argsClasses.size == 2) {
-            "(<arg1> ${genLink(POAS_PREF, name)} <arg2>)\n"
+            "(<arg1> ${JenaUtil.genLink(JenaUtil.POAS_PREF, name)} <arg2>)\n"
         } else {
-            var tmp = "(<arg1> ${genLink(POAS_PREF, name)} <var1>)\n"
+            var tmp = "(<arg1> ${JenaUtil.genLink(JenaUtil.POAS_PREF, name)} <var1>)\n"
 
             argsClasses.forEachIndexed { index, _ ->
                 if (index != 0) {
-                    tmp += "(<var1> ${genLink(POAS_PREF, name)} <arg${index + 1}>)\n"
+                    tmp += "(<var1> ${JenaUtil.genLink(JenaUtil.POAS_PREF, name)} <arg${index + 1}>)\n"
                 }
             }
 
@@ -59,7 +52,7 @@ class RRelationshipModel(
         negativeVarsCount = varsCount
 
         negativeBody = if (argsClasses.size == 2) {
-            "(<arg2> ${genLink(POAS_PREF, name)} <arg1>)\n"
+            "(<arg2> ${JenaUtil.genLink(JenaUtil.POAS_PREF, name)} <arg1>)\n"
         } else {
             "" // TODO
         }
@@ -243,23 +236,26 @@ class RRelationshipModel(
         val scalePredicate = NamingManager.genPredicateName()
         return when (scaleType) {
             ScaleType.Linear -> listOf(
-                RRelationshipModel(
+                JenaRelationshipModel(
                     name = scaleRelationshipsNames!![0],
                     argsClasses = argsClasses,
                     flags = flags,
                     varsCount = LinerScalePatterns.REVERSE_VAR_COUNT,
-                    body = LinerScalePatterns.REVERSE_PATTERN.replace("<predicate>", genLink(POAS_PREF, name)),
+                    body = LinerScalePatterns.REVERSE_PATTERN.replace(
+                        "<predicate>",
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, name)
+                    ),
                     negativeVarsCount = LinerScalePatterns.REVERSE_VAR_COUNT,
-                    negativeBody = "(<arg1> ${genLink(POAS_PREF, name)} <arg2>)\n",
+                    negativeBody = "(<arg1> ${JenaUtil.genLink(JenaUtil.POAS_PREF, name)} <arg2>)\n",
                 ),
-                RRelationshipModel(
+                JenaRelationshipModel(
                     name = scaleRelationshipsNames!![1],
                     argsClasses = argsClasses,
                     flags = 16,
                     varsCount = LinerScalePatterns.TRANSITIVE_CLOSURE_VAR_COUNT,
                     body = LinerScalePatterns.TRANSITIVE_CLOSURE_PATTERN.replace(
                         "<numberPredicate>",
-                        genLink(POAS_PREF, scalePredicate)
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, scalePredicate)
                     ),
                     negativeVarsCount = LinerScalePatterns.TRANSITIVE_CLOSURE_VAR_COUNT,
                     negativeBody = """
@@ -268,17 +264,17 @@ class RRelationshipModel(
             ge(<var1>, <var2>)
         """.trimIndent().replace(
                         "<numberPredicate>",
-                        genLink(POAS_PREF, scalePredicate)
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, scalePredicate)
                     ),
                 ),
-                RRelationshipModel(
+                JenaRelationshipModel(
                     name = scaleRelationshipsNames!![2],
                     argsClasses = argsClasses,
                     flags = 16,
                     varsCount = LinerScalePatterns.REVERSE_TRANSITIVE_CLOSURE_VAR_COUNT,
                     body = LinerScalePatterns.REVERSE_TRANSITIVE_CLOSURE_PATTERN.replace(
                         "<numberPredicate>",
-                        genLink(POAS_PREF, scalePredicate)
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, scalePredicate)
                     ),
                     negativeVarsCount = LinerScalePatterns.REVERSE_TRANSITIVE_CLOSURE_VAR_COUNT,
                     negativeBody = """
@@ -287,41 +283,41 @@ class RRelationshipModel(
             le(<var1>, <var2>)
         """.trimIndent().replace(
                         "<numberPredicate>",
-                        genLink(POAS_PREF, scalePredicate)
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, scalePredicate)
                     ),
                 ),
-                RRelationshipModel(
+                JenaRelationshipModel(
                     name = scaleRelationshipsNames!![3],
                     argsClasses = argsClasses.plus(argsClasses[0]),
                     flags = 0,
                     varsCount = LinerScalePatterns.IS_BETWEEN_VAR_COUNT,
                     body = LinerScalePatterns.IS_BETWEEN_PATTERN.replace(
                         "<numberPredicate>",
-                        genLink(POAS_PREF, scalePredicate)
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, scalePredicate)
                     ),
                     negativeVarsCount = LinerScalePatterns.IS_BETWEEN_VAR_COUNT,
                     negativeBody = "", // TODO
                 ),
-                RRelationshipModel(
+                JenaRelationshipModel(
                     name = scaleRelationshipsNames!![4],
                     argsClasses = argsClasses.plus(argsClasses[0]),
                     flags = 0,
                     varsCount = LinerScalePatterns.IS_CLOSER_TO_THAN_VAR_COUNT,
                     body = LinerScalePatterns.IS_CLOSER_TO_THAN_PATTERN.replace(
                         "<numberPredicate>",
-                        genLink(POAS_PREF, scalePredicate)
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, scalePredicate)
                     ),
                     negativeVarsCount = LinerScalePatterns.IS_CLOSER_TO_THAN_VAR_COUNT,
                     negativeBody = "", // TODO
                 ),
-                RRelationshipModel(
+                JenaRelationshipModel(
                     name = scaleRelationshipsNames!![5],
                     argsClasses = argsClasses.plus(argsClasses[0]),
                     flags = 0,
                     varsCount = LinerScalePatterns.IS_FURTHER_FROM_THAN_VAR_COUNT,
                     body = LinerScalePatterns.IS_FURTHER_FROM_THAN_PATTERN.replace(
                         "<numberPredicate>",
-                        genLink(POAS_PREF, scalePredicate)
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, scalePredicate)
                     ),
                     negativeVarsCount = LinerScalePatterns.IS_FURTHER_FROM_THAN_VAR_COUNT,
                     negativeBody = "", // TODO
@@ -329,80 +325,80 @@ class RRelationshipModel(
             )
 
             ScaleType.Partial -> listOf(
-                RRelationshipModel(
+                JenaRelationshipModel(
                     name = scaleRelationshipsNames!![0],
                     argsClasses = argsClasses,
                     flags = flags,
                     varsCount = PartialScalePatterns.REVERSE_VAR_COUNT,
                     body = PartialScalePatterns.REVERSE_PATTERN.replace(
                         "<predicate>",
-                        genLink(POAS_PREF, name)
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, name)
                     ),
                     negativeVarsCount = PartialScalePatterns.REVERSE_VAR_COUNT,
-                    negativeBody = "(<arg1> ${genLink(POAS_PREF, name)} <arg2>)\n",
+                    negativeBody = "(<arg1> ${JenaUtil.genLink(JenaUtil.POAS_PREF, name)} <arg2>)\n",
                 ),
-                RRelationshipModel(
+                JenaRelationshipModel(
                     name = scaleRelationshipsNames!![1],
                     argsClasses = argsClasses,
                     flags = 16,
                     varsCount = PartialScalePatterns.TRANSITIVE_CLOSURE_VAR_COUNT,
                     body = PartialScalePatterns.TRANSITIVE_CLOSURE_PATTERN.replace(
                         "<numberPredicate>",
-                        genLink(POAS_PREF, scalePredicate)
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, scalePredicate)
                     ),
                     negativeVarsCount = PartialScalePatterns.TRANSITIVE_CLOSURE_VAR_COUNT,
                     negativeBody = PartialScalePatterns.REVERSE_TRANSITIVE_CLOSURE_PATTERN.replace(
                         "<numberPredicate>",
-                        genLink(POAS_PREF, scalePredicate)
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, scalePredicate)
                     ),
                 ),
-                RRelationshipModel(
+                JenaRelationshipModel(
                     name = scaleRelationshipsNames!![2],
                     argsClasses = argsClasses,
                     flags = 16,
                     varsCount = PartialScalePatterns.REVERSE_TRANSITIVE_CLOSURE_VAR_COUNT,
                     body = PartialScalePatterns.REVERSE_TRANSITIVE_CLOSURE_PATTERN.replace(
                         "<numberPredicate>",
-                        genLink(POAS_PREF, scalePredicate)
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, scalePredicate)
                     ),
                     negativeVarsCount = PartialScalePatterns.REVERSE_TRANSITIVE_CLOSURE_VAR_COUNT,
                     negativeBody = PartialScalePatterns.TRANSITIVE_CLOSURE_PATTERN.replace(
                         "<numberPredicate>",
-                        genLink(POAS_PREF, scalePredicate)
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, scalePredicate)
                     ),
                 ),
-                RRelationshipModel(
+                JenaRelationshipModel(
                     name = scaleRelationshipsNames!![3],
                     argsClasses = argsClasses.plus(argsClasses[0]),
                     flags = 0,
                     varsCount = PartialScalePatterns.IS_BETWEEN_VAR_COUNT,
                     body = PartialScalePatterns.IS_BETWEEN_PATTERN.replace(
                         "<numberPredicate>",
-                        genLink(POAS_PREF, scalePredicate)
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, scalePredicate)
                     ),
                     negativeVarsCount = PartialScalePatterns.IS_BETWEEN_VAR_COUNT,
                     negativeBody = "", // TODO
                 ),
-                RRelationshipModel(
+                JenaRelationshipModel(
                     name = scaleRelationshipsNames!![4],
                     argsClasses = argsClasses.plus(argsClasses[0]),
                     flags = 0,
                     varsCount = PartialScalePatterns.IS_CLOSER_TO_THAN_VAR_COUNT,
                     body = PartialScalePatterns.IS_CLOSER_TO_THAN_PATTERN.replace(
                         "<numberPredicate>",
-                        genLink(POAS_PREF, scalePredicate)
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, scalePredicate)
                     ),
                     negativeVarsCount = PartialScalePatterns.IS_CLOSER_TO_THAN_VAR_COUNT,
                     negativeBody = "", // TODO
                 ),
-                RRelationshipModel(
+                JenaRelationshipModel(
                     name = scaleRelationshipsNames!![5],
                     argsClasses = argsClasses.plus(argsClasses[0]),
                     flags = 0,
                     varsCount = PartialScalePatterns.IS_FURTHER_FROM_THAN_VAR_COUNT,
                     body = PartialScalePatterns.IS_FURTHER_FROM_THAN_PATTERN.replace(
                         "<numberPredicate>",
-                        genLink(POAS_PREF, scalePredicate)
+                        JenaUtil.genLink(JenaUtil.POAS_PREF, scalePredicate)
                     ),
                     negativeVarsCount = PartialScalePatterns.IS_FURTHER_FROM_THAN_VAR_COUNT,
                     negativeBody = "", // TODO
@@ -418,5 +414,3 @@ class RRelationshipModel(
         }
     }
 }
-
-typealias RVarModel = DecisionTreeVarModel
