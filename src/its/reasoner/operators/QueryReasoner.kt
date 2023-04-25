@@ -308,19 +308,17 @@ class QueryReasoner(val model: Model, val varContext : Map<String, Obj> = mutabl
                 if(this == obj[0] || this == obj[1] || obj[0] == obj[1])
                     return false
 
-                val firstLin = obj.first().resource.getLineageExclusive(property, true)
-                val thisInFirst = firstLin.indexOf(this.resource)
-                val secondInFirst = firstLin.indexOf(obj[1].resource)
-                if(thisInFirst != -1 && secondInFirst != -1)
-                    return thisInFirst < secondInFirst
+                val lin = obj.first().resource.getLineageExclusive(property, false) + obj.first().resource.getLineage(property, true)
+                val thisPos = lin.indexOf(this.resource)
+                val firstPos = lin.indexOf(obj[0].resource)
+                val secondPos = lin.indexOf(obj[1].resource)
 
-                val secondLin = obj[1].resource.getLineageExclusive(property, true)
-                val thisInSecond = secondLin.indexOf(this.resource)
-                val firstInSecond = secondLin.indexOf(obj.first().resource)
-                if(thisInSecond != -1 && firstInSecond != -1)
-                    return thisInSecond < firstInSecond
+                if(thisPos == -1 || firstPos == -1 || secondPos == -1)
+                    throw IllegalArgumentException()
 
-                throw IllegalArgumentException()
+                return ((firstPos < thisPos && thisPos < secondPos) ||
+                        (secondPos < thisPos && thisPos < firstPos))
+
             }
             RelationshipModel.ScaleRole.Closer -> TODO()
             RelationshipModel.ScaleRole.Further -> TODO()
