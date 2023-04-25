@@ -48,7 +48,7 @@ class QueryReasoner(val model: Model, val varContext : Map<String, Obj> = mutabl
 
     override fun process(op: CompareWithComparisonOperator): Boolean {
         val valA = op.firstExpr.use(this)
-        val valB = op.firstExpr.use(this)
+        val valB = op.secondExpr.use(this)
 
         //TODO поддержка упорядоченных енамов
 
