@@ -163,7 +163,8 @@ class QueryReasoner(val model: Model, val varContext : Map<String, Obj> = mutabl
     //---Логические операции---
 
     override fun process(op: ExistenceQuantifier): Boolean {
-        return model.getObjectsByCondition(op.conditionExpr, op.varName).isNotEmpty()
+        val objects = model.getObjectsByCondition(op.selectorExpr, op.varName)
+        return objects.any { it.fitsCondition(op.conditionExpr, op.varName) }
     }
 
     override fun process(op: ForAllQuantifier): Boolean {
@@ -381,7 +382,7 @@ class QueryReasoner(val model: Model, val varContext : Map<String, Obj> = mutabl
     }
 
     private fun Model.getObjectsByCondition(condition: Operator, asVar: String ) : List<Obj>{
-        val objects = existingFilters[asVar] ?: this.getObjects()
+        val objects = this.getObjects()
         return objects.filter {it.fitsCondition(condition, asVar)}
     }
 
