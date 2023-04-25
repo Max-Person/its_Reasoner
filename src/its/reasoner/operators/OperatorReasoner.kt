@@ -1,5 +1,6 @@
 package its.reasoner.operators
 
+import its.model.expressions.Operator
 import its.model.expressions.literals.*
 import its.model.expressions.operators.*
 import its.model.expressions.types.Clazz
@@ -45,4 +46,7 @@ interface OperatorReasoner : OperatorBehaviour<Any> {
     override fun process(literal: StringLiteral): String
     override fun process(literal: ComparisonResultLiteral): ComparisonResult
     override fun process(literal: EnumLiteral): EnumValue
+
+
+    fun getObjectsByCondition(condition: Operator, asVar: String ) : List<Obj>
 }

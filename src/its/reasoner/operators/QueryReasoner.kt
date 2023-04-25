@@ -11,6 +11,10 @@ import its.model.expressions.types.Obj
 import its.model.models.ClassModel
 import its.model.models.RelationshipModel
 import its.reasoner.util.JenaUtil
+import its.reasoner.util.RDFUtil.asClazz
+import its.reasoner.util.RDFUtil.asObj
+import its.reasoner.util.RDFUtil.getObjects
+import its.reasoner.util.RDFUtil.resource
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.Property
 import org.apache.jena.rdf.model.RDFNode
@@ -230,6 +234,11 @@ class QueryReasoner(val model: Model, val varContext : Map<String, Obj> = mutabl
     }
 
 
+    override fun getObjectsByCondition(condition: Operator, asVar: String): List<Obj> {
+        return model.getObjectsByCondition(condition, asVar)
+    }
+
+
     //------------- Вспомогательные функции ------------
 
     private fun copy(model: Model = this.model, varContext : Map<String, Obj> = this.varContext, existingFilters : MutableMap<String, List<Obj>> = this.existingFilters) : QueryReasoner{
@@ -382,33 +391,5 @@ class QueryReasoner(val model: Model, val varContext : Map<String, Obj> = mutabl
     private fun Model.getObjectsByCondition(condition: Operator, asVar: String ) : List<Obj>{
         val objects = this.getObjects()
         return objects.filter {it.fitsCondition(condition, asVar)}
-    }
-
-    companion object _static {
-
-
-        @JvmStatic
-        private fun Resource.asObj() : Obj {
-            return Obj(this.localName, this)
-        }
-
-        @JvmStatic
-        private fun Resource.asClazz() : Clazz {
-            return DomainModel.classesDictionary.get(localName)!!
-        }
-
-
-        @JvmStatic
-        private fun Model.resource(name : String) : Resource {
-            return this.getResource(JenaUtil.genLink(JenaUtil.POAS_PREF, name))
-        }
-
-        @JvmStatic
-        private fun Model.getObjects() : List<Obj>{
-            val CLASS_PREDICATE_NAME = "type"
-
-            val property = this.getProperty(JenaUtil.genLink(JenaUtil.RDF_PREF, CLASS_PREDICATE_NAME))
-            return this.listSubjectsWithProperty(property).toList().map{Obj(it.localName, it)}
-        }
     }
 }
