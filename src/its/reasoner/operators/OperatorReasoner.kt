@@ -8,6 +8,7 @@ import its.model.expressions.types.ComparisonResult
 import its.model.expressions.types.EnumValue
 import its.model.expressions.types.Obj
 import its.model.expressions.visitors.OperatorBehaviour
+import its.reasoner.LearningSituation
 
 interface OperatorReasoner : OperatorBehaviour<Any> {
     override fun process(op: AssignProperty)
@@ -49,4 +50,9 @@ interface OperatorReasoner : OperatorBehaviour<Any> {
 
 
     fun getObjectsByCondition(condition: Operator, asVar: String ) : List<Obj>
+
+    companion object _static {
+        @JvmStatic
+        fun defaultReasoner(situation : LearningSituation) = QueryReasoner(situation)
+    }
 }

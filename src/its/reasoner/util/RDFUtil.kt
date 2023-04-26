@@ -4,6 +4,7 @@ import its.model.DomainModel
 import its.model.expressions.types.Clazz
 import its.model.expressions.types.Obj
 import org.apache.jena.rdf.model.Model
+import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.rdf.model.Resource
 
 object RDFUtil {
@@ -29,5 +30,10 @@ object RDFUtil {
 
         val property = this.getProperty(JenaUtil.genLink(JenaUtil.RDF_PREF, CLASS_PREDICATE_NAME))
         return this.listSubjectsWithProperty(property).toList().map{ Obj(it.localName, it) }
+    }
+
+    @JvmStatic
+    fun Model.copy() : Model{
+        return ModelFactory.createDefaultModel().add(this)
     }
 }

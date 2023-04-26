@@ -10,6 +10,7 @@ import its.model.expressions.types.EnumValue
 import its.model.expressions.types.Obj
 import its.model.models.ClassModel
 import its.model.models.RelationshipModel
+import its.reasoner.LearningSituation
 import its.reasoner.util.JenaUtil
 import its.reasoner.util.RDFUtil.asClazz
 import its.reasoner.util.RDFUtil.asObj
@@ -20,8 +21,11 @@ import org.apache.jena.rdf.model.Property
 import org.apache.jena.rdf.model.RDFNode
 import org.apache.jena.rdf.model.Resource
 
-class QueryReasoner(val model: Model, val varContext : Map<String, Obj> = mutableMapOf(), val existingFilters : MutableMap<String, List<Obj>> = mutableMapOf()) :
+class QueryReasoner(val situation: LearningSituation,
+                    val varContext : Map<String, Obj> = mutableMapOf(), val existingFilters : MutableMap<String, List<Obj>> = mutableMapOf()) :
     OperatorReasoner {
+
+    private val model = situation.model
 
     //---Присвоения---
 
@@ -195,8 +199,10 @@ class QueryReasoner(val model: Model, val varContext : Map<String, Obj> = mutabl
     }
 
     override fun process(literal: DecisionTreeVar): Obj {
-        val p = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, JenaUtil.DECISION_TREE_VAR_PREDICATE))
-        return model.listSubjectsWithProperty(p, model.createLiteral(literal.name)).toList().single().asObj()
+        return model.resource(situation.decisionTreeVariables[literal.name]!!).asObj()
+        //FIXME?
+//        val p = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, JenaUtil.DECISION_TREE_VAR_PREDICATE))
+//        return model.listSubjectsWithProperty(p, model.createLiteral(literal.name)).toList().single().asObj()
     }
 
     override fun process(literal: ClassRef): Clazz {
@@ -241,8 +247,8 @@ class QueryReasoner(val model: Model, val varContext : Map<String, Obj> = mutabl
 
     //------------- Вспомогательные функции ------------
 
-    private fun copy(model: Model = this.model, varContext : Map<String, Obj> = this.varContext, existingFilters : MutableMap<String, List<Obj>> = this.existingFilters) : QueryReasoner{
-        return QueryReasoner(model, varContext, existingFilters)
+    private fun copy(situation: LearningSituation = this.situation, varContext : Map<String, Obj> = this.varContext, existingFilters : MutableMap<String, List<Obj>> = this.existingFilters) : QueryReasoner{
+        return QueryReasoner(situation, varContext, existingFilters)
     }
 
     private fun Resource.getLineage(property: Property, outgoing : Boolean) : List<Resource>{
