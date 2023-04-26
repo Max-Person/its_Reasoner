@@ -317,7 +317,7 @@ class QueryReasoner(val model: Model, val varContext : Map<String, Obj> = mutabl
                 if(this == obj[0] || this == obj[1] || obj[0] == obj[1])
                     return false
 
-                val lin = obj.first().resource.getLineageExclusive(property, false) + obj.first().resource.getLineage(property, true)
+                val lin = obj.first().resource.getLineageExclusive(property, false).reversed() + obj.first().resource.getLineage(property, true)
                 val thisPos = lin.indexOf(this.resource)
                 val firstPos = lin.indexOf(obj[0].resource)
                 val secondPos = lin.indexOf(obj[1].resource)
