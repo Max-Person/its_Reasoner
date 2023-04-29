@@ -307,16 +307,20 @@ class QueryReasoner(val situation: LearningSituation,
 
         when(relationship.scaleRole){
             null, RelationshipModel.ScaleRole.Base-> {
+                if(!this.resource.hasProperty(property)) return false
                 return this.getByRelationship(base) == obj.first()
             }
             RelationshipModel.ScaleRole.Reverse -> {
+                if(!obj.first().resource.hasProperty(property)) return false
                 return obj.first().getByRelationship(base) == this
             }
 
             RelationshipModel.ScaleRole.BaseTransitive -> {
+                if(!this.resource.hasProperty(property)) return false
                 return this.resource.getLineageExclusive(property, true).contains(obj.first().resource)
             }
             RelationshipModel.ScaleRole.ReverseTransitive -> {
+                if(!obj.first().resource.hasProperty(property)) return false
                 return this.resource.getLineageExclusive(property, false).contains(obj.first().resource)
             }
             RelationshipModel.ScaleRole.Between -> {
