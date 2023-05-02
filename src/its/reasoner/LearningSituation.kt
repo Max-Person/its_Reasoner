@@ -1,13 +1,16 @@
 package its.reasoner
 
 import its.model.DomainModel
+import its.model.expressions.types.Obj
 import its.reasoner.util.JenaUtil
+import its.reasoner.util.RDFUtil.asObj
 import its.reasoner.util.RDFUtil.copy
+import its.reasoner.util.RDFUtil.resource
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.riot.RDFDataMgr
 
-class LearningSituation (
+open class LearningSituation (
     val model : Model,
     val decisionTreeVariables : MutableMap<String, String>,
 ) {
@@ -21,5 +24,13 @@ class LearningSituation (
 
     fun copy(model: Model = this.model.copy(), decisionTreeVariables: MutableMap<String, String> = this.decisionTreeVariables.toMutableMap()) : LearningSituation {
         return LearningSituation(model, decisionTreeVariables)
+    }
+
+    fun variableValue(varName: String) : Obj{
+        return model.resource(decisionTreeVariables[varName]!!).asObj()
+    }
+
+    fun objByName(alias: String) : Obj{
+        return model.resource(alias).asObj()
     }
 }
