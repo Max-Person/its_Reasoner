@@ -2,15 +2,15 @@ package its.reasoner.util
 
 import its.model.DomainModel
 import its.model.expressions.types.Clazz
-import its.model.expressions.types.Obj
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.ModelFactory
+import org.apache.jena.rdf.model.Property
 import org.apache.jena.rdf.model.Resource
 
 object RDFUtil {
     @JvmStatic
-    fun Resource.asObj() : Obj {
-        return Obj(this.localName, this)
+    fun Resource.asObj() : RDFObj {
+        return RDFObj(this)
     }
 
     @JvmStatic
@@ -18,6 +18,31 @@ object RDFUtil {
         return DomainModel.classesDictionary.get(localName)!!
     }
 
+    @JvmStatic
+    fun Clazz.asResource(model: Model) : Resource {
+        return model.resource(this.name)
+    }
+
+    @JvmStatic
+    fun Resource.getLineage(property: Property, outgoing : Boolean) : List<Resource>{
+        var current : Resource? = this
+
+        val lineage = mutableListOf<Resource>()
+        while(current != null){
+            lineage.add(current)
+            if(outgoing)
+                current = current.getProperty(property)?.`object`?.asResource()
+            else
+                current = model.listSubjectsWithProperty(property, current).toList().singleOrNull()
+        }
+
+        return lineage
+    }
+
+    @JvmStatic
+    fun Resource.getLineageExclusive(property: Property, outgoing : Boolean) : List<Resource>{
+        return this.getLineage(property, outgoing).minus(this)
+    }
 
     @JvmStatic
     fun Model.resource(name : String) : Resource {
@@ -25,11 +50,11 @@ object RDFUtil {
     }
 
     @JvmStatic
-    fun Model.getObjects() : List<Obj>{
+    fun Model.getObjects() : List<RDFObj>{
         val CLASS_PREDICATE_NAME = "type"
 
         val property = this.getProperty(JenaUtil.genLink(JenaUtil.RDF_PREF, CLASS_PREDICATE_NAME))
-        return this.listSubjectsWithProperty(property).toList().map{ Obj(it.localName, it) }
+        return this.listSubjectsWithProperty(property).toList().map{ RDFObj(it) }
     }
 
     @JvmStatic

@@ -7,22 +7,21 @@ import its.model.expressions.operators.*
 import its.model.expressions.types.Clazz
 import its.model.expressions.types.ComparisonResult
 import its.model.expressions.types.EnumValue
-import its.model.expressions.types.Obj
-import its.model.models.ClassModel
 import its.model.models.RelationshipModel
 import its.reasoner.LearningSituation
 import its.reasoner.util.JenaUtil
-import its.reasoner.util.RDFUtil.asClazz
+import its.reasoner.util.RDFObj
 import its.reasoner.util.RDFUtil.asObj
+import its.reasoner.util.RDFUtil.asResource
+import its.reasoner.util.RDFUtil.getLineage
+import its.reasoner.util.RDFUtil.getLineageExclusive
 import its.reasoner.util.RDFUtil.getObjects
 import its.reasoner.util.RDFUtil.resource
 import org.apache.jena.rdf.model.Model
-import org.apache.jena.rdf.model.Property
 import org.apache.jena.rdf.model.RDFNode
-import org.apache.jena.rdf.model.Resource
 
 class QueryReasoner(val situation: LearningSituation,
-                    val varContext : Map<String, Obj> = mutableMapOf(), val existingFilters : MutableMap<String, List<Obj>> = mutableMapOf()) :
+                    val varContext : Map<String, RDFObj> = mutableMapOf(), val existingFilters : MutableMap<String, List<RDFObj>> = mutableMapOf()) :
     OperatorReasoner {
 
     private val model = situation.model
@@ -72,11 +71,11 @@ class QueryReasoner(val situation: LearningSituation,
 
     //---Поиск---
 
-    override fun process(op: GetByCondition): Obj {
+    override fun process(op: GetByCondition): RDFObj {
         return model.getObjectsByCondition(op.conditionExpr, op.varName).single()
     }
 
-    override fun process(op: GetExtreme): Obj {
+    override fun process(op: GetExtreme): RDFObj {
         val filtered = model.getObjectsByCondition(op.selectorExpr, op.varName)
         existingFilters[op.varName] = filtered
         val extreme = filtered.single { obj ->
@@ -88,13 +87,13 @@ class QueryReasoner(val situation: LearningSituation,
     //---Вычисления---
 
     override fun process(op: GetClass): Clazz {
-        val subj = op.objectExpr.use(this) as Obj
+        val subj = op.objectExpr.use(this) as RDFObj
 
-        return subj.classInheritance().first()
+        return subj.classInheritance.first()
     }
 
     override fun process(op: GetPropertyValue): Any {
-        val subj = op.objectExpr.use(this) as Obj
+        val subj = op.objectExpr.use(this) as RDFObj
         val rdfProperty = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, op.propertyName))
         val property = DomainModel.propertiesDictionary.get(op.propertyName)!!
 
@@ -106,9 +105,9 @@ class QueryReasoner(val situation: LearningSituation,
         }
 
         if(property.isStatic){
-            val classes = subj.classInheritance()
+            val classes = subj.classInheritance
             for(c in classes){
-                val value = c.asResource().getProperty(rdfProperty)?.`object`
+                val value = c.asResource(model).getProperty(rdfProperty)?.`object`
                 if(value != null)
                     return enumCorrected(value)
             }
@@ -118,8 +117,8 @@ class QueryReasoner(val situation: LearningSituation,
             return enumCorrected(subj.resource.getProperty(rdfProperty)?.`object`)
     }
 
-    override fun process(op: GetByRelationship): Obj {
-        val subj = op.subjectExpr.use(this) as Obj
+    override fun process(op: GetByRelationship): RDFObj {
+        val subj = op.subjectExpr.use(this) as RDFObj
 
         val relationshipName = op.relationshipName
         val relationship = DomainModel.relationshipsDictionary.get(relationshipName)!!
@@ -131,7 +130,7 @@ class QueryReasoner(val situation: LearningSituation,
     //---Проверки---
 
     override fun process(op: CheckClass): Boolean {
-        val subj = op.objectExpr.use(this) as Obj
+        val subj = op.objectExpr.use(this) as RDFObj
         val clazz = op.classExpr.use(this) as Clazz
         return subj.allClasses().contains(clazz)
     }
@@ -144,8 +143,8 @@ class QueryReasoner(val situation: LearningSituation,
 
     override fun process(op: CheckRelationship): Boolean {
         val relationship = DomainModel.relationshipsDictionary.get(op.relationshipName)!!
-        val subj = op.subjectExpr.use(this) as Obj
-        val obj = op.objectExprs.map{it.use(this) as Obj}
+        val subj = op.subjectExpr.use(this) as RDFObj
+        val obj = op.objectExprs.map{it.use(this) as RDFObj}
 
         if(relationship.scaleType != null){
             val scaleClass = DomainModel.classesDictionary.get(relationship.argsClasses.first())!!
@@ -157,7 +156,7 @@ class QueryReasoner(val situation: LearningSituation,
             val projList = listOf(subjProj).plus(objProj)
 
             var res = true
-            forEachCombination(projList,  {objComb: List<Obj> ->
+            forEachCombination(projList,  {objComb: List<RDFObj> ->
                 res = res && objComb.first().checkRelationship(relationship, objComb.subList(1, objComb.size))
             })
             return res
@@ -194,11 +193,11 @@ class QueryReasoner(val situation: LearningSituation,
 
     //---Ссылки---
 
-    override fun process(literal: Variable): Obj {
+    override fun process(literal: Variable): RDFObj {
         return varContext[literal.name]!!
     }
 
-    override fun process(literal: DecisionTreeVar): Obj {
+    override fun process(literal: DecisionTreeVar): RDFObj {
         return model.resource(situation.decisionTreeVariables[literal.name]!!).asObj()
         //FIXME?
 //        val p = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, JenaUtil.DECISION_TREE_VAR_PREDICATE))
@@ -209,7 +208,7 @@ class QueryReasoner(val situation: LearningSituation,
         return DomainModel.classesDictionary.get(literal.name)!!
     }
 
-    override fun process(literal: ObjectRef): Obj {
+    override fun process(literal: ObjectRef): RDFObj {
         return model.resource(literal.name).asObj()
     }
 
@@ -240,34 +239,15 @@ class QueryReasoner(val situation: LearningSituation,
     }
 
 
-    override fun getObjectsByCondition(condition: Operator, asVar: String): List<Obj> {
+    override fun getObjectsByCondition(condition: Operator, asVar: String): List<RDFObj> {
         return model.getObjectsByCondition(condition, asVar)
     }
 
 
     //------------- Вспомогательные функции ------------
 
-    private fun copy(situation: LearningSituation = this.situation, varContext : Map<String, Obj> = this.varContext, existingFilters : MutableMap<String, List<Obj>> = this.existingFilters) : QueryReasoner{
+    private fun copy(situation: LearningSituation = this.situation, varContext : Map<String, RDFObj> = this.varContext, existingFilters : MutableMap<String, List<RDFObj>> = this.existingFilters) : QueryReasoner{
         return QueryReasoner(situation, varContext, existingFilters)
-    }
-
-    private fun Resource.getLineage(property: Property, outgoing : Boolean) : List<Resource>{
-        var current : Resource? = this
-
-        val lineage = mutableListOf<Resource>()
-        while(current != null){
-            lineage.add(current)
-            if(outgoing)
-                current = current.getProperty(property)?.`object`?.asResource()
-            else
-                current = model.listSubjectsWithProperty(property, current).toList().singleOrNull()
-        }
-
-        return lineage
-    }
-
-    private fun Resource.getLineageExclusive(property: Property, outgoing : Boolean) : List<Resource>{
-        return this.getLineage(property, outgoing).minus(this)
     }
 
     private fun <T> forEachCombination(lists: List<List<T>>, block : (combination : List<T>) -> Unit,
@@ -283,8 +263,8 @@ class QueryReasoner(val situation: LearningSituation,
         }
     }
 
-    private fun Obj.getProjection(targetClass: Clazz) : List<Obj>{
-        val currentClasses = this.classInheritance().map{it.name}
+    private fun RDFObj.getProjection(targetClass: Clazz) : List<RDFObj>{
+        val currentClasses = this.classInheritance.map{it.name}
         if(currentClasses.contains(targetClass.name)) return listOf(this)
 
         val projectionRelationship = DomainModel.relationshipsDictionary.singleOrNull {
@@ -299,7 +279,7 @@ class QueryReasoner(val situation: LearningSituation,
         return projected
     }
 
-    private fun Obj.checkRelationship(relationship: RelationshipModel, obj : List<Obj>) : Boolean{
+    private fun RDFObj.checkRelationship(relationship: RelationshipModel, obj : List<RDFObj>) : Boolean{
         require(relationship.scaleType == null || relationship.scaleType == RelationshipModel.ScaleType.Linear) //TODO
 
         val base = if(relationship.scaleType == null || relationship.scaleRole == RelationshipModel.ScaleRole.Base) relationship else relationship.scaleBase!!
@@ -345,7 +325,7 @@ class QueryReasoner(val situation: LearningSituation,
         }
     }
 
-    private fun Obj.getByRelationship(relationship: RelationshipModel) : Obj{
+    private fun RDFObj.getByRelationship(relationship: RelationshipModel) : RDFObj{
         val a = when(relationship.scaleRole){
             null, RelationshipModel.ScaleRole.Base-> {
                 val property = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, relationship.name))
@@ -360,31 +340,8 @@ class QueryReasoner(val situation: LearningSituation,
         return a
     }
 
-    private fun ClassModel.asResource() : Resource {
-        return model.resource(this.name)
-    }
-
-    private fun Obj.getClass() : Clazz {
-        val CLASS_PREDICATE_NAME = "type"
-        val classProp = model.getProperty(JenaUtil.genLink(JenaUtil.RDF_PREF, CLASS_PREDICATE_NAME))
-        val classRes = this.resource.getProperty(classProp).`object`.asResource()
-
-        return classRes.asClazz()
-
-    }
-
-    private fun Obj.classInheritance() : List<Clazz> {
-        val classRes = this.getClass().asResource()
-
-        val SUBCLASS_PREDICATE_NAME = "subClassOf"
-        val subclassProp = model.getProperty(JenaUtil.genLink(JenaUtil.RDFS_PREF, SUBCLASS_PREDICATE_NAME))
-
-        return classRes.getLineage(subclassProp, true).map{it.asClazz()}
-
-    }
-
-    private fun Obj.allClasses() : Set<Clazz> {
-        val set = this.classInheritance().toMutableSet()
+    private fun RDFObj.allClasses() : Set<Clazz> {
+        val set = this.classInheritance.toMutableSet()
         set.addAll(DomainModel.classesDictionary.filter {
             it.isCalculated
                     && (it.parent == null || set.contains(DomainModel.classesDictionary.get(it.parent!!)))
@@ -394,11 +351,11 @@ class QueryReasoner(val situation: LearningSituation,
         return set
     }
 
-    private fun Obj.fitsCondition(condition: Operator, asVar: String ) : Boolean {
+    private fun RDFObj.fitsCondition(condition: Operator, asVar: String ) : Boolean {
         return condition.use(this@QueryReasoner.copy(varContext = varContext.plus(asVar to this))) as Boolean
     }
 
-    private fun Model.getObjectsByCondition(condition: Operator, asVar: String ) : List<Obj>{
+    private fun Model.getObjectsByCondition(condition: Operator, asVar: String ) : List<RDFObj>{
         val objects = this.getObjects()
         return objects.filter {it.fitsCondition(condition, asVar)}
     }
