@@ -288,11 +288,17 @@ class QueryReasoner(val situation: LearningSituation,
         when(relationship.scaleRole){
             null, RelationshipModel.ScaleRole.Base-> {
                 if(!this.resource.hasProperty(property)) return false
-                return this.getByRelationship(base) == obj.first()
+                if(base.argsClasses.size == 2){
+                    return this.resource.listProperties(property).toList().map{it.`object`.asResource()}.contains(obj.first().resource)
+                }
+                else{
+                    val links = this.resource.listProperties(property).toList().map{it.`object`.asResource()}
+                    return links.any{link -> link.listProperties(property).toList().map{it.`object`.asResource()}.toSet() == obj.map{it.resource}.toSet()}
+                }
             }
             RelationshipModel.ScaleRole.Reverse -> {
                 if(!obj.first().resource.hasProperty(property)) return false
-                return obj.first().getByRelationship(base) == this
+                return obj.first().resource.listProperties(property).toList().map{it.`object`.asResource()}.contains(this.resource)
             }
 
             RelationshipModel.ScaleRole.BaseTransitive -> {
