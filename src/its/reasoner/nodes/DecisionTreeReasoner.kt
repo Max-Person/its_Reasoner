@@ -59,8 +59,7 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
         @JvmStatic
         fun ThoughtBranch.getAnswer(situation: LearningSituation): Boolean{
             val path = this.getCorrectPath(situation)
-            val last = path.last()
-            require(last is BranchResultNode){"Последний узел в пути рассуждений не является BranchResultNode"}
+            val last = path.last() as BranchResultNode
             require(this.type.isInstance(last.value)){"Значение результата ${last.value} не соответствует типу ветки - ${this.type.simpleName}"}
             require(this.type == Boolean){"Пока что поддерживаются только ветки типа Boolean"}
             return last.value as Boolean
@@ -75,6 +74,9 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
                 curr = curr.correctNext(situation)
                 path.add(curr)
             }
+            val last = path.last()
+            require(last is BranchResultNode){"Ошибка: Последний узел в пути рассуждений не является BranchResultNode"}
+            last.actionExpr?.use(OperatorReasoner.defaultReasoner(situation))
             return path
         }
     }
