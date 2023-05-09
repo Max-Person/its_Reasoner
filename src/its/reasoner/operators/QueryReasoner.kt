@@ -29,11 +29,23 @@ class QueryReasoner(val situation: LearningSituation,
     //---Присвоения---
 
     override fun process(op: AssignProperty) {
-        TODO("Not yet implemented")
+        val obj = op.objectExpr.use(this) as RDFObj
+        val value = op.valueExpr.use(this)
+        val rdfProperty = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, op.propertyName))
+        if(value !is EnumValue){
+            obj.resource.addLiteral(rdfProperty, value)
+        }
+        else{
+            val enumResource = model.resource(value.value)
+            obj.resource.addProperty(rdfProperty, enumResource)
+        }
     }
 
     override fun process(op: AssignVariable) {
-        TODO("Not yet implemented")
+        val value = op.valueExpr.use(this) as RDFObj
+        if(!situation.decisionTreeVariables.containsKey(op.variableName))
+            throw IllegalStateException("Trying to assign variable '${op.variableName}' that has not been declared")
+        situation.decisionTreeVariables[op.variableName] = value.name
     }
 
     //---Сравнения---
