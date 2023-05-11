@@ -15,10 +15,16 @@ open class LearningSituation (
     val decisionTreeVariables : MutableMap<String, String>,
 ) {
 
-    constructor(model : Model) : this(model, mutableMapOf()){
-        val p = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, JenaUtil.DECISION_TREE_VAR_PREDICATE))
-        decisionTreeVariables.putAll(model.listSubjectsWithProperty(p).toList().map{res -> res.getProperty(p).`object`.asLiteral().string to res.localName}.toMap())
+    companion object _static{
+        @JvmStatic
+        fun collectDecisionTreeVariables(model: Model): MutableMap<String, String>{
+            val p = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, JenaUtil.DECISION_TREE_VAR_PREDICATE))
+            return  model.listSubjectsWithProperty(p).toList()
+                .associate { res -> res.getProperty(p).`object`.asLiteral().string to res.localName }.toMutableMap()
+        }
     }
+
+    constructor(model : Model) : this(model, collectDecisionTreeVariables(model))
 
     constructor(filename: String) : this(ModelFactory.createDefaultModel().read(RDFDataMgr.open(filename), null, "TTL").add(DomainModel.domainRDF))
 
