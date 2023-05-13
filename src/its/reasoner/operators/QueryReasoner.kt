@@ -13,7 +13,6 @@ import its.reasoner.util.JenaUtil
 import its.reasoner.util.RDFObj
 import its.reasoner.util.RDFUtil.asObj
 import its.reasoner.util.RDFUtil.asResource
-import its.reasoner.util.RDFUtil.getLineage
 import its.reasoner.util.RDFUtil.getLineageExclusive
 import its.reasoner.util.RDFUtil.getObjects
 import its.reasoner.util.RDFUtil.resource
@@ -292,7 +291,7 @@ class QueryReasoner(val situation: LearningSituation,
     }
 
     private fun RDFObj.checkRelationship(relationship: RelationshipModel, obj : List<RDFObj>) : Boolean{
-        require(relationship.scaleType == null || relationship.scaleType == RelationshipModel.ScaleType.Linear) //TODO
+        //TODO добавить валидацию того, что у каждого объекта не большого одного отношения шкалы одного типа (например directlyLeftOf)
 
         val base = if(relationship.scaleType == null || relationship.scaleRole == RelationshipModel.ScaleRole.Base) relationship else relationship.scaleBase!!
         val property = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, base.name))
@@ -319,22 +318,22 @@ class QueryReasoner(val situation: LearningSituation,
             }
             RelationshipModel.ScaleRole.ReverseTransitive -> {
                 if(!obj.first().resource.hasProperty(property)) return false
-                return this.resource.getLineageExclusive(property, false).contains(obj.first().resource)
+                return obj.first().resource.getLineageExclusive(property, true).contains(this.resource)
             }
             RelationshipModel.ScaleRole.Between -> {
                 if(this == obj[0] || this == obj[1] || obj[0] == obj[1])
                     return false
 
-                val lin = obj.first().resource.getLineageExclusive(property, false).reversed() + obj.first().resource.getLineage(property, true)
-                val thisPos = lin.indexOf(this.resource)
-                val firstPos = lin.indexOf(obj[0].resource)
-                val secondPos = lin.indexOf(obj[1].resource)
+                val lin0 = obj[0].resource.getLineageExclusive(property, true)
+                val lin1 = obj[1].resource.getLineageExclusive(property, true)
 
-                if(thisPos == -1 || firstPos == -1 || secondPos == -1)
-                    throw IllegalArgumentException()
-
-                return ((firstPos < thisPos && thisPos < secondPos) ||
-                        (secondPos < thisPos && thisPos < firstPos))
+                return (lin0.contains(this.resource) &&             //для случая obj[0] -> this -> obj[1]
+                                lin0.contains(obj[1].resource) &&
+                                lin0.indexOf(this.resource) < lin0.indexOf(obj[1].resource))
+                        ||
+                        (lin1.contains(this.resource) &&            //для случая obj[1] -> this -> obj[0]
+                                lin1.contains(obj[0].resource) &&
+                                lin1.indexOf(this.resource) < lin1.indexOf(obj[0].resource))
 
             }
             RelationshipModel.ScaleRole.Closer -> TODO()
