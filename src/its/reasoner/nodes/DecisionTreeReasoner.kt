@@ -10,7 +10,19 @@ import its.reasoner.operators.OperatorReasoner
 
 class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour<Any> {
     override fun process(node: CycleAggregationNode): Boolean {
-        TODO("Not yet implemented")
+        val iteratedVariables = OperatorReasoner.defaultReasoner(situation).getObjectsByCondition(node.selectorExpr, node.variable.name)
+        val res =  when(node.logicalOp) {
+            LogicalOp.AND -> iteratedVariables.all{
+                situation.decisionTreeVariables[node.variable.name] = it.resource.localName
+                node.thoughtBranch.getAnswer(situation)
+            }
+            LogicalOp.OR -> iteratedVariables.any{
+                situation.decisionTreeVariables[node.variable.name] = it.resource.localName
+                node.thoughtBranch.getAnswer(situation)
+            }
+        }
+        situation.decisionTreeVariables.remove(node.variable.name)
+        return  res
     }
 
     override fun process(node: FindActionNode): String {
