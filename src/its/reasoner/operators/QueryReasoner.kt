@@ -108,11 +108,11 @@ class QueryReasoner(val situation: LearningSituation,
         val rdfProperty = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, op.propertyName))
         val property = DomainModel.propertiesDictionary.get(op.propertyName)!!
 
-        val enumCorrected = { value: RDFNode? ->
+        val enumCorrected = { value: RDFNode ->
             if(property.enumName != null)
-                EnumValue(property.enumName!!, value!!.asResource().localName)
+                EnumValue(property.enumName!!, value.asResource().localName)
             else
-                value!!.asLiteral().value
+                value.asLiteral().value
         }
 
         if(property.isStatic){
@@ -125,7 +125,7 @@ class QueryReasoner(val situation: LearningSituation,
             throw IllegalArgumentException("Could not find property value ${op.propertyName}")
         }
         else
-            return enumCorrected(subj.resource.getProperty(rdfProperty)?.`object`)
+            return enumCorrected(subj.resource.getProperty(rdfProperty)!!.`object`)
     }
 
     override fun process(op: GetByRelationship): RDFObj {
