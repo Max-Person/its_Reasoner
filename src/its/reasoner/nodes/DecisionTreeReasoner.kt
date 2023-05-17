@@ -25,6 +25,22 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
         return  res
     }
 
+    override fun process(node: WhileAggregationNode): Boolean {
+        var res = node.logicalOp == LogicalOp.AND
+        while(node.conditionExpr.use(OperatorReasoner.defaultReasoner(situation)) as Boolean){
+            val cur = node.thoughtBranch.getAnswer(situation)
+            when(node.logicalOp){
+                LogicalOp.AND -> {
+                    res = res && cur
+                    if(!res)
+                        break
+                }
+                LogicalOp.OR -> res = res || cur
+            }
+        }
+        return res
+    }
+
     override fun process(node: FindActionNode): String {
         val res = node.findCorrect(situation)
         if(res != null){
