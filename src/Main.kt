@@ -1,53 +1,73 @@
 import its.model.DomainModel
 import its.model.dictionaries.*
-import java.lang.NumberFormatException
+import its.reasoner.LearningSituation
+import its.reasoner.nodes.DecisionTreeReasoner._static.getAnswer
+import its.reasoner.nodes.DecisionTreeReasoner._static.getCorrectPath
 import java.util.*
-import its.model.expressions.Operator
-import its.reasoner.operators.QueryReasoner
-import org.apache.jena.rdf.model.ModelFactory
-import org.apache.jena.riot.RDFDataMgr
+import kotlin.system.measureTimeMillis
 
 
 fun run() {
     val dir = "S:\\engRoute\\CompPrehension_MainDir\\input_examples\\"
     //val dir = "inputs\\"
 
-    DomainModel.collect(
+    //Создать модель домена (в переменную можно не сохранять, она работает как синглтон)
+    DomainModel(
         ClassesDictionary(),
         DecisionTreeVarsDictionary(),
         EnumsDictionary(),
         PropertiesDictionary(),
         RelationshipsDictionary(),
-    ).initFrom(dir)
+        dir, //Путь к папке input_examples_adj
+    )
+
+    //Создать условие конкретной задачи
+    val i = 5
+    val situation = LearningSituation("${dir}$i.ttl") //создать условие задачи из файла рдф
+
+    //решение задачи - от наиболее краткого ответа до наиболее подробного - выбрать одно из трех
+    val answer = DomainModel.decisionTree.main.getAnswer(situation) //Получить тру/фолс ответ
+    println(answer)
+//    val path = DomainModel.decisionTree.main.getCorrectPath(situation) //Получить посещенные узлы на самом верхнем уровне (без ухода во вложенные ветки) - в порядке вычисления
+//    val trace = DomainModel.decisionTree.main.getTrace(situation) //Получить посещенные узлы по всему дереву - в порядке полного вычисления
 
 
-    val input = if(false) Prompt(
-        "Выберите используемые входные данные:",
-        listOf("X + А / B * C + D / K   -   выбран первый + " to 1,
-            "X + А / B * C + D / K   -   выбран * " to 2,
-            "X * А ^ B + C + D / K   (где A ^ B уже вычислено)  -   выбран *" to 3,
-            "А / B * C + D    -   выбран * " to 4,
-            "Arr[B + C]   -   выбран [] " to 5,
-            "A * (B * C)  -   выбран первый *" to 6,
-            "(X + А) [ B + C * D ]  -   выбран второй +" to 7,)
-    ).ask()
-    else 5
+    println()
 
-    val model = ModelFactory.createDefaultModel().read(RDFDataMgr.open("${dir}_$input\\$input.owl"), null)
-    val exprY = Operator.fromXMLString(findYSimple)!!
-//    val resY = exprY.use(QueryReasoner(model))
-//    println("Y = $resY")
+    val n = 5
+    if(false){
+        val startTime = System.currentTimeMillis()
+        for (i in 0 until n) {
+            val situation = LearningSituation("${dir}1.ttl")
+            DomainModel.decisionTree.main.getCorrectPath(situation)
+        }
+        println((System.currentTimeMillis() - startTime) / n)
+    }
+
+    if(false){
+        val time = measureTimeMillis {
+            for (i in 0 until n) {
+                val situation = LearningSituation("${dir}1.ttl")
+                DomainModel.decisionTree.main.getCorrectPath(situation)
+            }
+        }
+        println(time / n)
+    }
+
+    /*val exprY = Operator.fromXMLString(Y1)!!
+    val resY = exprY.use(QueryReasoner(model))
+    println("Y1 = $resY")
     val exprZ = Operator.fromXMLString(findZSimple)!!
     val resZ = exprZ.use(QueryReasoner(model))
     println("Z = $resZ")
     if(false){
         val startTime = System.currentTimeMillis()
-        val n = 100
+        val n = 1000
         for (i in 0 until n) {
             exprY.use(QueryReasoner(model))
         }
         println((System.currentTimeMillis() - startTime) / n)
-    }
+    }*/
 
 }
 
