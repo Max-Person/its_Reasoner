@@ -343,14 +343,16 @@ class QueryReasoner(val situation: LearningSituation,
     }
 
     private fun RDFObj.getByRelationship(relationship: RelationshipModel) : RDFObj{
+        val base = if(relationship.scaleType == null || relationship.scaleRole == RelationshipModel.ScaleRole.Base) relationship else relationship.scaleBase!!
+        val property = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, base.name))
+
         val a = when(relationship.scaleRole){
             null, RelationshipModel.ScaleRole.Base-> {
-                val property = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, relationship.name))
                 this.resource.listProperties(property).toList().map{it.`object`.asResource()}
             }
             RelationshipModel.ScaleRole.Reverse -> {
-                val property = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, relationship.name))
-                this.resource.listProperties(property).toList().map{it.`object`.asResource()}
+                require(relationship.scaleType != RelationshipModel.ScaleType.Partial){"Невозможно получить объект по отношению ${relationship.name}"}
+                this.resource.model.listSubjectsWithProperty(property, this.resource).toList()
             }
             else -> throw IllegalArgumentException("Невозможно получить объект по отношению ${relationship.name}") //FIXME?
         }.map{it.asObj()}.single()
