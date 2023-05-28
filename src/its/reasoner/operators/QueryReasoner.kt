@@ -83,16 +83,22 @@ class QueryReasoner(val situation: LearningSituation,
     //---Поиск---
 
     override fun process(op: GetByCondition): RDFObj {
-        return model.getObjectsByCondition(op.conditionExpr, op.varName).single()
+        val f = model.getObjectsByCondition(op.conditionExpr, op.varName)
+        if(f.isEmpty()) throw NoSuchElementException("GetByCondition cannot find any objects that fit the condition")
+        require(f.size == 1){"GetByCondition found more than 1 fitting object"}
+        return f.single()
     }
 
     override fun process(op: GetExtreme): RDFObj {
         val filtered = model.getObjectsByCondition(op.selectorExpr, op.varName)
+        if(filtered.isEmpty()) throw NoSuchElementException("GetExtreme cannot find any objects that fit the selector condition")
         existingFilters[op.varName] = filtered
-        val extreme = filtered.single { obj ->
+        val extreme = filtered.filter { obj ->
             obj.fitsCondition(op.extremeConditionExpr, op.extremeVarName) }
         existingFilters.remove(op.varName)
-        return extreme
+        if(extreme.isEmpty()) throw NoSuchElementException("GetExtreme cannot find any objects that fit the extreme condition")
+        require(extreme.size == 1){"GetExtreme found more than 1 object fitting the extreme condition"}
+        return extreme.single()
     }
 
     //---Вычисления---
@@ -122,10 +128,12 @@ class QueryReasoner(val situation: LearningSituation,
                 if(value != null)
                     return enumCorrected(value)
             }
-            throw IllegalArgumentException("Could not find property value ${op.propertyName}")
+            throw IllegalArgumentException("Could not find static property ${op.propertyName} in obj ${subj.name}.")
         }
-        else
+        else{
+            require(subj.resource.hasProperty(rdfProperty)){"Could not find property ${op.propertyName} in obj ${subj.name}."}
             return enumCorrected(subj.resource.getProperty(rdfProperty)!!.`object`)
+        }
     }
 
     override fun process(op: GetByRelationship): RDFObj {
@@ -133,7 +141,7 @@ class QueryReasoner(val situation: LearningSituation,
 
         val relationshipName = op.relationshipName
         val relationship = DomainModel.relationshipsDictionary.get(relationshipName)!!
-        require(relationship.argsClasses.size == 2) { "Отношение $relationshipName не является бинарным" }
+        require(relationship.argsClasses.size == 2) { "Can't get by relationship $relationshipName as it's not binary" }
 
         return subj.getByRelationship(relationship)
     }
@@ -205,10 +213,12 @@ class QueryReasoner(val situation: LearningSituation,
     //---Ссылки---
 
     override fun process(literal: Variable): RDFObj {
+        require(varContext.containsKey(literal.name)){"Context variable ${literal.name} not present during evaluation."}
         return varContext[literal.name]!!
     }
 
     override fun process(literal: DecisionTreeVar): RDFObj {
+        require(situation.decisionTreeVariables.containsKey(literal.name)){"Decision tree variable ${literal.name} not present during evaluation."}
         return model.resource(situation.decisionTreeVariables[literal.name]!!).asObj()
         //FIXME?
 //        val p = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, JenaUtil.DECISION_TREE_VAR_PREDICATE))
@@ -282,7 +292,7 @@ class QueryReasoner(val situation: LearningSituation,
             currentClasses.contains(it.argsClasses.first())
                     && it.relationType != null
                     && it.argsClasses[1] == targetClass.name  } //Подумать, что будет, если у целевого класса (например токенов) будет своя иерархия
-        require(projectionRelationship != null){"Невозможно проецировать класс ${currentClasses.first()} на класс ${targetClass.name}"}
+        require(projectionRelationship != null){"Cannot project class ${currentClasses.first()} onto class ${targetClass.name}"}
 
         val property = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, projectionRelationship.name))
         val projected = this.resource.listProperties(property).toList().map{it.`object`.asResource().asObj()}

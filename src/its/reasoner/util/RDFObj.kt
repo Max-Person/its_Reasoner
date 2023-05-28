@@ -17,6 +17,7 @@ data class RDFObj(
         get() {
             val CLASS_PREDICATE_NAME = "type"
             val classProp = resource.model.getProperty(JenaUtil.genLink(JenaUtil.RDF_PREF, CLASS_PREDICATE_NAME))
+            require(this.resource.hasProperty(classProp)){"RDFObj $name is declared without a class"}
             val classRes = this.resource.getProperty(classProp).`object`.asResource()
 
             return classRes.asClazz()
@@ -36,6 +37,7 @@ data class RDFObj(
 
     override fun descriptionInfo(descriptionProperty: String): Any {
         val rdfProperty = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, descriptionProperty))
+        require(resource.hasProperty(rdfProperty)){"Attempting to take description property $descriptionProperty from an RDFObj $name that does not have it."}
         return resource.getProperty(rdfProperty)?.`object`!!.asLiteral().value
     }
 

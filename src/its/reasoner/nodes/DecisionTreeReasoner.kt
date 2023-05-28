@@ -5,6 +5,7 @@ import its.model.expressions.types.Types.Boolean
 import its.model.expressions.types.Types.isOfValidType
 import its.model.nodes.*
 import its.model.nodes.visitors.LinkNodeBehaviour
+import its.model.nullCheck
 import its.reasoner.LearningSituation
 import its.reasoner.operators.OperatorReasoner
 
@@ -63,7 +64,9 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
 
     override fun process(node: PredeterminingFactorsNode): String {
         val predetermining =  node.predetermining.singleOrNull{ it.decidingBranch!!.getAnswer(situation) }
-        return predetermining?.key ?: node.undetermined!!.key
+        return predetermining?.key ?: node.undetermined
+                .nullCheck("None of the outcomes of PredeterminingFactorsNode $node are applicable")
+                .key
     }
 
     override fun process(node: QuestionNode): Any {
@@ -75,13 +78,15 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
 
     companion object _static{
         @JvmStatic
-        fun <AnswerType : Any> LinkNode<AnswerType>.getAnswer(situation: LearningSituation): AnswerType{
-            return this.use(DecisionTreeReasoner(situation)) as AnswerType
+        fun <AnswerType : Any> LinkNode<AnswerType>.getAnswer(situation: LearningSituation): AnswerType {
+            return use(DecisionTreeReasoner(situation)) as AnswerType
         }
 
         @JvmStatic
         fun LinkNode<*>.correctNext(situation: LearningSituation): DecisionTreeNode{
-            return this.next[this.getAnswer(situation)]!!
+            val ans = this.getAnswer(situation)
+            require(this.next.containsKey(ans)){"Node $this has no outcome with value '$ans', but such an answer was returned"}
+            return this.next[ans]!!
         }
 
         @JvmStatic

@@ -15,6 +15,7 @@ object RDFUtil {
 
     @JvmStatic
     fun Resource.asClazz() : Clazz {
+        require(DomainModel.classesDictionary.exist(localName)){"Attempting to map RDF Resource $localName onto a class, but this class is not present in the classes dictionary"}
         return DomainModel.classesDictionary.get(localName)!!
     }
 
