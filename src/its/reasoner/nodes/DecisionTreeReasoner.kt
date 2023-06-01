@@ -11,15 +11,14 @@ import its.reasoner.operators.OperatorReasoner
 
 class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour<Any> {
     override fun process(node: CycleAggregationNode): Boolean {
-        val iteratedVariables = OperatorReasoner.defaultReasoner(situation).getObjectsByCondition(node.selectorExpr, node.variable.name)
-        val res =  when(node.logicalOp) {
-            LogicalOp.AND -> iteratedVariables.all{
-                situation.decisionTreeVariables[node.variable.name] = it.resource.localName
-                node.thoughtBranch.getAnswer(situation)
-            }
-            LogicalOp.OR -> iteratedVariables.any{
-                situation.decisionTreeVariables[node.variable.name] = it.resource.localName
-                node.thoughtBranch.getAnswer(situation)
+        val iteratedValues = OperatorReasoner.defaultReasoner(situation).getObjectsByCondition(node.selectorExpr, node.variable.name)
+        var res = node.logicalOp == LogicalOp.AND
+        for(value in iteratedValues){
+            situation.decisionTreeVariables[node.variable.name] = value.resource.localName
+            val cur = node.thoughtBranch.getAnswer(situation)
+            res = when(node.logicalOp){
+                LogicalOp.AND -> res && cur
+                LogicalOp.OR -> res || cur
             }
         }
         situation.decisionTreeVariables.remove(node.variable.name)
@@ -30,13 +29,9 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
         var res = node.logicalOp == LogicalOp.AND
         while(node.conditionExpr.use(OperatorReasoner.defaultReasoner(situation)) as Boolean){
             val cur = node.thoughtBranch.getAnswer(situation)
-            when(node.logicalOp){
-                LogicalOp.AND -> {
-                    res = res && cur
-                    if(!res)
-                        break
-                }
-                LogicalOp.OR -> res = res || cur
+            res = when(node.logicalOp){ //FIXME? Уточнить семантику - точно ли данном цикле не надо прерываться если результат известен
+                LogicalOp.AND -> res && cur
+                LogicalOp.OR -> res || cur
             }
         }
         return res
@@ -56,10 +51,15 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
     }
 
     override fun process(node: LogicAggregationNode): Boolean {
-        return when(node.logicalOp) {
-            LogicalOp.AND -> node.thoughtBranches.all{it.getAnswer(situation)}
-            LogicalOp.OR -> node.thoughtBranches.any{it.getAnswer(situation)}
+        var res = node.logicalOp == LogicalOp.AND
+        for(branch in node.thoughtBranches){
+            val cur = branch.getAnswer(situation)
+            res = when(node.logicalOp){
+                LogicalOp.AND -> res && cur
+                LogicalOp.OR -> res || cur
+            }
         }
+        return  res
     }
 
     override fun process(node: PredeterminingFactorsNode): String {
