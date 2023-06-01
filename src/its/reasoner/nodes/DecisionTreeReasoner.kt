@@ -104,26 +104,30 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
             var curr = this.start
             path.add(curr)
             while (curr is LinkNode<*>) {
-                traceList?.add(curr)
                 curr = curr.correctNext(situation)
                 path.add(curr)
             }
-            traceList?.add(curr)
             val last = path.last()
             require(last is BranchResultNode){"Ошибка: Последний узел в пути рассуждений не является BranchResultNode"}
             last.actionExpr?.use(OperatorReasoner.defaultReasoner(situation))
+            results?.add(DecisionTreeEvaluationResult(last, situation.decisionTreeVariables.toMap()))
             return path
         }
 
         @JvmStatic
-        private var traceList : MutableList<DecisionTreeNode>? = null
+        private var results : MutableList<DecisionTreeEvaluationResult>? = null
         @JvmStatic
-        fun ThoughtBranch.getTrace(situation: LearningSituation): List<DecisionTreeNode> {
-            traceList = mutableListOf()
+        fun ThoughtBranch.getResults(situation: LearningSituation): List<DecisionTreeEvaluationResult> {
+            results = mutableListOf()
             this.getCorrectPath(situation)
-            val trace = traceList!!
-            traceList = null
+            val trace = results!!
+            results = null
             return trace
         }
     }
+
+    data class DecisionTreeEvaluationResult(
+            val node: BranchResultNode,
+            val variablesSnapshot : Map<String, String>,
+    )
 }
