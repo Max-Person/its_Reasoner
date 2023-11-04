@@ -8,7 +8,7 @@ import kotlin.system.measureTimeMillis
 
 
 fun run() {
-    val dir = "S:\\engRoute\\CompPrehension_MainDir\\input_examples\\"
+    val dir = "..\\inputs\\input_examples\\"
     //val dir = "inputs\\"
 
     //Создать модель домена (в переменную можно не сохранять, она работает как синглтон)
@@ -23,7 +23,7 @@ fun run() {
 
     //Создать условие конкретной задачи
     val i = 5
-    val situation = LearningSituation("${dir}$i.ttl") //создать условие задачи из файла рдф
+    val situation = LearningSituation("${dir}_$i\\$i.ttl") //создать условие задачи из файла рдф
 
     //решение задачи - от наиболее краткого ответа до наиболее подробного - выбрать одно из трех
     val answer = DomainModel.decisionTree.main.getAnswer(situation) //Получить тру/фолс ответ
