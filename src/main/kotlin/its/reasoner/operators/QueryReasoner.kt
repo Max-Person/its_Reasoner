@@ -31,6 +31,7 @@ class QueryReasoner(val situation: LearningSituation,
         val obj = op.objectExpr.use(this) as RDFObj
         val value = op.valueExpr.use(this)
         val rdfProperty = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, op.propertyName))
+        obj.resource.removeAll(rdfProperty)
         if(value !is EnumValue){
             obj.resource.addLiteral(rdfProperty, value)
         }
@@ -45,6 +46,42 @@ class QueryReasoner(val situation: LearningSituation,
         if(!situation.decisionTreeVariables.containsKey(op.variableName))
             throw IllegalStateException("Trying to assign variable '${op.variableName}' that has not been declared")
         situation.decisionTreeVariables[op.variableName] = value.name
+    }
+
+    override fun process(op: AddRelationshipLink) {
+        val relationship = DomainModel.relationshipsDictionary.get(op.relationshipName)!!
+        val subj = op.subjectExpr.use(this) as RDFObj
+        val objects = op.objectExprs.map { it.use(this) as RDFObj }
+
+        require(relationship.scaleType == null || relationship.scaleRole == RelationshipModel.ScaleRole.Base) {
+            "Cannot add link for a calculated relationship ${relationship.name}"
+        }
+
+        val rdfProperty = model.getProperty(JenaUtil.genLink(JenaUtil.POAS_PREF, relationship.name))
+        if (relationship.argsClasses.size > 2) {
+            TODO("Not yet implemented")
+        } else {
+            val obj = objects.first()
+            subj.resource.addProperty(rdfProperty, obj.resource)
+        }
+    }
+
+    //---Выполнение---
+
+    override fun process(op: Block) {
+        op.args.forEach { it.use(this) }
+    }
+
+    override fun process(op: IfThen) {
+        val condResult = op.conditionExpr.use(this) as Boolean
+        if (condResult) {
+            op.thenExpr.use(this)
+        }
+    }
+
+    override fun process(op: With) {
+        val obj = op.objExpr.use(this) as RDFObj
+        op.block.use(this.copy(varContext = this.varContext.plus(op.varName to obj)))
     }
 
     //---Сравнения---

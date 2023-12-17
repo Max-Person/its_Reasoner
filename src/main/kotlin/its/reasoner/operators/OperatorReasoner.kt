@@ -13,6 +13,11 @@ import its.reasoner.LearningSituation
 interface OperatorReasoner : OperatorBehaviour<Any> {
     override fun process(op: AssignProperty)
     override fun process(op: AssignVariable)
+    override fun process(op: AddRelationshipLink)
+
+    override fun process(op: Block)
+    override fun process(op: IfThen)
+    override fun process(op: With)
 
     override fun process(op: Compare): ComparisonResult
     override fun process(op: CompareWithComparisonOperator): Boolean
