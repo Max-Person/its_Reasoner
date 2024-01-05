@@ -1,7 +1,12 @@
 import its.model.DomainSolvingModel
+import its.model.definition.Domain
+import its.model.definition.ObjectDef
+import its.model.definition.loqi.DomainLoqiWriter
 import its.model.definition.rdf.DomainRDFFiller
+import its.model.definition.types.EnumValue
 import its.reasoner.LearningSituation
 import its.reasoner.nodes.DecisionTreeReasoner._static.solve
+import java.io.File
 
 
 fun run() {
@@ -23,8 +28,29 @@ fun run() {
 //    val path = DomainModel.decisionTree.main.getCorrectPath(situation) //Получить посещенные узлы на самом верхнем уровне (без ухода во вложенные ветки) - в порядке вычисления
 //    val trace = DomainModel.decisionTree.main.getTrace(situation) //Получить посещенные узлы по всему дереву - в порядке полного вычисления
 
-    val results = model.decisionTree.solve(situation)
-    results.forEach { println("${it.node.value} : ${it.node.parent.parent}") }
+    //Прорешать задачу - только для задачи вычисления порядка выражений
+
+    fun getUnevaluated(domain: Domain): List<ObjectDef> {
+        return situationDomain.objects.filter {
+            it.findPropertyDef("state") != null
+                    && it.getPropertyValue("state") == EnumValue("state", "unevaluated")
+        }
+    }
+
+    var unevaluated = getUnevaluated(situationDomain)
+    while (unevaluated.isNotEmpty()) {
+        situation.decisionTreeVariables.clear()
+        for (x in unevaluated) {
+            situation.decisionTreeVariables["X"] = x.reference
+            model.decisionTree.solve(situation)
+        }
+        unevaluated = getUnevaluated(situationDomain)
+    }
+
+    DomainLoqiWriter.saveDomain(
+        situationDomain.apply { subtract(model.domain) },
+        File("${dir}\\$i-s.loqi").bufferedWriter()
+    )
 
 }
 

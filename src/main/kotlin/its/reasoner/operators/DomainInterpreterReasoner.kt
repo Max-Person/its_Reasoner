@@ -47,6 +47,30 @@ class DomainInterpreterReasoner(
         situation.decisionTreeVariables[op.variableName] = value
     }
 
+    override fun process(op: AddRelationshipLink) {
+        val subj = op.subjectExpr.evalAs<Obj>().def
+        val objectNames = op.objectExprs.map { it.evalAs<Obj>().def.name }
+
+        subj.relationshipLinks.add(RelationshipLinkStatement(subj, op.relationshipName, objectNames))
+    }
+
+    //---Управляющие конструкции
+
+    override fun process(op: Block) {
+        op.nestedExprs.forEach { it.use(this) }
+    }
+
+    override fun process(op: IfThen) {
+        val condition = op.conditionExpr.evalAs<Boolean>()
+        if (condition)
+            op.thenExpr.use(this)
+    }
+
+    override fun process(op: With): Any? {
+        val obj = op.objExpr.evalAs<Obj>()
+        return op.nestedExpr.use(this.copy(varContext = this.varContext.plus(op.varName to obj)))
+    }
+
     //---Сравнения---
 
     override fun process(op: Compare): EnumValue {
@@ -169,7 +193,7 @@ class DomainInterpreterReasoner(
         val subj = op.subjectExpr.evalAs<Obj>().def
         val objects = op.objectExprs.map { it.evalAs<Obj>().def }
 
-        val relationship = op.getRelationship(domain, subj.clazz)
+        val relationship = op.getRelationship(subj.clazz)
 
         val classList = listOf(relationship.subjectClass).plus(relationship.objectClasses)
         val projList = listOf(subj).plus(objects)
@@ -343,22 +367,31 @@ class DomainInterpreterReasoner(
         return actSubject.canReach(actObject, base, isTransitive)
     }
 
+    private fun ObjectDef.listByBaseRelationship(relationship: RelationshipDef): List<ObjectDef> {
+        require(relationship.isBinary)
+        return this.relationshipLinks.filter { it.relationshipName == relationship.name }.map { it.objects.first() }
+    }
+
     private fun ObjectDef.getByBaseRelationship(relationship: RelationshipDef): ObjectDef? {
         require(relationship.isBinary && relationship.effectiveQuantifier.objCount == 1)
-        return this.relationshipLinks.firstOrNull { it.relationshipName == relationship.name }?.run { objects.first() }
+        return this.listByBaseRelationship(relationship).firstOrNull()
     }
 
     private fun ObjectDef.canReach(other: ObjectDef, relationship: RelationshipDef, isTransitive: Boolean): Boolean {
-        require(relationship.kind is BaseRelationshipKind && relationship.isBinary && relationship.effectiveQuantifier.objCount == 1)
-        var next = getByBaseRelationship(relationship)
+        require(
+            relationship.kind is BaseRelationshipKind && relationship.isBinary
+                    && (!isTransitive || relationship.effectiveQuantifier.objCount == 1)
+        )
+
         if (isTransitive) {
+            var next = getByBaseRelationship(relationship)
             while (next != null) {
                 if (next == other) return true
                 next = next.getByBaseRelationship(relationship)
             }
             return false
         } else {
-            return next == other
+            return listByBaseRelationship(relationship).contains(other)
         }
     }
 

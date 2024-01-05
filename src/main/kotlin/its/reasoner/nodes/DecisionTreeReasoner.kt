@@ -48,7 +48,7 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
         return res
     }
 
-    private fun process(assignment: FindActionNode.DecisionTreeVarAssignment): Boolean {
+    private fun process(assignment: DecisionTreeVarAssignment): Boolean {
         val value = assignment.valueExpr.evalAs<Obj?>()
         if (value != null) {
             situation.decisionTreeVariables[assignment.variable.varName] = value
@@ -195,6 +195,11 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
                 require(situation.decisionTreeVariables.containsKey(variable.varName))
                 val obj = situation.decisionTreeVariables[variable.varName]!!.findInOrUnkown(situation.domain)
                 require(obj.isInstanceOf(variable.className))
+            }
+            implicitVariables.forEach {
+                if (!situation.decisionTreeVariables.containsKey(it.variable.varName)) {
+                    DecisionTreeReasoner(situation).process(it)
+                }
             }
             return mainBranch.getResults(situation)
         }

@@ -20,7 +20,7 @@ interface OperatorReasoner : OperatorBehaviour<Any?> {
 
     override fun process(op: Block)
     override fun process(op: IfThen)
-    override fun process(op: With)
+    override fun process(op: With): Any?
 
     override fun process(op: Compare): EnumValue
     override fun process(op: CompareWithComparisonOperator): Boolean
