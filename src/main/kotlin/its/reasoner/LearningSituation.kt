@@ -8,7 +8,7 @@ import its.model.definition.types.Obj
  * @param domain описание предметной области текущей ситуации
  * @param decisionTreeVariables имена и значения известных переменных дерева решений
  */
-data class LearningSituation(
+open class LearningSituation(
     val domain: Domain,
     val decisionTreeVariables: MutableMap<String, Obj> = collectDecisionTreeVariables(domain),
 ) {
