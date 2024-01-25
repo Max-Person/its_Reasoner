@@ -107,7 +107,7 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
     }
 
     override fun process(node: PredeterminingFactorsNode): ThoughtBranch? {
-        val predetermining = node.predetermining.values.singleOrNull { it.key!!.getAnswer(situation) }
+        val predetermining = node.predetermining.singleOrNull { it.key!!.getAnswer(situation) }
         return predetermining?.key
             ?: (node.undetermined ?: throw ThisShouldNotHappen()).key
     }
@@ -131,8 +131,9 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
         @JvmStatic
         fun LinkNode<*>.correctNext(situation: LearningSituation): DecisionTreeNode {
             val ans = this.getAnswer(situation)
-            require(this.outcomes.containsKey(ans)) { "Node $this has no outcome with value '$ans', but such an answer was returned" }
-            return this.outcomes[ans]!!.node
+            val outcomes = outcomes as Outcomes<Any?>
+            require(outcomes.containsKey(ans)) { "Node $this has no outcome with value '$ans', but such an answer was returned" }
+            return outcomes[ans]!!.node
         }
 
         /**
