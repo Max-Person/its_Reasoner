@@ -8,6 +8,9 @@ target/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
+.idea/encodings.xml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/LNKD.tech Editor.xml
 *.iml
 *.ipr
 
