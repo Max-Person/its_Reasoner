@@ -109,7 +109,7 @@
         <dependency>
             <groupId>com.github.Max-Person</groupId>
             <artifactId>its_DomainModel</artifactId>
-            <version>v1.0-alpha01</version>
+            <version>master-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
