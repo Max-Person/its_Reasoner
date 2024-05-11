@@ -28,7 +28,9 @@ class CheckCombined : BaseBuiltin() {
 //            }) || res
 
             res = vars.all {
-                combined.contains(lex(it, context))
+                // TODO: надо еще протестировать, подойдет ли это поведения во всех случаях
+                val index = vars.indexOf(it)
+                combined[index] == lex(it, context)
             } || res
         }
 
