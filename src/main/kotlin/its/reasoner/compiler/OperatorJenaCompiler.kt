@@ -83,7 +83,7 @@ class OperatorJenaCompiler(
     }
 
     override fun process(literal: EnumLiteral): CompilationResult {
-        TODO("Not yet implemented")
+        return CompilationResult(value = genURI(POAS_PREF, literal.value.valueName))
     }
 
     override fun process(literal: IntegerLiteral): CompilationResult {
@@ -275,11 +275,11 @@ class OperatorJenaCompiler(
         val _body = if (_args.size == 2) {
             "(<arg1> $_predicate <arg2>)\n"
         } else {
-            var tmp = "(<arg1> $_predicate <var1>)\n"
+            var tmp = "(<arg1> ${_predicate}_subj <var1>)\n" // TODO: протестировать _subj
 
             _args.forEachIndexed { index, _ ->
                 if (index != 0) {
-                    tmp += "(<var1> $_predicate <arg${index + 1}>)\n"
+                    tmp += "(<var1> ${_predicate}_obj_${index - 1} <arg${index + 1}>)\n"
                 }
             }
 

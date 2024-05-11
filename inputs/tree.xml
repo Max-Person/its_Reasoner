@@ -133,6 +133,14 @@ nextItem">
                                                     <Expression>
                                                         <GetByCondition varName="item">
                                                             <LogicalAnd>
+                                                            <Compare operator="EQUAL">
+                                                                <GetPropertyValue>
+                                                                    <DecisionTreeVar name="stage" />
+                                                                    <Property name="current_stage" />
+                                                                </GetPropertyValue>
+                                                                <Enum owner="TaskStage" value="Main" />
+                                                            </Compare>
+                                                            <LogicalAnd>
                                                                 <CheckClass>
                                                                     <Variable name="item" />
                                                                     <Class name="Item" />
@@ -197,6 +205,7 @@ nextItem">
                                                                         </CheckRelationship>
                                                                     </LogicalAnd>
                                                                 </ExistenceQuantifier>
+                                                            </LogicalAnd>
                                                             </LogicalAnd>
                                                         </GetByCondition>
                                                     </Expression>
@@ -309,6 +318,14 @@ nextItem">
                     <Expression>
                         <GetByCondition varName="item">
                             <LogicalAnd>
+                            <Compare operator="EQUAL">
+                                <GetPropertyValue>
+                                    <DecisionTreeVar name="stage" />
+                                    <Property name="current_stage" />
+                                </GetPropertyValue>
+                                <Enum owner="TaskStage" value="Start" />
+                            </Compare>
+                            <LogicalAnd>
                                 <CheckClass>
                                     <Variable name="item" />
                                     <Class name="Item" />
@@ -349,6 +366,7 @@ nextItem">
                                         </ExistenceQuantifier>
                                     </LogicalNot>
                                 </LogicalAnd>
+                            </LogicalAnd>
                             </LogicalAnd>
                         </GetByCondition>
                     </Expression>
