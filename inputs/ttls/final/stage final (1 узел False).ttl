@@ -552,7 +552,7 @@
 
 <#symbol>
     a <#Element> ;
-    <#operator> <#Dot> ;
+    <#operator> <#dot> ;
     <#operand> <#item_name_b> ;
     <#var...> "symbol"^^xsd:string .
 
