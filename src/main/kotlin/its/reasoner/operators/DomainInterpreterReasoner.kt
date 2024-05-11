@@ -373,7 +373,7 @@ class DomainInterpreterReasoner(
     }
 
     private fun ObjectDef.getByBaseRelationship(relationship: RelationshipDef): ObjectDef? {
-        require(relationship.isBinary && relationship.effectiveQuantifier.objCount == 1)
+        require(relationship.isBinary) // && relationship.effectiveQuantifier.objCount == 1) FIXME: вернуть после доработки деревьев
         return this.listByBaseRelationship(relationship).firstOrNull()
     }
 
