@@ -1,0 +1,13 @@
+Token|||
+Element|||
+Operand|Token||
+Item|Operand||
+ItemWithVisibleMemory|Item||
+Operator|Token||
+Connection|||
+ItemType|||
+Value|ItemType||
+OperandType|||
+OperatorType|||
+ConnectionType|||
+Stage|||

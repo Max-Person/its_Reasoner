@@ -1,0 +1,17 @@
+can_be_applied_to||OperatorType;ItemType||||0
+can_be_used_with||OperandType;OperatorType||||0
+compatible||OperandType;OperatorType;ItemType||||0
+linked_with||Operand;Connection||||0
+contained_in||Item;Item||||0
+contains||Item;Item||||0
+associated_with||OperatorType;ConnectionType||||0
+is_a||Item;Connection||||0
+reachable_from||Item;Item||||0
+has||Item;Connection||||0
+operator||Element;Operator||||0
+operand||Element;Operand||||0
+connection||Item;Connection||||0
+item_type||Item;ItemType||||0
+operator_type||Operator;OperatorType||||0
+operand_type||Operand;OperandType||||0
+connection_type||Connection;ConnectionType||||0

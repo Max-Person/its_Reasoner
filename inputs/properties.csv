@@ -1,0 +1,4 @@
+text|STRING||FALSE|OperandType||
+unary|BOOLEAN||FALSE|OperandType||
+was_visited_before|BOOLEAN||FALSE|Item||
+current_stage|ENUM|TaskStage|FALSE|Stage||
