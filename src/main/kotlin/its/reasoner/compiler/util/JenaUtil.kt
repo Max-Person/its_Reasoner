@@ -195,7 +195,6 @@ fun genBooleanRule(ruleBody: String, skolemName: String, resPredicateName: Strin
 private val BOOLEAN_RULE_PATTERN2: String = """
     
     [
-    (?a... ?b... ?c...)
     <ruleBody>makeSkolem(<skolemName>)
     combine(<resVarName>, <vars>)
     ->
