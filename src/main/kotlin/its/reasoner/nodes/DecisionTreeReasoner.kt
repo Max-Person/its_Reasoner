@@ -1,5 +1,6 @@
 package its.reasoner.nodes
 
+import getDefaultOperatorReasoner
 import its.model.definition.ThisShouldNotHappen
 import its.model.definition.types.Obj
 import its.model.expressions.Operator
@@ -7,7 +8,6 @@ import its.model.expressions.getUsedVariables
 import its.model.nodes.*
 import its.model.nodes.visitors.LinkNodeBehaviour
 import its.reasoner.LearningSituation
-import its.reasoner.operators.OperatorReasoner
 import its.reasoner.operators.OperatorReasoner.Companion.evalAs
 
 /**
@@ -17,7 +17,7 @@ import its.reasoner.operators.OperatorReasoner.Companion.evalAs
  */
 class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour<Any?> {
 
-    private val exprReasoner = OperatorReasoner.defaultReasoner(situation)
+    private val exprReasoner = getDefaultOperatorReasoner(situation)
     private fun <T> Operator.evalAs(): T = evalAs(exprReasoner)
 
     override fun process(node: CycleAggregationNode): Boolean {
@@ -163,7 +163,7 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
             }
             val last = path.last()
             require(last is BranchResultNode)
-            last.actionExpr?.use(OperatorReasoner.defaultReasoner(situation))
+            last.actionExpr?.use(getDefaultOperatorReasoner(situation))
             results?.add(DecisionTreeEvaluationResult(last, situation.decisionTreeVariables.toMap()))
             return path
         }
