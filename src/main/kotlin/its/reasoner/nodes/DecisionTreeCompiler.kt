@@ -6,6 +6,7 @@ import its.model.expressions.operators.GetPropertyValue
 import its.model.nodes.*
 import its.model.nodes.visitors.LinkNodeBehaviour
 import its.reasoner.compiler.OperatorJenaCompiler
+import its.reasoner.compiler.util.*
 
 data class NodeCompilationResult(
     val children: Map<Any, NodeCompilationResult>?,
@@ -73,17 +74,28 @@ class DecisionTreeCompiler(domain: Domain) : LinkNodeBehaviour<NodeCompilationRe
             }
         }
 
-        val assignment = AssignDecisionTreeVar(
-            node.varAssignment.variable.varName,
-            node.varAssignment.valueExpr,
-        )
+        // Компилируем getByCondition
+        val compilerResult = node.varAssignment.valueExpr.semantic().use(compiler)
 
-        val findResult = compiler.compileExpression(node.varAssignment.valueExpr, false)
-        val assignmentResult = compiler.compileExpression(assignment, false)
+        // Генерируем имена
+        val skolemName = genVariableName()
+        val resPredicateName = genPredicateName()
+
+        // Собираем правило
+        val rule = """
+            [
+            ${compilerResult.bodies.first()}
+            makeSkolem($skolemName)
+            ->
+            (${compilerResult.value} $VAR_PREDICATE ${genValue(node.varAssignment.variable.varName)})
+            ($skolemName $resPredicateName ${compilerResult.value})
+            ]
+        """.trimIndent()
+
         return NodeCompilationResult(
             children,
-            findResult.value,
-            findResult.rules + assignmentResult.rules + rules
+            resPredicateName,
+            compilerResult.rules + rule + PAUSE_MARK + rules
         )
     }
 
