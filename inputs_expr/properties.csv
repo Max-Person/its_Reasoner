@@ -1,0 +1,10 @@
+countOfTokens|INTEGER||TRUE|element|1-2
+arity|ENUM|arity|TRUE|operator|
+place|ENUM|place|TRUE|operator|
+precedence|INTEGER||TRUE|operator|
+associativity|ENUM|associativity|TRUE|operator|
+needsLeftOperand|BOOLEAN||TRUE|operator|
+needsRightOperand|BOOLEAN||TRUE|operator|
+needsInnerOperand|BOOLEAN||TRUE|operator|
+hasStrictOperandOrder|BOOLEAN||TRUE|operator|
+state|ENUM|state|FALSE|element|

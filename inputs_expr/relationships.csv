@@ -1,0 +1,8 @@
+has||element;token|||OneToMany|0
+belongsTo||token;element|||OneToOne|0
+isInside||element;element||||0
+surrounds||element;element||||0
+directlyLeftOf||token;token|Linear|directlyRightOf;leftOf;rightOf;isBetween;isCloserToThan;isFurtherFromThan||0
+isOperandOf||operand;operator||||0
+isInOperandOf||operand;operator||||0
+isOperatorTo||operator;operand||||0

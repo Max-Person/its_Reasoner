@@ -2,6 +2,7 @@ package its.reasoner.compiler
 
 import its.model.TypedVariable
 import its.model.definition.Domain
+import its.model.definition.PropertyDef
 import its.model.definition.types.BooleanType
 import its.model.expressions.Operator
 import its.model.expressions.literals.*
@@ -56,7 +57,16 @@ class OperatorJenaCompiler(
     }
 
     override fun process(literal: BooleanLiteral): CompilationResult {
-        TODO("Not yet implemented")
+        return CompilationResult(
+            value = genValue(literal.value),
+            bodies = listOf(
+                if (literal.value) {
+                    genEqualPrim("1", "1")
+                } else {
+                    genEqualPrim("0", "1", "Прерываем правило")
+                }
+            ),
+        )
     }
 
     override fun process(literal: ClassLiteral): CompilationResult {
@@ -156,7 +166,7 @@ class OperatorJenaCompiler(
     }
 
     override fun process(op: Block): CompilationResult {
-        TODO("Not yet implemented")
+        return CompilationResult()
     }
 
     override fun process(op: Cast): CompilationResult {
@@ -595,7 +605,132 @@ class OperatorJenaCompiler(
     }
 
     override fun process(op: GetExtreme): CompilationResult {
-        TODO("Not yet implemented")
+        // Объявляем переменные
+        val value = genVariableName()
+        val bodies = mutableListOf<String>()
+        var completedRules = ""
+
+        // Получаем аргументы
+        val arg0 = op.conditionExpr
+        val arg1 = op.extremeConditionExpr
+
+        // Компилируем аргументы
+        val compiledArg0 = arg0.compile()
+        val compiledArg1 = arg1.compile()
+
+        // Вспомогательные переменные
+        val empty0 = genVariableName()
+        val empty1 = genVariableName()
+        val empty2 = genVariableName()
+
+        // Флаг, указывающий на объекты множества
+        val objectsFlag = genPredicateName()
+        // Skolem name
+        val skolemName = genVariableName()
+
+        // Флаг цикла
+        val cycleFlag = genPredicateName()
+        // Переменная цикла
+        val cycleVar = genVariableName()
+        // Флаг, указывающий на объекты, которые уже были проверены и не подошли по критериям
+        val dropped = genPredicateName()
+
+        // Передаем завершенные правила второго аргумента дальше
+        completedRules += compiledArg1.rules
+
+        // ---------------- Генерируем правило, помечающее объекты --------------
+
+        compiledArg1.bodies.forEach { body1 ->
+            val body = DEFINITION_AREA_PLACEHOLDER + body1
+
+            // Добавляем в результат
+            completedRules += genRule(body, skolemName, objectsFlag, genVariable(op.varName))
+        }
+
+        // ---------------- Генерируем правило, помечающее ошибочный экстремум --------------
+
+        // Собираем правило, организующее цикл
+        val cycleBody = if (arg0 is BooleanLiteral) {
+            compiledArg0.bodies.first()
+        } else {
+            genNoValuePrim(
+                subj = empty0,
+                predicate = cycleFlag,
+                comment = "Проверяем отсутствие флага цикла"
+            )
+        } + genTriple(
+            subj = empty1,
+            predicate = objectsFlag,
+            obj = cycleVar,
+            comment = "Записываем в переменную цикла объект из области выборки"
+        ) + genNoValuePrim(
+            subj = empty2,
+            predicate = dropped,
+            obj = cycleVar,
+            comment = "Проверяем, что объект еще не был проверен"
+        )
+
+        // Добавляем в результат
+        completedRules += genRule(cycleBody, skolemName, cycleFlag, cycleVar)
+
+        // ---------------- Генерируем правило, проверяющее экстремум --------------
+
+        // Область определения, вводимая данным оператором (инициализация var и extremeVar)
+        val def = genTriple(
+            subj = empty0,
+            predicate = cycleFlag,
+            obj = genVariable(op.varName),
+            comment = "Инициализируем "
+        ) + genTriple(
+            subj = empty1,
+            predicate = objectsFlag,
+            obj = genVariable(op.extremeVarName),
+            comment = "Инициализируем "
+        ) + genNotEqualPrim(
+            first = genVariable(op.varName),
+            second = genVariable(op.extremeVarName),
+            comment = "Проверяем, что они не совпадают"
+        )
+
+        // Передаем завершенные правила первого аргумента дальше, добавив в них область определения
+        completedRules += compiledArg0.rules.replace(
+            DEFINITION_AREA_PLACEHOLDER,
+            DEFINITION_AREA_PLACEHOLDER + def
+        )
+
+        compiledArg0.bodies.forEach { body0 ->
+            // Собираем правило, проверяющее экстремум
+            val body = def + DEFINITION_AREA_PLACEHOLDER + if (arg0 is BooleanLiteral) {
+                genEqualPrim("0", "1", "Прерываем правило")
+            } else {
+                body0
+            }
+
+            var filterRule = EXTREME_PATTER
+            filterRule = filterRule.replace("<ruleBody>", body)
+            filterRule = filterRule.replace("<skolemName>", skolemName)
+            filterRule = filterRule.replace("<obj>", genVariable(op.varName))
+            filterRule = filterRule.replace("<dropped>", dropped)
+
+            // Добавляем в результат
+            completedRules += filterRule
+        }
+
+        // Добавляем в основное правило
+        val mainBody = genTriple(
+            empty0,
+            cycleFlag,
+            value,
+            "Получаем объект, который остался после цикла"
+        )
+
+        // Добавляем в результат
+        bodies.add(mainBody)
+
+        // Добавляем паузу
+        completedRules += PAUSE_MARK
+
+        return CompilationResult(value = value, bodies = bodies, rules = completedRules)
     }
 
     override fun process(op: GetPropertyValue): CompilationResult {
@@ -620,7 +755,13 @@ class OperatorJenaCompiler(
         val propName = op.propertyName
 
         // Если свойство не статическое FIXME: пока нет статических свойств
-        if (true) { // !PropertiesDictionary.isStatic(propName)) {
+        var isStatic = false
+        domain.classes.forEach {
+            if (it.declaredProperties.any { it.name == propName && it.kind == PropertyDef.PropertyKind.CLASS}) {
+                isStatic = true
+            }
+        }
+        if (!isStatic) { // !PropertiesDictionary.isStatic(propName)) {
             // Для всех результатов компиляции
             compiledArg0.bodies.forEach { body0 ->
                 compiledArg1.bodies.forEach { body1 ->
@@ -835,7 +976,40 @@ class OperatorJenaCompiler(
     }
 
     override fun process(op: LogicalOr): CompilationResult {
-        TODO("Not yet implemented")
+        // Объявляем переменные
+        val bodies = mutableListOf<String>()
+        var completedRules = ""
+
+        // Получаем аргументы
+        val arg0 = op.firstExpr
+        val arg1 = op.secondExpr
+
+        // Раскрываем через And
+        val expr0 = LogicalAnd(arg0.clone(), arg1.clone()).semantic()
+        val expr1 = LogicalAnd(LogicalNot(arg0.clone()), arg1.clone()).semantic()
+        val expr2 = LogicalAnd(arg0.clone(), LogicalNot(arg1.clone())).semantic()
+
+        // Компилируем правила
+        val compiledExpr0 = expr0.compile()
+        val compiledExpr1 = expr1.compile()
+        val compiledExpr2 = expr2.compile()
+
+        // Если в разных вариациях отличаются не только головы
+        if (compiledExpr0.rules != compiledExpr1.rules
+            || compiledExpr0.rules != compiledExpr2.rules
+        ) {
+            TODO() // Как то собрать их в одно ???
+        } else {
+            // Передаем завершенные правила дальше
+            completedRules += compiledExpr0.rules
+        }
+
+        // Собираем полученные правила
+        bodies.addAll(compiledExpr0.bodies)
+        bodies.addAll(compiledExpr1.bodies)
+        bodies.addAll(compiledExpr2.bodies)
+
+        return CompilationResult(bodies = bodies, rules = completedRules)
     }
 
     override fun process(op: With): CompilationResult {
@@ -876,6 +1050,20 @@ class OperatorJenaCompiler(
          * Шаблон правила выбора экстремального класса
          */
         private val EXTREME_CLASS_PATTER = """
+            
+            [
+            <ruleBody>makeSkolem(<skolemName>)
+            ->
+            drop(0)
+            (<skolemName> <dropped> <obj>)
+            ]
+            
+        """.trimIndent()
+
+        /**
+         * Шаблон правила выбора экстремального объекта
+         */
+        private val EXTREME_PATTER = """
             
             [
             <ruleBody>makeSkolem(<skolemName>)

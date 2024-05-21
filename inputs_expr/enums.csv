@@ -1,0 +1,5 @@
+state|unevaluated;evaluated;used;omitted|TRUE   
+evaluatesTo|true;false|false
+associativity|left;right;non-assoc|false        
+place|prefix;postfix;infix;around|false         
+arity|unary;binary;ternary|false                

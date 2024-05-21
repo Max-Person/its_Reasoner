@@ -1,0 +1,279 @@
+@prefix : <poas:poas/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <urn:webprotege:ontology:205bc5c7-2ef6-463a-a770-3cb6f044250d> .
+
+<urn:webprotege:ontology:205bc5c7-2ef6-463a-a770-3cb6f044250d> rdf:type owl:Ontology .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  poas:poas/isGlobal
+<poas:poas/isGlobal> rdf:type owl:AnnotationProperty ;
+                        rdfs:label "isGlobal" .
+
+
+###  poas:poas/isStatic
+<poas:poas/isStatic> rdf:type owl:AnnotationProperty ;
+                        rdfs:label "isStatic" .
+
+
+###  poas:poas/text
+<poas:poas/text> rdf:type owl:AnnotationProperty ;
+                    rdfs:label "text" .
+
+
+###  poas:poas/isEvaluated
+:isEvaluated rdf:type owl:AnnotationProperty ;
+             rdfs:label "isEvaluated" .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  poas:poas/belongsTo
+<poas:poas/belongsTo> rdf:type owl:ObjectProperty ;
+                         rdfs:label "belongsTo" .
+
+
+###  poas:poas/isEndOf
+<poas:poas/isEndOf> rdf:type owl:ObjectProperty ;
+                       rdfs:label "isEndOf" .
+
+
+###  poas:poas/directlyNext
+:directlyNext rdf:type owl:ObjectProperty ;
+              rdfs:label "directlyNext" .
+
+
+###  poas:poas/endsIn
+:endsIn rdf:type owl:ObjectProperty ;
+        rdfs:label "endsIn" .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  poas:poas/Context
+<poas:poas/Context> rdf:type owl:Class ;
+                       rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                         owl:onProperty :endsIn ;
+                                         owl:someValuesFrom <poas:poas/Step>
+                                       ] ;
+                       rdfs:label "Context" .
+
+
+###  poas:poas/Step
+<poas:poas/Step> rdf:type owl:Class ;
+                    rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                      owl:onProperty <poas:poas/belongsTo> ;
+                                      owl:someValuesFrom <poas:poas/Context>
+                                    ] ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :directlyNext ;
+                                      owl:someValuesFrom <poas:poas/Step>
+                                    ] ;
+                    rdfs:label "Step" .
+
+
+###  poas:poas/Variable
+<poas:poas/Variable> rdf:type owl:Class ;
+                        rdfs:label "Variable" .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  poas:poas/ForContext
+<poas:poas/ForContext> rdf:type owl:NamedIndividual ,
+                                   <poas:poas/Context> ;
+                          :endsIn <poas:poas/step14> ;
+                          rdfs:label "ForContext" .
+
+
+###  poas:poas/MainContext
+<poas:poas/MainContext> rdf:type owl:NamedIndividual ,
+                                    <poas:poas/Context> ;
+                           :endsIn <poas:poas/step16> ;
+                           rdfs:label "MainContext" .
+
+
+###  poas:poas/VariableA
+<poas:poas/VariableA> rdf:type owl:NamedIndividual ,
+                                  <poas:poas/Variable> ;
+                         rdfs:label "VariableA" ;
+                         <poas:poas/var...> "var"^^xsd:string ;
+                         <poas:poas/isGlobal> "false"^^xsd:boolean ;
+                         <poas:poas/isStatic> "false"^^xsd:boolean ;
+                         <poas:poas/text> "a"^^xsd:string .
+
+
+###  poas:poas/step1
+<poas:poas/step1> rdf:type owl:NamedIndividual ,
+                              <poas:poas/Step> ;
+                     <poas:poas/belongsTo> <poas:poas/MainContext> ;
+                     :directlyNext <poas:poas/step2> ;
+                     rdfs:label "step1" ;
+                     <poas:poas/text> "1. начало функции main"^^xsd:string ;
+                     :isEvaluated "false"^^xsd:boolean .
+
+
+###  poas:poas/step10
+<poas:poas/step10> rdf:type owl:NamedIndividual ,
+                               <poas:poas/Step> ;
+                      <poas:poas/belongsTo> <poas:poas/ForContext> ;
+                      :directlyNext <poas:poas/step11> ;
+                      rdfs:label "step10" ;
+                      <poas:poas/text> "10. начало второй итерации цикла"^^xsd:string ;
+                      :isEvaluated "true"^^xsd:boolean .
+
+
+###  poas:poas/step11
+<poas:poas/step11> rdf:type owl:NamedIndividual ,
+                               <poas:poas/Step> ;
+                      <poas:poas/belongsTo> <poas:poas/ForContext> ;
+                      :directlyNext <poas:poas/step12> ;
+                      rdfs:label "step11" ;
+                      <poas:poas/text> "11. объявление переменной d и присвоение ему числа 3"^^xsd:string ;
+                      :isEvaluated "true"^^xsd:boolean .
+
+
+###  poas:poas/step12
+<poas:poas/step12> rdf:type owl:NamedIndividual ,
+                               <poas:poas/Step> ;
+                      <poas:poas/belongsTo> <poas:poas/ForContext> ;
+                      :directlyNext <poas:poas/step13> ;
+                      rdfs:label "step12" ;
+                      <poas:poas/text> "12. инкрементирование переменной с"^^xsd:string ;
+                      :isEvaluated "true"^^xsd:boolean .
+
+
+###  poas:poas/step13
+<poas:poas/step13> rdf:type owl:NamedIndividual ,
+                               <poas:poas/Step> ;
+                      <poas:poas/belongsTo> <poas:poas/ForContext> ;
+                      :directlyNext <poas:poas/step14> ;
+                      rdfs:label "step13" ;
+                      <poas:poas/text> "13. конец второй итерации цикла"^^xsd:string ;
+                      :isEvaluated "false"^^xsd:boolean .
+
+
+###  poas:poas/step14
+<poas:poas/step14> rdf:type owl:NamedIndividual ,
+                               <poas:poas/Step> ;
+                      <poas:poas/belongsTo> <poas:poas/ForContext> ;
+                      :directlyNext <poas:poas/step15> ;
+                      rdfs:label "step14" ;
+                      <poas:poas/var...> "step"^^xsd:string ;
+                      <poas:poas/text> "14. проверка что переменная c меньше двух (ложь)"^^xsd:string ;
+                      :isEvaluated "false"^^xsd:boolean .
+
+
+###  poas:poas/step15
+<poas:poas/step15> rdf:type owl:NamedIndividual ,
+                               <poas:poas/Step> ;
+                      <poas:poas/belongsTo> <poas:poas/MainContext> ;
+                      :directlyNext <poas:poas/step16> ;
+                      rdfs:label "step15" ;
+                      <poas:poas/text> "15. присвоение переменной суммы переменной a и 3"^^xsd:string ;
+                      :isEvaluated "false"^^xsd:boolean .
+
+
+###  poas:poas/step16
+<poas:poas/step16> rdf:type owl:NamedIndividual ,
+                               <poas:poas/Step> ;
+                      <poas:poas/belongsTo> <poas:poas/MainContext> ;
+                      rdfs:label "step16" ;
+                      <poas:poas/text> "16. конец функции main"^^xsd:string ;
+                      :isEvaluated "false"^^xsd:boolean .
+
+
+###  poas:poas/step2
+<poas:poas/step2> rdf:type owl:NamedIndividual ,
+                              <poas:poas/Step> ;
+                     <poas:poas/belongsTo> <poas:poas/MainContext> ;
+                     :directlyNext <poas:poas/step3> ;
+                     rdfs:label "step2" ;
+                     <poas:poas/text> "2. объявление переменной a и присвоение ему числа 5"^^xsd:string ;
+                     :isEvaluated "false"^^xsd:boolean .
+
+
+###  poas:poas/step3
+<poas:poas/step3> rdf:type owl:NamedIndividual ,
+                              <poas:poas/Step> ;
+                     <poas:poas/belongsTo> <poas:poas/ForContext> ;
+                     :directlyNext <poas:poas/step4> ;
+                     rdfs:label "step3"^^xsd:string ;
+                     <poas:poas/text> "3. объявление переменной c и присвоение ему числа 0"^^xsd:string ;
+                     :isEvaluated "false"^^xsd:boolean .
+
+
+###  poas:poas/step4
+<poas:poas/step4> rdf:type owl:NamedIndividual ,
+                              <poas:poas/Step> ;
+                     <poas:poas/belongsTo> <poas:poas/ForContext> ;
+                     :directlyNext <poas:poas/step5> ;
+                     rdfs:label "step4" ;
+                     <poas:poas/text> "4. проверка что переменная c меньше двух (истина)"^^xsd:string ;
+                     :isEvaluated "false"^^xsd:boolean .
+
+
+###  poas:poas/step5
+<poas:poas/step5> rdf:type owl:NamedIndividual ,
+                              <poas:poas/Step> ;
+                     <poas:poas/belongsTo> <poas:poas/ForContext> ;
+                     :directlyNext <poas:poas/step6> ;
+                     rdfs:label "step5" ;
+                     <poas:poas/text> "5. начало первой итерации цикла"^^xsd:string ;
+                     :isEvaluated "false"^^xsd:boolean .
+
+
+###  poas:poas/step6
+<poas:poas/step6> rdf:type owl:NamedIndividual ,
+                              <poas:poas/Step> ;
+                     <poas:poas/belongsTo> <poas:poas/ForContext> ;
+                     :directlyNext <poas:poas/step7> ;
+                     <poas:poas/var...> "stepVar"^^xsd:string ;
+                     rdfs:label "step6" ;
+                     <poas:poas/text> "6. объявление переменной d и присвоение ему числа 3"^^xsd:string ;
+                     :isEvaluated "false"^^xsd:boolean .
+
+
+###  poas:poas/step7
+<poas:poas/step7> rdf:type owl:NamedIndividual ,
+                              <poas:poas/Step> ;
+                     <poas:poas/belongsTo> <poas:poas/ForContext> ;
+                     :directlyNext <poas:poas/step8> ;
+                     rdfs:label "step7" ;
+                     <poas:poas/text> "7. инкрементирование переменной с"^^xsd:string ;
+                     :isEvaluated "true"^^xsd:boolean .
+
+
+###  poas:poas/step8
+<poas:poas/step8> rdf:type owl:NamedIndividual ,
+                              <poas:poas/Step> ;
+                     <poas:poas/belongsTo> <poas:poas/ForContext> ;
+                     :directlyNext <poas:poas/step9> ;
+                     rdfs:label "step8" ;
+                     <poas:poas/text> "8. конец первой итерации цикла"^^xsd:string ;
+                     :isEvaluated "true"^^xsd:boolean .
+
+
+###  poas:poas/step9
+<poas:poas/step9> rdf:type owl:NamedIndividual ,
+                              <poas:poas/Step> ;
+                     <poas:poas/belongsTo> <poas:poas/ForContext> ;
+                     :directlyNext <poas:poas/step10> ;
+                     rdfs:label "step9" ;
+                     <poas:poas/text> "9. проверка что переменная c меньше двух (истина)"^^xsd:string ;
+                     :isEvaluated "true"^^xsd:boolean .
+
+
+###  Generated by the OWL API (version 4.5.13) https://github.com/owlcs/owlapi

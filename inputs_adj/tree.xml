@@ -1,0 +1,811 @@
+<?xml version="1.0"?>
+<StartNode>
+    <InputVariables>
+        <DecisionTreeVarDecl name="X" type="word"/>
+    </InputVariables>
+    <ThoughtBranch type="bool">
+        <QuestionNode _label="Является ли детерминантом
+ слово X?" type="bool" isSwitch="false">
+            <Expression>
+                <CheckClass>
+                    <DecisionTreeVar name="X"/>
+                    <Class name="DET"/>
+                </CheckClass>
+            </Expression>
+            <Outcome value="True">
+                <CycleAggregationNode _label="∀  слов имеющих токены ?
+AND
+Y" operator="AND">
+                    <SelectorExpression>
+                        <LogicalAnd>
+                            <CheckClass>
+                                <Variable name="Y"/>
+                                <Class name="word"/>
+                            </CheckClass>
+                            <LogicalOr>
+                                <CheckRelationship>
+                                    <Relationship name="transitiveToken"/>
+                                    <Variable name="Y"/>
+                                    <DecisionTreeVar name="X"/>
+                                </CheckRelationship>
+                                <CheckRelationship>
+                                    <Relationship name="reverseTransitiveToken"/>
+                                    <Variable name="Y"/>
+                                    <DecisionTreeVar name="X"/>
+                                </CheckRelationship>
+                            </LogicalOr>
+                        </LogicalAnd>
+                    </SelectorExpression>
+                    <DecisionTreeVarDecl name="Y" type="word"/>
+                    <ThoughtBranch type="bool" paramName="Y">
+                        <QuestionNode
+                                _label="Является ли слово
+Y потомком родителя токена
+Х или X потомком Y?"
+                                type="bool" isSwitch="false">
+                            <Expression>
+                                <LogicalOr>
+                                    <CheckRelationship>
+                                        <Relationship name="isDescendant"/>
+                                        <DecisionTreeVar name="Y"/>
+                                        <GetByRelationship varName="var">
+                                            <DecisionTreeVar name="X"/>
+                                            <Relationship name="isChild"/>
+                                            <Boolean value="TRUE"/>
+                                        </GetByRelationship>
+                                    </CheckRelationship>
+                                    <CheckRelationship>
+                                        <Relationship name="isDescendant"/>
+                                        <DecisionTreeVar name="X"/>
+                                        <DecisionTreeVar name="Y"/>
+                                    </CheckRelationship>
+                                </LogicalOr>
+                            </Expression>
+                            <Outcome value="True">
+                                <QuestionNode _label="Токен X
+слева от
+токена
+Y?" type="bool"
+                                              isSwitch="false">
+                                    <Expression>
+                                        <CheckRelationship>
+                                            <Relationship name="transitiveToken"/>
+                                            <DecisionTreeVar name="X"/>
+                                            <DecisionTreeVar name="Y"/>
+                                        </CheckRelationship>
+                                    </Expression>
+                                    <Outcome value="False">
+                                        <BranchResultNode _error_type="error_2" _label="X" value="false">
+                                        </BranchResultNode>
+                                    </Outcome>
+                                    <Outcome value="True">
+                                        <BranchResultNode _label="Y" value="true">
+                                        </BranchResultNode>
+                                    </Outcome>
+                                </QuestionNode>
+                            </Outcome>
+                            <Outcome value="False">
+                                <FindActionNode _label="Найти ближайшего общего предка X и Y
+Z">
+                                    <Expression>
+                                        <GetExtreme extremeVarName="z_ex" varName="z">
+                                            <LogicalNot>
+                                                <ExistenceQuantifier varName="z">
+                                                    <LogicalAnd>
+                                                        <CheckClass>
+                                                            <Variable name="z"/>
+                                                            <Class name="word"/>
+                                                        </CheckClass>
+                                                        <LogicalAnd>
+                                                            <CheckRelationship>
+                                                                <Relationship name="isDescendant"/>
+                                                                <DecisionTreeVar name="X"/>
+                                                                <Variable name="z"/>
+                                                            </CheckRelationship>
+                                                            <CheckRelationship>
+                                                                <Relationship name="isDescendant"/>
+                                                                <DecisionTreeVar name="Y"/>
+                                                                <Variable name="z"/>
+                                                            </CheckRelationship>
+                                                        </LogicalAnd>
+                                                    </LogicalAnd>
+                                                    <LogicalOr>
+                                                        <CheckRelationship>
+                                                            <Relationship name="isBetweenChilds"/>
+                                                            <Variable name="z"/>
+                                                            <DecisionTreeVar name="X"/>
+                                                            <Variable name="z_ex"/>
+                                                        </CheckRelationship>
+                                                        <CheckRelationship>
+                                                            <Relationship name="isBetweenChilds"/>
+                                                            <Variable name="z"/>
+                                                            <DecisionTreeVar name="Y"/>
+                                                            <Variable name="z_ex"/>
+                                                        </CheckRelationship>
+                                                    </LogicalOr>
+                                                </ExistenceQuantifier>
+                                            </LogicalNot>
+                                            <LogicalAnd>
+                                                <CheckClass>
+                                                    <Variable name="z"/>
+                                                    <Class name="word"/>
+                                                </CheckClass>
+                                                <LogicalAnd>
+                                                    <CheckRelationship>
+                                                        <Relationship name="isDescendant"/>
+                                                        <DecisionTreeVar name="X"/>
+                                                        <Variable name="z"/>
+                                                    </CheckRelationship>
+                                                    <CheckRelationship>
+                                                        <Relationship name="isDescendant"/>
+                                                        <DecisionTreeVar name="Y"/>
+                                                        <Variable name="z"/>
+                                                    </CheckRelationship>
+                                                </LogicalAnd>
+                                            </LogicalAnd>
+                                        </GetExtreme>
+                                    </Expression>
+                                    <DecisionTreeVarDecl name="z" type="word"/>
+                                    <Outcome value="found">
+                                        <FindActionNode _label="Найти ребенка Z на пути к Х
+Х'">
+                                            <Expression>
+                                                <GetByCondition varName="X_">
+                                                    <LogicalAnd>
+                                                        <CheckClass>
+                                                            <Variable name="X_"/>
+                                                            <Class name="word"/>
+                                                        </CheckClass>
+                                                        <LogicalAnd>
+                                                            <LogicalOr>
+                                                                <CheckRelationship>
+                                                                    <Relationship name="isAncestor"/>
+                                                                    <Variable name="X_"/>
+                                                                    <DecisionTreeVar name="X"/>
+                                                                </CheckRelationship>
+                                                                <Compare operator="EQUAL">
+                                                                    <Variable name="X_"/>
+                                                                    <DecisionTreeVar name="X"/>
+                                                                </Compare>
+                                                            </LogicalOr>
+                                                            <CheckRelationship>
+                                                                <Relationship name="isChild"/>
+                                                                <Variable name="X_"/>
+                                                                <DecisionTreeVar name="z"/>
+                                                            </CheckRelationship>
+                                                        </LogicalAnd>
+                                                    </LogicalAnd>
+                                                </GetByCondition>
+                                            </Expression>
+                                            <DecisionTreeVarDecl name="X_" type="word"/>
+                                            <Outcome value="found">
+                                                <FindActionNode
+                                                        _label="Найти ребенка Z на пути к Y
+Y'">
+                                                    <Expression>
+                                                        <GetByCondition varName="Y_">
+                                                            <LogicalAnd>
+                                                                <CheckClass>
+                                                                    <Variable name="Y_"/>
+                                                                    <Class name="word"/>
+                                                                </CheckClass>
+                                                                <LogicalAnd>
+                                                                    <LogicalOr>
+                                                                        <CheckRelationship>
+                                                                            <Relationship name="isAncestor"/>
+                                                                            <Variable name="Y_"/>
+                                                                            <DecisionTreeVar name="Y"/>
+                                                                        </CheckRelationship>
+                                                                        <Compare operator="EQUAL">
+                                                                            <Variable name="Y_"/>
+                                                                            <DecisionTreeVar name="Y"/>
+                                                                        </Compare>
+                                                                    </LogicalOr>
+                                                                    <CheckRelationship>
+                                                                        <Relationship name="isChild"/>
+                                                                        <Variable name="Y_"/>
+                                                                        <DecisionTreeVar name="z"/>
+                                                                    </CheckRelationship>
+                                                                </LogicalAnd>
+                                                            </LogicalAnd>
+                                                        </GetByCondition>
+                                                    </Expression>
+                                                    <DecisionTreeVarDecl name="Y_" type="word"/>
+                                                    <Outcome value="found">
+                                                        <QuestionNode
+                                                                _label="В одинаковом ли порядке расположены токены X и Y -- и гиперонимы X' и Y'?"
+                                                                type="bool" isSwitch="false">
+                                                            <Expression>
+                                                                <LogicalOr>
+                                                                    <LogicalAnd>
+                                                                        <CheckRelationship>
+                                                                            <Relationship
+                                                                                    name="tokenPrecedes"/>
+                                                                            <DecisionTreeVar
+                                                                                    name="X"/>
+                                                                            <DecisionTreeVar
+                                                                                    name="Y"/>
+                                                                        </CheckRelationship>
+                                                                        <CheckRelationship>
+                                                                            <Relationship
+                                                                                    name="transitiveHypernymPrecedes"/>
+                                                                            <GetByRelationship
+                                                                                    varName="var">
+                                                                                <DecisionTreeVar
+                                                                                        name="X_"/>
+                                                                                <Relationship
+                                                                                        name="hasHypernym"/>
+                                                                                <Boolean
+                                                                                        value="TRUE"/>
+                                                                            </GetByRelationship>
+                                                                            <GetByRelationship
+                                                                                    varName="var">
+                                                                                <DecisionTreeVar
+                                                                                        name="Y_"/>
+                                                                                <Relationship
+                                                                                        name="hasHypernym"/>
+                                                                                <Boolean
+                                                                                        value="TRUE"/>
+                                                                            </GetByRelationship>
+                                                                        </CheckRelationship>
+                                                                    </LogicalAnd>
+                                                                    <LogicalAnd>
+                                                                        <CheckRelationship>
+                                                                            <Relationship
+                                                                                    name="tokenPrecedes"/>
+                                                                            <DecisionTreeVar
+                                                                                    name="Y"/>
+                                                                            <DecisionTreeVar
+                                                                                    name="X"/>
+                                                                        </CheckRelationship>
+                                                                        <CheckRelationship>
+                                                                            <Relationship
+                                                                                    name="transitiveHypernymPrecedes"/>
+                                                                            <GetByRelationship
+                                                                                    varName="var">
+                                                                                <DecisionTreeVar
+                                                                                        name="Y_"/>
+                                                                                <Relationship
+                                                                                        name="hasHypernym"/>
+                                                                                <Boolean
+                                                                                        value="TRUE"/>
+                                                                            </GetByRelationship>
+                                                                            <GetByRelationship
+                                                                                    varName="var">
+                                                                                <DecisionTreeVar
+                                                                                        name="X_"/>
+                                                                                <Relationship
+                                                                                        name="hasHypernym"/>
+                                                                                <Boolean
+                                                                                        value="TRUE"/>
+                                                                            </GetByRelationship>
+                                                                        </CheckRelationship>
+                                                                    </LogicalAnd>
+                                                                </LogicalOr>
+                                                            </Expression>
+                                                            <Outcome value="False">
+                                                                <BranchResultNode _error_type="error_1" _label="Y"
+                                                                                  value="false">
+                                                                </BranchResultNode>
+                                                            </Outcome>
+                                                            <Outcome value="True">
+                                                                <BranchResultNode _label="X"
+                                                                                  value="true">
+                                                                </BranchResultNode>
+                                                            </Outcome>
+                                                        </QuestionNode>
+                                                    </Outcome>
+                                                </FindActionNode>
+                                            </Outcome>
+                                        </FindActionNode>
+                                    </Outcome>
+                                </FindActionNode>
+                            </Outcome>
+                        </QuestionNode>
+                    </ThoughtBranch>
+                    <Outcome value="True">
+                        <BranchResultNode value="true">
+                        </BranchResultNode>
+                    </Outcome>
+                    <Outcome value="False">
+                        <BranchResultNode value="false">
+                        </BranchResultNode>
+                    </Outcome>
+                </CycleAggregationNode>
+            </Outcome>
+            <Outcome value="False">
+                <CycleAggregationNode _label="∀  слов имеющих токены ?
+AND
+Y" operator="AND">
+                    <SelectorExpression>
+                        <LogicalAnd>
+                            <CheckClass>
+                                <Variable name="Y"/>
+                                <Class name="word"/>
+                            </CheckClass>
+                            <LogicalOr>
+                                <CheckRelationship>
+                                    <Relationship name="transitiveToken"/>
+                                    <Variable name="Y"/>
+                                    <DecisionTreeVar name="X"/>
+                                </CheckRelationship>
+                                <CheckRelationship>
+                                    <Relationship name="reverseTransitiveToken"/>
+                                    <Variable name="Y"/>
+                                    <DecisionTreeVar name="X"/>
+                                </CheckRelationship>
+                            </LogicalOr>
+                        </LogicalAnd>
+                    </SelectorExpression>
+                    <DecisionTreeVarDecl name="Y" type="word"/>
+                    <ThoughtBranch type="bool" paramName="Y">
+                        <PredeterminingFactorsNode _label="Как связаны токен
+X и токен
+Y?"
+                                                   type="string"
+                                                   isSwitch="false">
+                            <Outcome value="undetermined" _label="Иное">
+                                <FindActionNode _label="Найти ближайшего общего предка X и Y
+Z">
+                                    <Expression>
+                                        <GetExtreme extremeVarName="z_ex" varName="z">
+                                            <LogicalNot>
+                                                <ExistenceQuantifier varName="z">
+                                                    <LogicalAnd>
+                                                        <CheckClass>
+                                                            <Variable name="z"/>
+                                                            <Class name="word"/>
+                                                        </CheckClass>
+                                                        <LogicalAnd>
+                                                            <CheckRelationship>
+                                                                <Relationship name="isDescendant"/>
+                                                                <DecisionTreeVar name="X"/>
+                                                                <Variable name="z"/>
+                                                            </CheckRelationship>
+                                                            <CheckRelationship>
+                                                                <Relationship name="isDescendant"/>
+                                                                <DecisionTreeVar name="Y"/>
+                                                                <Variable name="z"/>
+                                                            </CheckRelationship>
+                                                        </LogicalAnd>
+                                                    </LogicalAnd>
+                                                    <LogicalOr>
+                                                        <CheckRelationship>
+                                                            <Relationship name="isBetweenChilds"/>
+                                                            <Variable name="z"/>
+                                                            <DecisionTreeVar name="X"/>
+                                                            <Variable name="z_ex"/>
+                                                        </CheckRelationship>
+                                                        <CheckRelationship>
+                                                            <Relationship name="isBetweenChilds"/>
+                                                            <Variable name="z"/>
+                                                            <DecisionTreeVar name="Y"/>
+                                                            <Variable name="z_ex"/>
+                                                        </CheckRelationship>
+                                                    </LogicalOr>
+                                                </ExistenceQuantifier>
+                                            </LogicalNot>
+                                            <LogicalAnd>
+                                                <CheckClass>
+                                                    <Variable name="z"/>
+                                                    <Class name="word"/>
+                                                </CheckClass>
+                                                <LogicalAnd>
+                                                    <CheckRelationship>
+                                                        <Relationship name="isDescendant"/>
+                                                        <DecisionTreeVar name="X"/>
+                                                        <Variable name="z"/>
+                                                    </CheckRelationship>
+                                                    <CheckRelationship>
+                                                        <Relationship name="isDescendant"/>
+                                                        <DecisionTreeVar name="Y"/>
+                                                        <Variable name="z"/>
+                                                    </CheckRelationship>
+                                                </LogicalAnd>
+                                            </LogicalAnd>
+                                        </GetExtreme>
+                                    </Expression>
+                                    <DecisionTreeVarDecl name="z" type="word"/>
+                                    <Outcome value="found">
+                                        <FindActionNode _label="Найти ребенка Z на пути к Х
+Х'">
+                                            <Expression>
+                                                <GetByCondition varName="X_">
+                                                    <LogicalAnd>
+                                                        <CheckClass>
+                                                            <Variable name="X_"/>
+                                                            <Class name="word"/>
+                                                        </CheckClass>
+                                                        <LogicalAnd>
+                                                            <LogicalOr>
+                                                                <CheckRelationship>
+                                                                    <Relationship name="isAncestor"/>
+                                                                    <Variable name="X_"/>
+                                                                    <DecisionTreeVar name="X"/>
+                                                                </CheckRelationship>
+                                                                <Compare operator="EQUAL">
+                                                                    <Variable name="X_"/>
+                                                                    <DecisionTreeVar name="X"/>
+                                                                </Compare>
+                                                            </LogicalOr>
+                                                            <CheckRelationship>
+                                                                <Relationship name="isChild"/>
+                                                                <Variable name="X_"/>
+                                                                <DecisionTreeVar name="z"/>
+                                                            </CheckRelationship>
+                                                        </LogicalAnd>
+                                                    </LogicalAnd>
+                                                </GetByCondition>
+                                            </Expression>
+                                            <DecisionTreeVarDecl name="X_" type="word"/>
+                                            <Outcome value="found">
+                                                <FindActionNode
+                                                        _label="Найти ребенка Z на пути к Y
+Y'">
+                                                    <Expression>
+                                                        <GetByCondition varName="Y_">
+                                                            <LogicalAnd>
+                                                                <CheckClass>
+                                                                    <Variable name="Y_"/>
+                                                                    <Class name="word"/>
+                                                                </CheckClass>
+                                                                <LogicalAnd>
+                                                                    <LogicalOr>
+                                                                        <CheckRelationship>
+                                                                            <Relationship name="isAncestor"/>
+                                                                            <Variable name="Y_"/>
+                                                                            <DecisionTreeVar name="Y"/>
+                                                                        </CheckRelationship>
+                                                                        <Compare operator="EQUAL">
+                                                                            <Variable name="Y_"/>
+                                                                            <DecisionTreeVar name="Y"/>
+                                                                        </Compare>
+                                                                    </LogicalOr>
+                                                                    <CheckRelationship>
+                                                                        <Relationship name="isChild"/>
+                                                                        <Variable name="Y_"/>
+                                                                        <DecisionTreeVar name="z"/>
+                                                                    </CheckRelationship>
+                                                                </LogicalAnd>
+                                                            </LogicalAnd>
+                                                        </GetByCondition>
+                                                    </Expression>
+                                                    <DecisionTreeVarDecl name="Y_" type="word"/>
+                                                    <Outcome value="found">
+                                                        <QuestionNode
+                                                                _label="В одинаковом ли порядке расположены токены X и Y -- и гиперонимы X' и Y'?"
+                                                                type="bool" isSwitch="false">
+                                                            <Expression>
+                                                                <LogicalOr>
+                                                                    <LogicalAnd>
+                                                                        <CheckRelationship>
+                                                                            <Relationship
+                                                                                    name="tokenPrecedes"/>
+                                                                            <DecisionTreeVar
+                                                                                    name="X"/>
+                                                                            <DecisionTreeVar
+                                                                                    name="Y"/>
+                                                                        </CheckRelationship>
+                                                                        <CheckRelationship>
+                                                                            <Relationship
+                                                                                    name="transitiveHypernymPrecedes"/>
+                                                                            <GetByRelationship
+                                                                                    varName="var">
+                                                                                <DecisionTreeVar
+                                                                                        name="X_"/>
+                                                                                <Relationship
+                                                                                        name="hasHypernym"/>
+                                                                                <Boolean
+                                                                                        value="TRUE"/>
+                                                                            </GetByRelationship>
+                                                                            <GetByRelationship
+                                                                                    varName="var">
+                                                                                <DecisionTreeVar
+                                                                                        name="Y_"/>
+                                                                                <Relationship
+                                                                                        name="hasHypernym"/>
+                                                                                <Boolean
+                                                                                        value="TRUE"/>
+                                                                            </GetByRelationship>
+                                                                        </CheckRelationship>
+                                                                    </LogicalAnd>
+                                                                    <LogicalAnd>
+                                                                        <CheckRelationship>
+                                                                            <Relationship
+                                                                                    name="tokenPrecedes"/>
+                                                                            <DecisionTreeVar
+                                                                                    name="Y"/>
+                                                                            <DecisionTreeVar
+                                                                                    name="X"/>
+                                                                        </CheckRelationship>
+                                                                        <CheckRelationship>
+                                                                            <Relationship
+                                                                                    name="transitiveHypernymPrecedes"/>
+                                                                            <GetByRelationship
+                                                                                    varName="var">
+                                                                                <DecisionTreeVar
+                                                                                        name="Y_"/>
+                                                                                <Relationship
+                                                                                        name="hasHypernym"/>
+                                                                                <Boolean
+                                                                                        value="TRUE"/>
+                                                                            </GetByRelationship>
+                                                                            <GetByRelationship
+                                                                                    varName="var">
+                                                                                <DecisionTreeVar
+                                                                                        name="X_"/>
+                                                                                <Relationship
+                                                                                        name="hasHypernym"/>
+                                                                                <Boolean
+                                                                                        value="TRUE"/>
+                                                                            </GetByRelationship>
+                                                                        </CheckRelationship>
+                                                                    </LogicalAnd>
+                                                                </LogicalOr>
+                                                            </Expression>
+                                                            <Outcome value="False">
+                                                                <BranchResultNode _error_type="error_1" value="false">
+                                                                </BranchResultNode>
+                                                            </Outcome>
+                                                            <Outcome value="True">
+                                                                <BranchResultNode value="true">
+                                                                </BranchResultNode>
+                                                            </Outcome>
+                                                        </QuestionNode>
+                                                    </Outcome>
+                                                </FindActionNode>
+                                            </Outcome>
+                                        </FindActionNode>
+                                    </Outcome>
+                                </FindActionNode>
+                            </Outcome>
+                            <Outcome value="predetermined_1"
+                                     _label="Родитель Х совпадает с родителем Y?">
+                                <QuestionNode _label="Y является
+прилагательным?" type="bool"
+                                              isSwitch="false">
+                                    <Expression>
+                                        <CheckClass>
+                                            <DecisionTreeVar name="Y"/>
+                                            <Class name="ADJ"/>
+                                        </CheckClass>
+                                    </Expression>
+                                    <Outcome value="False">
+                                        <QuestionNode _label="Токен Y
+слева от
+токена
+X?"
+                                                      type="bool" isSwitch="false">
+                                            <Expression>
+                                                <CheckRelationship>
+                                                    <Relationship name="transitiveToken"/>
+                                                    <DecisionTreeVar name="Y"/>
+                                                    <DecisionTreeVar name="X"/>
+                                                </CheckRelationship>
+                                            </Expression>
+                                            <Outcome value="True">
+                                                <BranchResultNode value="true">
+                                                </BranchResultNode>
+                                            </Outcome>
+                                            <Outcome _error_type="error_3" value="False">
+                                                <BranchResultNode value="false">
+                                                </BranchResultNode>
+                                            </Outcome>
+                                        </QuestionNode>
+                                    </Outcome>
+                                    <Outcome value="True">
+                                        <FindActionNode alias="Найти ближайшего общего предка X и Y
+Z">
+                                            <Expression>
+                                                <GetByRelationship varName="z_info">
+                                                    <DecisionTreeVar name="X"/>
+                                                    <Relationship name="isChild"/>
+                                                    <Boolean value="TRUE"/>
+                                                </GetByRelationship>
+                                            </Expression>
+                                            <DecisionTreeVarDecl name="info_z" type="word"/>
+                                            <Outcome value="found">
+                                                <QuestionNode
+                                                        alias="В одинаковом ли порядке расположены токены X и Y -- и гиперонимы X' и Y'?"
+                                                        type="bool" isSwitch="false">
+                                                    <Expression>
+                                                        <LogicalOr>
+                                                            <LogicalAnd>
+                                                                <CheckRelationship>
+                                                                    <Relationship name="transitiveToken"/>
+                                                                    <DecisionTreeVar name="X"/>
+                                                                    <DecisionTreeVar name="Y"/>
+                                                                </CheckRelationship>
+                                                                <CheckRelationship>
+                                                                    <Relationship
+                                                                            name="transitiveHypernymPrecedes"/>
+                                                                    <GetByRelationship varName="var">
+                                                                        <DecisionTreeVar name="X"/>
+                                                                        <Relationship name="hasHypernym"/>
+                                                                        <Boolean value="TRUE"/>
+                                                                    </GetByRelationship>
+                                                                    <GetByRelationship varName="var">
+                                                                        <DecisionTreeVar name="Y"/>
+                                                                        <Relationship name="hasHypernym"/>
+                                                                        <Boolean value="TRUE"/>
+                                                                    </GetByRelationship>
+                                                                </CheckRelationship>
+                                                            </LogicalAnd>
+                                                            <LogicalAnd>
+                                                                <CheckRelationship>
+                                                                    <Relationship name="transitiveToken"/>
+                                                                    <DecisionTreeVar name="Y"/>
+                                                                    <DecisionTreeVar name="X"/>
+                                                                </CheckRelationship>
+                                                                <CheckRelationship>
+                                                                    <Relationship
+                                                                            name="transitiveHypernymPrecedes"/>
+                                                                    <GetByRelationship varName="var">
+                                                                        <DecisionTreeVar name="Y"/>
+                                                                        <Relationship name="hasHypernym"/>
+                                                                        <Boolean value="TRUE"/>
+                                                                    </GetByRelationship>
+                                                                    <GetByRelationship varName="var">
+                                                                        <DecisionTreeVar name="X"/>
+                                                                        <Relationship name="hasHypernym"/>
+                                                                        <Boolean value="TRUE"/>
+                                                                    </GetByRelationship>
+                                                                </CheckRelationship>
+                                                            </LogicalAnd>
+                                                        </LogicalOr>
+                                                    </Expression>
+                                                    <Outcome value="False">
+                                                        <BranchResultNode _error_type="error_4" value="false">
+                                                        </BranchResultNode>
+                                                    </Outcome>
+                                                    <Outcome value="True">
+                                                        <BranchResultNode value="true">
+                                                        </BranchResultNode>
+                                                    </Outcome>
+                                                </QuestionNode>
+                                            </Outcome>
+                                        </FindActionNode>
+                                    </Outcome>
+                                </QuestionNode>
+                                <ThoughtBranch type="bool">
+                                    <QuestionNode _label="Родитель Х совпадает с родителем Y?"
+                                                  type="bool" isSwitch="false">
+                                        <Expression>
+                                            <LogicalAnd>
+                                                <ExistenceQuantifier varName="YParent">
+                                                    <CheckClass>
+                                                        <Variable name="YParent"/>
+                                                        <Class name="word"/>
+                                                    </CheckClass>
+                                                    <CheckRelationship>
+                                                        <Relationship name="isChild"/>
+                                                        <DecisionTreeVar name="Y"/>
+                                                        <Variable name="YParent"/>
+                                                    </CheckRelationship>
+                                                </ExistenceQuantifier>
+                                                <Compare operator="EQUAL">
+                                                    <GetByRelationship varName="var">
+                                                        <DecisionTreeVar name="X"/>
+                                                        <Relationship name="isChild"/>
+                                                        <Boolean value="TRUE"/>
+                                                    </GetByRelationship>
+                                                    <GetByRelationship varName="var">
+                                                        <DecisionTreeVar name="Y"/>
+                                                        <Relationship name="isChild"/>
+                                                        <Boolean value="TRUE"/>
+                                                    </GetByRelationship>
+                                                </Compare>
+                                            </LogicalAnd>
+                                        </Expression>
+                                        <Outcome value="False">
+                                            <BranchResultNode value="false">
+                                            </BranchResultNode>
+                                        </Outcome>
+                                        <Outcome value="True">
+                                            <BranchResultNode value="true">
+                                            </BranchResultNode>
+                                        </Outcome>
+                                    </QuestionNode>
+                                </ThoughtBranch>
+                            </Outcome>
+                            <Outcome value="predetermined_2" _label="Y является потомком X?">
+                                <QuestionNode _label="Токен Y
+слева от
+токена
+X?" type="bool"
+                                              isSwitch="false">
+                                    <Expression>
+                                        <CheckRelationship>
+                                            <Relationship name="transitiveToken"/>
+                                            <DecisionTreeVar name="Y"/>
+                                            <DecisionTreeVar name="X"/>
+                                        </CheckRelationship>
+                                    </Expression>
+                                    <Outcome value="False">
+                                        <BranchResultNode _error_type="error_3" value="false">
+                                        </BranchResultNode>
+                                    </Outcome>
+                                    <Outcome value="True">
+                                        <BranchResultNode value="true">
+                                        </BranchResultNode>
+                                    </Outcome>
+                                </QuestionNode>
+                                <ThoughtBranch type="bool">
+                                    <QuestionNode _label="Y является потомком X?" type="bool"
+                                                  isSwitch="false">
+                                        <Expression>
+                                            <CheckRelationship>
+                                                <Relationship name="isDescendant"/>
+                                                <DecisionTreeVar name="Y"/>
+                                                <DecisionTreeVar name="X"/>
+                                            </CheckRelationship>
+                                        </Expression>
+                                        <Outcome value="True">
+                                            <BranchResultNode value="true">
+                                            </BranchResultNode>
+                                        </Outcome>
+                                        <Outcome value="False">
+                                            <BranchResultNode value="false">
+                                            </BranchResultNode>
+                                        </Outcome>
+                                    </QuestionNode>
+                                </ThoughtBranch>
+                            </Outcome>
+                            <Outcome value="predetermined_3" _label="Y является предком Х?">
+                                <QuestionNode _label="Токен X
+слева от
+токена
+Y?" type="bool"
+                                              isSwitch="false">
+                                    <Expression>
+                                        <CheckRelationship>
+                                            <Relationship name="transitiveToken"/>
+                                            <DecisionTreeVar name="X"/>
+                                            <DecisionTreeVar name="Y"/>
+                                        </CheckRelationship>
+                                    </Expression>
+                                    <Outcome value="False">
+                                        <BranchResultNode _error_type="error_2" value="false">
+                                        </BranchResultNode>
+                                    </Outcome>
+                                    <Outcome value="True">
+                                        <BranchResultNode value="true">
+                                        </BranchResultNode>
+                                    </Outcome>
+                                </QuestionNode>
+                                <ThoughtBranch type="bool">
+                                    <QuestionNode _label="X является потомком Y?" type="bool"
+                                                  isSwitch="false">
+                                        <Expression>
+                                            <CheckRelationship>
+                                                <Relationship name="isDescendant"/>
+                                                <DecisionTreeVar name="X"/>
+                                                <DecisionTreeVar name="Y"/>
+                                            </CheckRelationship>
+                                        </Expression>
+                                        <Outcome value="True">
+                                            <BranchResultNode value="true">
+                                            </BranchResultNode>
+                                        </Outcome>
+                                        <Outcome value="False">
+                                            <BranchResultNode value="false">
+                                            </BranchResultNode>
+                                        </Outcome>
+                                    </QuestionNode>
+                                </ThoughtBranch>
+                            </Outcome>
+                        </PredeterminingFactorsNode>
+                    </ThoughtBranch>
+                    <Outcome value="False">
+                        <BranchResultNode value="false">
+                        </BranchResultNode>
+                    </Outcome>
+                    <Outcome value="True">
+                        <BranchResultNode value="true">
+                        </BranchResultNode>
+                    </Outcome>
+                </CycleAggregationNode>
+            </Outcome>
+        </QuestionNode>
+    </ThoughtBranch>
+</StartNode>

@@ -1,0 +1,43 @@
+@prefix ns1: <http://www.vstu.ru/poas/code#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ns1:ADJ rdfs:subClassOf ns1:word .
+
+ns1:DET rdfs:subClassOf ns1:word .
+
+ns1:NOUN rdfs:subClassOf ns1:word .
+
+ns1:Opinion a ns1:hypernym ;
+    rdfs:label "Opinion" ;
+    ns1:hypernymPrecedes ns1:Size .
+
+ns1:Age a ns1:hypernym ;
+    rdfs:label "Age" ;
+    ns1:hypernymPrecedes ns1:Colour .
+
+ns1:Colour a ns1:hypernym ;
+    rdfs:label "Colour" ;
+    ns1:hypernymPrecedes ns1:Origin .
+
+ns1:Material a ns1:hypernym ;
+    rdfs:label "Material" ;
+    ns1:hypernymPrecedes ns1:Type .
+
+ns1:Origin a ns1:hypernym ;
+    rdfs:label "Origin" ;
+    ns1:hypernymPrecedes ns1:Material .
+
+ns1:PhysicalQuality a ns1:hypernym ;
+    rdfs:label "PhysicalQuality" ;
+    ns1:hypernymPrecedes ns1:Shape .
+
+ns1:Shape a ns1:hypernym ;
+    rdfs:label "Shape" ;
+    ns1:hypernymPrecedes ns1:Age .
+
+ns1:Size a ns1:hypernym ;
+    rdfs:label "Size" ;
+    ns1:hypernymPrecedes ns1:PhysicalQuality .
+
+ns1:Type a ns1:hypernym ;
+    rdfs:label "Type" .

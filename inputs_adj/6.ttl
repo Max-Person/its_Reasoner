@@ -1,0 +1,24 @@
+@prefix ns1: <http://www.vstu.ru/poas/code#>  .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ns1:item_0 a ns1:ADJ ;
+           rdfs:label "Japanese" ;
+           ns1:hasHypernym ns1:Origin ;
+           ns1:isChild ns1:item_3 ;
+           ns1:tokenPrecedes ns1:item_1 ;
+           <http://www.vstu.ru/poas/code#var...> "X" .
+
+ns1:item_1 a ns1:ADJ ;
+           rdfs:label "salt" ;
+           ns1:hasHypernym ns1:Material ;
+           ns1:isChild ns1:item_2 ;
+           ns1:tokenPrecedes ns1:item_2 .
+
+ns1:item_2 a ns1:ADJ ;
+           rdfs:label "cod" ;
+           ns1:hasHypernym ns1:Material ;
+           ns1:isChild ns1:item_3 ;
+           ns1:tokenPrecedes ns1:item_3 .
+
+ns1:item_3 a ns1:NOUN ;
+           rdfs:label "sellers" .

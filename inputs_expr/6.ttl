@@ -1,0 +1,94 @@
+@base <http://www.vstu.ru/poas/code> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# A * (B * C) - выбран первый *
+
+# +++++++++++++++++++++++++++++++++ Элементы +++++++++++++++++++++++++++++++++
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+<#element_A_1>
+    a <#operand> ;
+    <#state> <#evaluated> ;
+    <#has> <#token_A_1> ;
+    <#RU_localizedName> "операнд A на позиции 1"^^xsd:string .
+
+<#element_multiplication_1>
+    a <#multiplication> ;
+    <#state> <#unevaluated> ;
+    <#has> <#token_multiplication_1> ;
+    <#var...> "X"^^xsd:string ;
+    <#RU_localizedName> "оператор * на позиции 2"^^xsd:string .
+
+<#element_parenthesis_1>
+    a <#parenthesis> ;
+    <#has> <#token_parenthesis_1> ;
+    <#has> <#token_parenthesis_2> ;
+    <#RU_localizedName> "скобки вокруг B * C"^^xsd:string .
+
+<#element_B_1>
+    a <#operand> ;
+    <#state> <#evaluated> ;
+    <#has> <#token_B_1> ;
+    <#isInside> <#element_parenthesis_1> ;
+    <#RU_localizedName> "операнд B на позиции 3"^^xsd:string .
+
+<#element_multiplication_2>
+    a <#multiplication> ;
+    <#state> <#unevaluated> ;
+    <#has> <#token_multiplication_2> ;
+    <#isInside> <#element_parenthesis_1> ;
+    <#RU_localizedName> "оператор * на позиции 4"^^xsd:string .
+
+<#element_C_1>
+    a <#operand> ;
+    <#state> <#evaluated> ;
+    <#has> <#token_C_1> ;
+    <#isInside> <#element_parenthesis_1> ;
+    <#RU_localizedName> "операнд C на позиции 5"^^xsd:string .
+
+# ++++++++++++++++++++++++++++++++++ Токены ++++++++++++++++++++++++++++++++++
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+<#token_A_1>
+    a <#token> ;
+    <#directlyLeftOf> <#token_multiplication_1> ;
+    <#belongsTo> <#element_A_1> ;
+    <#RU_localizedName> "A на позиции 1"^^xsd:string .
+
+<#token_multiplication_1>
+    a <#token> ;
+    <#directlyLeftOf> <#token_parenthesis_1> ;
+    <#belongsTo> <#element_multiplication_1> ;
+    <#var...> "X1"^^xsd:string ;
+    <#RU_localizedName> "* на позиции 2"^^xsd:string .
+
+<#token_parenthesis_1>
+    a <#token> ;
+    <#directlyLeftOf> <#token_B_1> ;
+    <#belongsTo> <#element_parenthesis_1> ;
+    <#RU_localizedName> "( перед B"^^xsd:string .
+
+<#token_B_1>
+    a <#token> ;
+    <#directlyLeftOf> <#token_multiplication_2> ;
+    <#belongsTo> <#element_B_1> ;
+    <#RU_localizedName> "B на позиции 3"^^xsd:string .
+
+<#token_multiplication_2>
+    a <#token> ;
+    <#directlyLeftOf> <#token_C_1> ;
+    <#belongsTo> <#element_multiplication_2> ;
+    <#RU_localizedName> "* на позиции 4"^^xsd:string .
+
+<#token_C_1>
+    a <#token> ;
+    <#directlyLeftOf> <#token_parenthesis_2> ;
+    <#belongsTo> <#element_C_1> ;
+    <#RU_localizedName> "C на позиции 5"^^xsd:string .
+
+<#token_parenthesis_2>
+    a <#token> ;
+    <#belongsTo> <#element_parenthesis_1> ;
+    <#RU_localizedName> ") после C"^^xsd:string .

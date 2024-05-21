@@ -1,0 +1,341 @@
+@base <http://www.vstu.ru/poas/code> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# --------- Классы ---------
+<#Item>
+    rdfs:subClassOf <#Operand> .
+
+<#ItemWithVisibleMemory>
+    rdfs:subClassOf <#Item> .
+
+<#Operand>
+    rdfs:subClassOf <#Token> .
+
+<#Operator>
+    rdfs:subClassOf <#Token> .
+
+<#Value>
+    rdfs:subClassOf <#ItemType> .
+
+<#Class>
+    a <#ItemType> ;
+    <#text_rod_p> "класса"^^xsd:string ;
+    <#text_dat_p> "классу"^^xsd:string .
+
+<#Pointer>
+    a <#ItemType> ;
+    <#text_rod_p> "указателя"^^xsd:string ;
+    <#text_dat_p> "указателю"^^xsd:string .
+
+<#ClassObject>
+    a <#ItemType> ;
+    <#text_rod_p> "объекта"^^xsd:string ;
+    <#text_dat_p> "объекту"^^xsd:string .
+
+<#Array>
+    a <#ItemType> ;
+    <#text_rod_p> "массива"^^xsd:string ;
+    <#text_dat_p> "массиву"^^xsd:string .
+
+<#Container>
+    a <#ItemType> ;
+    <#text_rod_p> "контейнера"^^xsd:string ;
+    <#text_dat_p> "контейнеру"^^xsd:string .
+
+<#PointerToMember>
+    a <#ItemType> ;
+    <#text_rod_p> "указателя типа pointer-to-member"^^xsd:string ;
+    <#text_dat_p> "указателю типа pointer-to-member"^^xsd:string .
+
+<#IntegerValue>
+    a <#Value> ;
+    <#type> "int"^^xsd:string ;
+    <#text_rod_p> "целого числа"^^xsd:string ;
+    <#text_dat_p> "целому числу"^^xsd:string .
+
+<#FloatValue>
+    a <#Value> ;
+    <#type> "float"^^xsd:string ;
+    <#text_rod_p> "дробного числа"^^xsd:string ;
+    <#text_dat_p> "дробному числу"^^xsd:string .
+
+<#StringValue>
+    a <#Value> ;
+    <#type> "std::string"^^xsd:string ;
+    <#text_rod_p> "строки"^^xsd:string ;
+    <#text_dat_p> "строке"^^xsd:string .
+
+<#Field>
+    a <#ConnectionType> ;
+    <#text_tvor_p> "полем объекта"^^xsd:string ;
+    <#text_dat_p> "полю объекта"^^xsd:string ;
+    <#text_rod_p> "поля объекта"^^xsd:string ;
+    <#text_im_p> "поле объекта"^^xsd:string ;
+    <#hint_text> "поле объекта с именем"^^xsd:string .
+
+<#PointedItem>
+    a <#ConnectionType> ;
+    <#text_tvor_p> "указываемым объектом"^^xsd:string ;
+    <#text_dat_p> "указываемому объекту"^^xsd:string ;
+    <#text_rod_p> "указываемого объекта"^^xsd:string ;
+    <#text_im_p> "указываемый объект"^^xsd:string ;
+    <#hint_text> "объект по указателю"^^xsd:string .
+
+<#PointedField>
+    a <#ConnectionType> ;
+    <#text_tvor_p> "полем объекта"^^xsd:string ;
+    <#text_dat_p> "полю объекта"^^xsd:string ;
+    <#text_rod_p> "поля объекта"^^xsd:string ;
+    <#text_im_p> "поле объекта"^^xsd:string ;
+    <#hint_text> "поле объекта с именем"^^xsd:string .
+
+<#StaticField>
+    a <#ConnectionType> ;
+    <#text_tvor_p> "статическим полем объекта"^^xsd:string ;
+    <#text_dat_p> "статическому полю объекта"^^xsd:string ;
+    <#text_rod_p> "статического поля объекта"^^xsd:string ;
+    <#text_im_p> "статическое поле объекта"^^xsd:string ;
+    <#hint_text> "статическое поле с именем"^^xsd:string .
+
+<#ArrayDimension>
+    a <#ConnectionType> ;
+    <#text_tvor_p> "измерением массива"^^xsd:string ;
+    <#text_dat_p> "измерению массива"^^xsd:string ;
+    <#text_rod_p> "измерения массива"^^xsd:string ;
+    <#text_im_p> "измерение массива"^^xsd:string ;
+    <#hint_text> "измерение массива с индексом"^^xsd:string .
+
+<#ArrayItem>
+    a <#ConnectionType> ;
+    <#text_tvor_p> "элементом массива"^^xsd:string ;
+    <#text_dat_p> "элементу массива"^^xsd:string ;
+    <#text_rod_p> "элемента массива"^^xsd:string ;
+    <#text_im_p> "элемент массива"^^xsd:string ;
+    <#hint_text> "элемент массива с индексом"^^xsd:string .
+
+<#ContainerItem>
+    a <#ConnectionType> ;
+    <#text_tvor_p> "элементом контейнера"^^xsd:string ;
+    <#text_dat_p> "элементу контейнера"^^xsd:string ;
+    <#text_rod_p> "элемента контейнера"^^xsd:string ;
+    <#text_im_p> "элемент контейнера"^^xsd:string ;
+    <#hint_text> "элемент контейнера с ключом"^^xsd:string .
+
+<#ClassConnection>
+    a <#ConnectionType> ;
+    <#text_tvor_p> "классом"^^xsd:string ;
+    <#text_dat_p> "классу"^^xsd:string ;
+    <#text_rod_p> "класса"^^xsd:string ;
+    <#text_im_p> "класс"^^xsd:string ;
+    <#hint_text> "класс с именем"^^xsd:string .
+
+<#Variable>
+    a <#ConnectionType> ;
+    <#text_tvor_p> "переменной"^^xsd:string ;
+    <#text_dat_p> "переменной"^^xsd:string ;
+    <#text_rod_p> "переменной"^^xsd:string ;
+    <#text_im_p> "переменная"^^xsd:string ;
+    <#hint_text> "переменную с именем"^^xsd:string .
+
+<#PointedMember>
+    a <#ConnectionType> ;
+    <#text_tvor_p> "указываемым членом"^^xsd:string ;
+    <#text_dat_p> "указываемому члену"^^xsd:string ;
+    <#text_rod_p> "указываемого члена"^^xsd:string ;
+    <#text_im_p> "указываемый член"^^xsd:string ;
+    <#hint_text> "член объекта по указателю"^^xsd:string .
+
+<#PontedMemberByPointer>
+    a <#ConnectionType> ;
+    <#text_tvor_p> "указываемым членом"^^xsd:string ;
+    <#text_dat_p> "указываемому члену"^^xsd:string ;
+    <#text_rod_p> "указываемого члена"^^xsd:string ;
+    <#text_im_p> "указываемый член"^^xsd:string ;
+    <#hint_text> "член объекта по указателю"^^xsd:string .
+
+<#Dot>
+    a <#OperatorType> ;
+    <#text> "."^^xsd:string ;
+    <#associated_with> <#Field> ;
+    <#can_be_applied_to> <#ClassObject> ;
+    <#can_be_applied_to> <#Container> ;
+    <#unary> "false"^^xsd:boolean .
+
+<#Arrow>
+    a <#OperatorType> ;
+    <#text> "->"^^xsd:string ;
+    <#associated_with> <#PointedField> ;
+    <#can_be_applied_to> <#Pointer> ;
+    <#unary> "false"^^xsd:boolean .
+
+<#DoubleColon>
+    a <#OperatorType> ;
+    <#text> "::"^^xsd:string ;
+    <#associated_with> <#StaticField> ;
+    <#can_be_applied_to> <#Class> ;
+    <#unary> "false"^^xsd:boolean .
+
+<#Asterisk>
+    a <#OperatorType> ;
+    <#text> "*"^^xsd:string ;
+    <#associated_with> <#PointedItem> ;
+    <#can_be_applied_to> <#Pointer> ;
+    <#can_be_applied_to> <#Array> ;
+    <#unary> "true"^^xsd:boolean .
+
+<#SquareBrackets>
+    a <#OperatorType> ;
+    <#text> "[]"^^xsd:string ;
+    <#associated_with> <#ArrayItem> ;
+    <#associated_with> <#ArrayDimension> ;
+    <#associated_with> <#ContainerItem> ;
+    <#can_be_applied_to> <#Array> ;
+    <#can_be_applied_to> <#Container> ;
+    <#unary> "false"^^xsd:boolean .
+
+<#DotAsterisk>
+    a <#OperatorType> ;
+    <#text> ".*"^^xsd:string ;
+    <#associated_with> <#PointedMember> ;
+    <#can_be_applied_to> <#ClassObject> ;
+    <#can_be_applied_to> <#Container> ;
+    <#unary> "false"^^xsd:boolean .
+
+<#ArrowAsterisk>
+    a <#OperatorType> ;
+    <#text> "->*"^^xsd:string ;
+    <#associated_with> <#PontedMemberByPointer> ;
+    <#can_be_applied_to> <#Pointer> ;
+    <#can_be_applied_to> <#Array> ;
+    <#unary> "false"^^xsd:boolean .
+
+<#ItemName>
+    a <#OperandType> ;
+    <#can_be_used_with> <#Dot> ;
+    <#can_be_used_with> <#Arrow> ;
+    <#can_be_used_with> <#DoubleColon> ;
+    <#compatible> <#compatible_itemName_arrow_pointer> ;
+    <#compatible> <#compatible_itemName_dot_objectItem> ;
+    <#compatible> <#compatible_itemName_dot_container> ;
+    <#compatible> <#compatible_itemName_doubleColon_class> .
+# <#text_im_p> "имя элемента"^^xsd:string .
+
+<#PointerOperand>
+    a <#OperandType> ;
+    <#can_be_used_with> <#Asterisk> ;
+    <#compatible> <#compatible_pointerOperand_asterisk_pointer> ;
+    <#compatible> <#compatible_pointerOperand_asterisk_array> .
+# <#text_im_p> "указываемый объект"^^xsd:string .
+
+<#IntegerOperand>
+    a <#OperandType> ;
+    <#can_be_used_with> <#SquareBrackets> ;
+    <#compatible> <#compatible_integerOperand_squareBrackets_array> .
+
+<#ItemOperand>
+    a <#OperandType> ;
+    <#can_be_used_with> <#SquareBrackets> ;
+    <#compatible> <#compatible_itemOperand_squareBrackets_container> .
+
+<#PointerToMemberOperand>
+    a <#OperandType> ;
+    <#can_be_used_with> <#DotAsterisk> ;
+    <#can_be_used_with> <#ArrowAsterisk> ;
+    <#compatible> <#compatible_pointerToMemberOperand_dotAsterisk_container> ;
+    <#compatible> <#compatible_pointerToMemberOperand_dotAsterisk_classObject> ;
+    <#compatible> <#compatible_pointerToMemberOperand_arrowAsterisk_pointer> ;
+    <#compatible> <#compatible_pointerToMemberOperand_arrowAsterisk_array> .
+
+<#ClassOperand>
+    a <#OperandType> .
+
+# ---- Тернарные связи -----
+
+<#compatible_itemName_arrow_pointer>
+    <#compatible> <#Arrow> ;
+    <#compatible> <#Pointer> .
+
+<#compatible_itemName_dot_objectItem>
+    <#compatible> <#Dot> ;
+    <#compatible> <#ClassObject> .
+
+<#compatible_itemName_dot_container>
+    <#compatible> <#Dot> ;
+    <#compatible> <#Container> .
+
+<#compatible_itemName_doubleColon_class>
+    <#compatible> <#DoubleColon> ;
+    <#compatible> <#Class> .
+
+<#compatible_pointerOperand_asterisk_pointer>
+    <#compatible> <#Asterisk> ;
+    <#compatible> <#Pointer> .
+
+<#compatible_pointerOperand_asterisk_array>
+    <#compatible> <#Asterisk> ;
+    <#compatible> <#Array> .
+
+<#compatible_integerOperand_squareBrackets_array>
+    <#compatible> <#SquareBrackets> ;
+    <#compatible> <#Array> .
+
+<#compatible_itemOperand_squareBrackets_container>
+    <#compatible> <#SquareBrackets> ;
+    <#compatible> <#Container> .
+
+<#compatible_pointerToMemberOperand_dotAsterisk_container>
+    <#compatible> <#DotAsterisk> ;
+    <#compatible> <#Container> .
+
+<#compatible_pointerToMemberOperand_dotAsterisk_classObject>
+    <#compatible> <#DotAsterisk> ;
+    <#compatible> <#ClassObject> .
+
+<#compatible_pointerToMemberOperand_arrowAsterisk_pointer>
+    <#compatible> <#ArrowAsterisk> ;
+    <#compatible> <#Pointer> .
+
+<#compatible_pointerToMemberOperand_arrowAsterisk_array>
+    <#compatible> <#ArrowAsterisk> ;
+    <#compatible> <#Array> .
+
+# ----------------------- Операторы
+
+<#dot>
+    a <#Operator> ;
+    <#operator_text> "."^^xsd:string ;
+    <#operator_type> <#Dot> .
+
+<#arrow>
+    a <#Operator> ;
+    <#operator_text> "->"^^xsd:string ;
+    <#operator_type> <#Arrow> .
+
+<#doubleColon>
+    a <#Operator> ;
+    <#operator_text> "::"^^xsd:string ;
+    <#operator_type> <#DoubleColon> .
+
+<#asterisk>
+    a <#Operator> ;
+    <#operator_text> "*"^^xsd:string ;
+    <#operator_type> <#Asterisk> .
+
+<#squareBrackets>
+    a <#Operator> ;
+    <#operator_text> "[]"^^xsd:string ;
+    <#operator_type> <#SquareBrackets> .
+
+<#dotAsterisk>
+    a <#Operator> ;
+    <#operator_text> ".*"^^xsd:string ;
+    <#operator_type> <#DotAsterisk> .
+
+<#arrowAsterisk>
+    a <#Operator> ;
+    <#operator_text> "->*"^^xsd:string ;
+    <#operator_type> <#ArrowAsterisk> .
+
+<#arrayRoot>a<#Item>;<#item_type><#Array>;<#operand_type><#PointerOperand>;<#reachable_from><#arrayRoot>;<#is_a><#variable_objectMatrix>;<#contains><#arrayRoot_0>;<#has><#arrayDimension_arrayRoot_0>;<#was_visited_before> "false"^^xsd:boolean;<#var...>"currentItem"^^xsd:string.<#variable_objectMatrix>a<#Connection>;<#connection_type><#Variable>.<#arrayDimension_arrayRoot_0>a<#Connection>;<#connection_type><#ArrayDimension>.<#arrayRoot_0>a<#Item>;<#item_type><#Array>;<#operand_type><#PointerOperand>;<#contained_in><#arrayRoot>;<#reachable_from><#arrayRoot>;<#reachable_from><#arrayRoot_0>;<#contains><#arrayRoot_0_0>;<#has><#arrayDimension_arrayRoot_0_0>;<#is_a><#arrayDimension_arrayRoot_0>;<#was_visited_before>"false"^^xsd:boolean.<#arrayDimension_arrayRoot_0_0>a<#Connection>;<#connection_type><#ArrayDimension>.<#arrayRoot_0_0>a<#Item>;<#item_type><#Array>;<#operand_type><#PointerOperand>;<#contained_in><#arrayRoot_0>;<#reachable_from><#arrayRoot>;<#reachable_from><#arrayRoot_0>;<#reachable_from><#arrayRoot_0_0>;<#contains><#arrayRoot_0_0_0>;<#has><#arrayDimension_arrayRoot_0_0_0>;<#is_a><#arrayDimension_arrayRoot_0_0>;<#was_visited_before>"false"^^xsd:boolean.<#arrayDimension_arrayRoot_0_0_0>a<#Connection>;<#connection_type><#ArrayDimension>.<#arrayRoot_0_0_0>a<#Item>;<#item_type><#Array>;<#operand_type><#PointerOperand>;<#contained_in><#arrayRoot_0_0>;<#reachable_from><#arrayRoot>;<#reachable_from><#arrayRoot_0>;<#reachable_from><#arrayRoot_0_0>;<#reachable_from><#arrayRoot_0_0_0>;<#contains><#arrayRoot_0_0_0_0>;<#has><#arrayDimension_arrayRoot_0_0_0_0>;<#is_a><#arrayDimension_arrayRoot_0_0_0>;<#was_visited_before>"false"^^xsd:boolean.<#arrayDimension_arrayRoot_0_0_0_0>a<#Connection>;<#connection_type><#ArrayDimension>.<#arrayRoot_0_0_0_0>a<#Item>;<#item_type><#Array>;<#operand_type><#PointerOperand>;<#contained_in><#arrayRoot_0_0_0>;<#reachable_from><#arrayRoot>;<#reachable_from><#arrayRoot_0>;<#reachable_from><#arrayRoot_0_0>;<#reachable_from><#arrayRoot_0_0_0>;<#reachable_from><#arrayRoot_0_0_0_0>;<#contains><#arrayRoot_0_0_0_0_0>;<#has><#arrayDimension_arrayRoot_0_0_0_0_0>;<#is_a><#arrayDimension_arrayRoot_0_0_0_0>;<#was_visited_before>"false"^^xsd:boolean.<#arrayDimension_arrayRoot_0_0_0_0_0>a<#Connection>;<#connection_type><#ArrayDimension>.<#arrayRoot_0_0_0_0_0>a<#Item>;<#item_type><#Array>;<#operand_type><#PointerOperand>;<#contained_in><#arrayRoot_0_0_0_0>;<#reachable_from><#arrayRoot>;<#reachable_from><#arrayRoot_0>;<#reachable_from><#arrayRoot_0_0>;<#reachable_from><#arrayRoot_0_0_0>;<#reachable_from><#arrayRoot_0_0_0_0>;<#reachable_from><#arrayRoot_0_0_0_0_0>;<#contains><#arrayRoot_0_0_0_0_0_0>;<#has><#arrayDimension_arrayRoot_0_0_0_0_0_0>;<#is_a><#arrayDimension_arrayRoot_0_0_0_0_0>;<#was_visited_before>"false"^^xsd:boolean.<#arrayDimension_arrayRoot_0_0_0_0_0_0>a<#Connection>;<#connection_type><#ArrayDimension>.<#arrayRoot_0_0_0_0_0_0>a<#Item>;<#item_type><#Array>;<#operand_type><#PointerOperand>;<#contained_in><#arrayRoot_0_0_0_0_0>;<#reachable_from><#arrayRoot>;<#reachable_from><#arrayRoot_0>;<#reachable_from><#arrayRoot_0_0>;<#reachable_from><#arrayRoot_0_0_0>;<#reachable_from><#arrayRoot_0_0_0_0>;<#reachable_from><#arrayRoot_0_0_0_0_0>;<#reachable_from><#arrayRoot_0_0_0_0_0_0>;<#var...>"targetItem"^^xsd:string;<#is_a><#arrayDimension_arrayRoot_0_0_0_0_0_0>;<#was_visited_before>"false"^^xsd:boolean.<#symbol>a<#Element>;<#operator><#squareBrackets>;<#operand><#arrayDimension_0>;<#var...>"symbol"^^xsd:string.<#arrayDimension_0>a<#Operand>;<#operand_type><#IntegerOperand>;<#linked_with><#arrayDimension_arrayRoot_0>.<#stage>a<#Stage>;<#var...>"stage"^^xsd:string;<#current_stage><#Main>.

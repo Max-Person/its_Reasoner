@@ -1,0 +1,300 @@
+@base <http://www.vstu.ru/poas/code> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ++++++++++++++++++++++++++++++++++ Классы ++++++++++++++++++++++++++++++++++
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# <#token>
+
+# <#element>
+
+<#parenthesis>
+    rdfs:subClassOf <#element> ;
+    <#countOfTokens> "2"^^xsd:integer .
+
+<#operand>
+    rdfs:subClassOf <#element> ;
+    <#countOfTokens> "1"^^xsd:integer .
+
+<#operator>
+    rdfs:subClassOf <#operand> .
+
+<#plus>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#binary> ;
+    <#place> <#infix> ;
+    <#precedence> "6"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+    
+<#minus>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#binary> ;
+    <#place> <#infix> ;
+    <#precedence> "6"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#unaryPlus>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#unary> ;
+    <#place> <#prefix> ;
+    <#precedence> "3"^^xsd:integer ;
+    <#associativity> <#right> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "false"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+    
+<#unaryMinus>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#unary> ;
+    <#place> <#prefix> ;
+    <#precedence> "3"^^xsd:integer ;
+    <#associativity> <#right> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "false"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#prefixInc>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#unary> ;
+    <#place> <#prefix> ;
+    <#precedence> "3"^^xsd:integer ;
+    <#associativity> <#right> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "false"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+    
+<#prefixDec>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#unary> ;
+    <#place> <#prefix> ;
+    <#precedence> "3"^^xsd:integer ;
+    <#associativity> <#right> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "false"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#postfixInc>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#unary> ;
+    <#place> <#postfix> ;
+    <#precedence> "2"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "false"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+    
+<#postfixDec>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#unary> ;
+    <#place> <#postfix> ;
+    <#precedence> "2"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "false"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#and>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#binary> ;
+    <#place> <#infix> ;
+    <#precedence> "14"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "true"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#or>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#binary> ;
+    <#place> <#infix> ;
+    <#precedence> "15"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "true"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#not>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#unary> ;
+    <#place> <#prefix> ;
+    <#precedence> "3"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "false"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#equal>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#binary> ;
+    <#place> <#infix> ;
+    <#precedence> "10"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#notequal>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#binary> ;
+    <#place> <#infix> ;
+    <#precedence> "10"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#less>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#binary> ;
+    <#place> <#infix> ;
+    <#precedence> "9"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#lesseq>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#binary> ;
+    <#place> <#infix> ;
+    <#precedence> "9"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#greater>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#binary> ;
+    <#place> <#infix> ;
+    <#precedence> "9"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#greatereq>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#binary> ;
+    <#place> <#infix> ;
+    <#precedence> "9"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#ternaryConditional>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "2"^^xsd:integer ;
+    <#arity> <#ternary> ;
+    <#place> <#infix> ;
+    <#precedence> "16"^^xsd:integer ;
+    <#associativity> <#right> ;
+    <#hasStrictOperandOrder> "true"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "true"^^xsd:boolean .
+
+<#comma>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#binary> ;
+    <#place> <#infix> ;
+    <#precedence> "17"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "true"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#multiplication>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#binary> ;
+    <#place> <#infix> ;
+    <#precedence> "5"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#division>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#binary> ;
+    <#place> <#infix> ;
+    <#precedence> "5"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#power>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "1"^^xsd:integer ;
+    <#arity> <#binary> ;
+    <#place> <#infix> ;
+    <#precedence> "4"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "true"^^xsd:boolean ;
+    <#needsInnerOperand> "false"^^xsd:boolean .
+
+<#brackets>
+    rdfs:subClassOf <#operator> ;
+    <#countOfTokens> "2"^^xsd:integer ;
+    <#arity> <#binary> ;
+    <#place> <#infix> ;
+    <#precedence> "2"^^xsd:integer ;
+    <#associativity> <#left> ;
+    <#hasStrictOperandOrder> "false"^^xsd:boolean ;
+    <#needsLeftOperand> "true"^^xsd:boolean ;
+    <#needsRightOperand> "false"^^xsd:boolean ;
+    <#needsInnerOperand> "true"^^xsd:boolean .
+
+

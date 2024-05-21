@@ -1,0 +1,4 @@
+tokenPrecedes||word;word|LINEAR|reverseToken;transitiveToken;reverseTransitiveToken;isBetweenToken;isCloserToken;isFurtherToken||0
+isChild||word;word|PARTIAL|isParent;isDescendant;isAncestor;isBetweenChilds;isCloserChilds;isFurtherChilds||0
+hasHypernym||word;hypernym||||0
+hypernymPrecedes||hypernym;hypernym|LINEAR|reverseHypernymPrecedes;transitiveHypernymPrecedes;reverseTransitiveHypernymPrecedes;isBetweenHypernymPrecedes;unusedIsCloserHypernymPrecedes;unusedIsFurtherHypernymPrecedes||0

@@ -1,0 +1,3 @@
+directlyNext||Step;Step|LINEAR|directlyPrevious;next;previous;between;closer;far|
+endsIn||Context;Step|||onetoone
+belongsTo||Step;Context|||manytoone

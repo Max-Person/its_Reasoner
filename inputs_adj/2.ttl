@@ -1,0 +1,25 @@
+@prefix ns1: <http://www.vstu.ru/poas/code#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+#hyp wrong order
+
+ns1:item_0 a ns1:DET ;
+    rdfs:label "The" ;
+    ns1:isChild ns1:item_3 ;
+    ns1:tokenPrecedes ns1:item_1 .
+
+ns1:item_1 a ns1:ADJ ;
+    rdfs:label "Japanese" ;
+    ns1:hasHypernym ns1:Origin ;
+    ns1:isChild ns1:item_3 ;
+    ns1:tokenPrecedes ns1:item_2 ;
+    <http://www.vstu.ru/poas/code#var...> "X" .
+
+ns1:item_2 a ns1:ADJ ;
+    rdfs:label "beautiful" ;
+    ns1:hasHypernym ns1:Opinion ;
+    ns1:isChild ns1:item_3 ;
+    ns1:tokenPrecedes ns1:item_3 .
+
+ns1:item_3 a ns1:NOUN ;
+    rdfs:label "books" .

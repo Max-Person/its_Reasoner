@@ -1,0 +1,2128 @@
+<StartNode>
+    <InputVariables>
+        <DecisionTreeVarDecl name="X" type="operator" />
+        <AdditionalVarDecl name="X1" type="token">
+            <Expression>
+                <GetExtreme extremeVarName="x1" varName="x_token" type="token">
+                    <LogicalNot>
+                        <ExistenceQuantifier varName="x_token" type="token">
+                            <CheckRelationship>
+                                <Relationship name="has" />
+                                <DecisionTreeVar name="X" />
+                                <Variable name="x_token" />
+                            </CheckRelationship>
+                            <CheckRelationship>
+                                <Relationship name="leftOf" />
+                                <Variable name="x_token" />
+                                <Variable name="x1" />
+                            </CheckRelationship>
+                        </ExistenceQuantifier>
+                    </LogicalNot>
+                    <CheckRelationship>
+                        <Relationship name="has" />
+                        <DecisionTreeVar name="X" />
+                        <Variable name="x_token" />
+                    </CheckRelationship>
+                </GetExtreme>
+            </Expression>
+        </AdditionalVarDecl>
+    </InputVariables>
+    <ThoughtBranch type="bool" _alias="main"
+        _RU_description="${val('X','и')} ${result ? '' : 'не'} может выполниться следующим"
+
+        _EN_description="${val('X','и')} ${result ? 'can' : 'cant'} be evaluated next">
+        <LogicAggregationNode id="3" operator="and" _alias="main.and"
+            _RU_asNextStep="Необходимо проверить, может ли ${val('X','и')} выполниться следующим."
+            _RU_description="${val('X','и')} ${result ? '' : 'не'} может выполниться следующим"
+            _RU_endingCause="Потому что есть факторы, мешающие дальнейшему вычислению ${val('X','р')}"
+
+            _EN_asNextStep="We should check if ${val('X','и')} can be evaluated next."
+            _EN_description="${val('X','и')} ${result ? 'can' : 'cant'} be evaluated next"
+            _EN_endingCause="Because one of the operands of ${val('X','и')} prevents its evaluation"
+        >
+            <ThoughtBranch type="bool" _alias="central"
+                _RU_description="внутренний операнд ${val('X','р')} ${result ? 'не' : ''} требует дальнейших вычислений"
+                _RU_nextStepQuestion="С чего надо начать при рассмотрении внутреннего операнда?"
+                _RU_nextStepExplanation="Это неверно. Прежде всего необходимо проверить, нужен ли оператору внутренний операнд."
+
+                _EN_description="inner operand of ${val('X','р')} ${result ? 'doesnt require' : 'requires'} further evaluation"
+                _EN_nextStepQuestion="What is the first step when considering operator's inner operand?"
+                _EN_nextStepExplanation="That's incorrect. One should first check if the operator needs inner operand at all."
+            >
+                <QuestionNode type="int" _alias="central.isNeeded"
+                    _RU_asNextStep="Необходимо проверить, нужен ли ${val('X','д')} внутренний операнд."
+                    _RU_question="Сколько токенов имеет ${class('X','и')}?"
+                    _RU_endingCause="Потому что ${class('X','и')} не требует внутреннего операнда"
+
+                    _EN_asNextStep="We should check if the operator needs inner operand at all."
+                    _EN_question="How many token does ${class('X','и')} have?"
+                    _EN_endingCause="Because ${class('X','и')} doesn't need inner operand."
+                >
+                    <Expression>
+                        <GetPropertyValue>
+                            <DecisionTreeVar name="X" />
+                            <Property name="countOfTokens" />
+                        </GetPropertyValue>
+                    </Expression>
+                    <Outcome value="1"
+                        _RU_explanation="Это неверно. ${class('X','и')} имеет только один токен."
+                        _RU_nextStepQuestion="Какие выводы можно сделать, если ${class('X','и')} имеет только один токен?"
+                        _RU_nextStepExplanation="Это неверно. Т.к. ${class('X','и')} имеет только один токен, а значит, не имеет внутреннего операнда (только левый и правый). Получается, внутренний операнд не может помешать его вычислению."
+
+                        _EN_explanation="That's incorrect. ${class('X','и')} has just one token."
+                        _EN_nextStepQuestion="What is the next reasoning step if we know that ${class('X','и')} has just one token?"
+                        _EN_nextStepExplanation="That's incorrect. Because ${class('X','и')} has just one token, it can't have an inner operand at all (only a left and a right one). Therefore, no inner operand to prevent its evaluation."
+                    >
+                        <BranchResultNode value='true' />
+                    </Outcome>
+                    <Outcome value="2"
+                        _RU_explanation="Это неверно. ${class('X','и')} имеет два токена."
+                        _RU_nextStepQuestion="Какой дальнейший шаг можно сделать, если ${class('X','и')} имеет два токена?"
+                        _RU_nextStepExplanation="Это неверно. Т.к. ${class('X','и')} имеет два токена, а значит, требует внутренний операнд, необходимо дальнейшее нахождение и рассмотрение данного операнда."
+                        
+                        _EN_explanation="That's incorrect. ${class('X','и')} has two tokens."
+                        _EN_nextStepQuestion="What is the next reasoning step if we know that ${class('X','и')} has two tokens?"
+                        _EN_nextStepExplanation="That's incorrect - ${class('X','и')} having two tokens means it has an inner operand positioned between them. So we need to find the second token of ${val('X','р')}, to then find and check the state of the inner operand."
+                    >
+                        <FindActionNode _alias="central.findX2"
+                            _RU_asNextStep="Необходимо найти второй токен ${val('X','р')}."
+                            _RU_question="Найдите второй токен ${val('X', 'Gen')}."
+
+                            _EN_asNextStep="We should find the second token of ${val('X','р')}."
+                            _EN_question="Find the second token of ${val('X', 'Gen')}."
+                        >
+                            <DecisionTreeVarDecl name="X2" type="token" />
+                            <Expression>
+                                <GetByCondition varName="x2">
+                                    <LogicalAnd>
+                                        <LogicalAnd>
+                                            <CheckClass>
+                                                <Variable name="x2" />
+                                                <Class name="token" />
+                                            </CheckClass>
+                                            <CheckRelationship>
+                                                <Relationship name="belongsTo" />
+                                                <Variable name="x2" />
+                                                <DecisionTreeVar name="X" />
+                                            </CheckRelationship>
+                                        </LogicalAnd>
+                                        <CheckRelationship>
+                                            <Relationship name="rightOf" />
+                                            <Variable name="x2" />
+                                            <DecisionTreeVar name="X1" />
+                                        </CheckRelationship>
+                                    </LogicalAnd>
+                                </GetByCondition>
+                            </Expression>
+                            <FindError priority="1" _alias="X2_wrongType"
+                                _RU_explanation="Это неверно, поскольку ${obj(checked, 'Nom')} не может являться токеном ${class('X', 'Gen')} - он является токеном другого типа."
+                                _EN_explanation="That's incorrect, because ${obj(checked, 'Nom')} can't be the token of ${class('X', 'Gen')} - tokens of this type are unrelated to ${class('X', 'Gen')}."
+                            >
+                                <Expression>
+                                    <LogicalAnd>
+                                        <LogicalAnd>
+                                            <CheckClass>
+                                                <Variable name="checked" />
+                                                <Class name="token" />
+                                            </CheckClass>
+                                            <CheckClass>
+                                                <GetByRelationship varName="var">
+                                                    <Variable name="checked" />
+                                                    <Relationship name="belongsTo" />
+                                                </GetByRelationship>
+                                                <Class name="operator" />
+                                            </CheckClass>
+                                        </LogicalAnd>
+                                        <Compare operator="NOT_EQUAL">
+                                            <GetClass>
+                                                <GetByRelationship>
+                                                    <Variable name="checked" />
+                                                    <Relationship name="belongsTo" />
+                                                </GetByRelationship>
+                                            </GetClass>
+                                            <GetClass>
+                                                <DecisionTreeVar name="X" />
+                                            </GetClass>
+                                        </Compare>
+                                    </LogicalAnd>
+                                </Expression>
+                            </FindError>
+                            <FindError priority="2" _alias="X2_wrongSide"
+                                _RU_explanation="Это неверно - ${obj(checked, 'Nom')} находится не с той стороны от ${val('X1', 'Gen')}."
+                                _EN_explanation="That's incorrect - ${obj(checked, 'Nom')} is on the wrong side of ${val('X1', 'Gen')}."
+                            >
+                                <Expression>
+                                    <LogicalAnd>
+                                        <LogicalAnd>
+                                            <CheckClass>
+                                                <Variable name="checked" />
+                                                <Class name="token" />
+                                            </CheckClass>
+                                            <CheckClass>
+                                                <GetByRelationship varName="var">
+                                                    <Variable name="checked" />
+                                                    <Relationship name="belongsTo" />
+                                                </GetByRelationship>
+                                                <Class name="operator" />
+                                            </CheckClass>
+                                        </LogicalAnd>
+                                        <CheckRelationship>
+                                            <Relationship name="isBetween" />
+                                            <DecisionTreeVar name="X1" />
+                                            <DecisionTreeVar name="X2" />
+                                            <Variable name="checked" />
+                                        </CheckRelationship>
+                                    </LogicalAnd>
+                                </Expression>
+                            </FindError>
+                            <FindError priority="3" _alias="X2_tooFar"
+                                _RU_explanation="Это неверно, ${obj(checked, 'Nom')} слишком далеко, чтобы быть парой для ${val('X1', 'Gen')}."
+                                _EN_explanation="That's incorrect, ${obj(checked, 'Nom')} is too far to be the second token to ${val('X1', 'Gen')}."
+                            >
+                                <Expression>
+                                    <LogicalAnd>
+                                        <LogicalAnd>
+                                            <CheckClass>
+                                                <Variable name="checked" />
+                                                <Class name="token" />
+                                            </CheckClass>
+                                            <CheckClass>
+                                                <GetByRelationship varName="var">
+                                                    <Variable name="checked" />
+                                                    <Relationship name="belongsTo" />
+                                                </GetByRelationship>
+                                                <Class name="operator" />
+                                            </CheckClass>
+                                        </LogicalAnd>
+                                        <CheckRelationship>
+                                            <Relationship name="isBetween" />
+                                            <DecisionTreeVar name="X2" />
+                                            <DecisionTreeVar name="X1" />
+                                            <Variable name="checked" />
+                                        </CheckRelationship>
+                                    </LogicalAnd>
+                                </Expression>
+                            </FindError>
+                            <FindError priority="4" _alias="X2_tooClose"
+                                _RU_explanation="Это неверно, ${obj(checked, 'Nom')} слишком близко, чтобы быть парой для ${val('X1', 'Gen')}."
+                                _EN_explanation="That's incorrect, ${obj(checked, 'Nom')} is too close to be the second token to ${val('X1', 'Gen')}."
+                            >
+                                <Expression>
+                                    <LogicalAnd>
+                                        <LogicalAnd>
+                                            <CheckClass>
+                                                <Variable name="checked" />
+                                                <Class name="token" />
+                                            </CheckClass>
+                                            <CheckClass>
+                                                <GetByRelationship varName="var">
+                                                    <Variable name="checked" />
+                                                    <Relationship name="belongsTo" />
+                                                </GetByRelationship>
+                                                <Class name="operator" />
+                                            </CheckClass>
+                                        </LogicalAnd>
+                                        <CheckRelationship>
+                                            <Relationship name="isBetween" />
+                                            <Variable name="checked" />
+                                            <DecisionTreeVar name="X1" />
+                                            <DecisionTreeVar name="X2" />
+                                        </CheckRelationship>
+                                    </LogicalAnd>
+                                </Expression>
+                            </FindError>
+                            <Outcome value="found"
+                                _RU_explanation="второй токен ${val('X','р')} это ${val('X2','и')}"
+                                _EN_explanation="second token of ${val('X','р')} is ${val('X2','и')}"
+                            >
+                                <QuestionNode type="bool" _alias="central.isUnevaluated"
+                                    _RU_asNextStep="Необходимо проверить, есть ли внутри ${val('X','р')} невычисленные операторы."
+                                    _RU_question="Есть ли внутри ${val('X','р')} невычисленные операторы?"
+                                    _RU_endingCause="Из-за наличия/отсутствия внутри ${val('X','р')} невычисленных операторов."
+
+                                    _EN_asNextStep="We should check if there are unevaluated operators between ${val('X1', 'и')} and ${val('X2', 'и')}."
+                                    _EN_question="Are there unevaluated operators between ${val('X1', 'и')} and ${val('X2', 'и')}?"
+                                    _EN_endingCause="Because of the presence/absence of unevaluated operators between ${val('X1', 'и')} and ${val('X2', 'и')}."
+                                >
+                                    <Expression>
+                                        <ExistenceQuantifier varName="i">
+                                            <CheckClass>
+                                                <Variable name="i" />
+                                                <Class name="operator" />
+                                            </CheckClass>
+                                            <LogicalAnd>
+                                                <CheckRelationship>
+                                                    <Relationship name="isBetween" />
+                                                    <Variable name="i" />
+                                                    <DecisionTreeVar name="X1" />
+                                                    <DecisionTreeVar name="X2" />
+                                                </CheckRelationship>
+                                                <Compare operator="EQUAL">
+                                                    <GetPropertyValue>
+                                                        <Variable name="i" />
+                                                        <Property name="state" />
+                                                    </GetPropertyValue>
+                                                    <Enum owner="state" value="unevaluated" />
+                                                </Compare>
+                                            </LogicalAnd>
+                                        </ExistenceQuantifier>
+                                    </Expression>
+                                    <Outcome value="true"
+                                        _RU_explanation="Это неверно. Внутри ${val('X','р')} присутствуют невычисленные операторы."
+                                        _RU_nextStepQuestion="Какие выводы можно сделать, если внутри ${val('X','р')} присутствуют невычисленные операторы?"
+                                        _RU_nextStepExplanation="Это неверно. Т.к. внутри ${val('X','р')} присутствуют невычисленные операторы, это значит, что его внутренний операнд невычислен и мешает дальнейшему вычислению ${val('X','р')}."
+
+                                        _EN_explanation="That's incorrect. There are unevaluated operators between ${val('X1', 'и')} and ${val('X2', 'и')}."
+                                        _EN_nextStepQuestion="What can we conclude if there are unevaluated operators between ${val('X1', 'и')} and ${val('X2', 'и')}?"
+                                        _EN_nextStepExplanation="That's incorrect. Any unevaluated operator between ${val('X1', 'и')} and ${val('X2', 'и')}, means that the inner operand of ${val('X','р')} is not fully evaluated. Therefore, it is preventing its further evaluation.."
+                                    >
+                                        <BranchResultNode value='false' />
+                                    </Outcome>
+                                    <Outcome value="false"
+                                        _RU_explanation="Это неверно. Все операторы внутри  ${val('X','р')} вычислены."
+                                        _RU_nextStepQuestion="Какие выводы можно сделать, если  Все операторы внутри  ${val('X','р')} вычислены?"
+                                        _RU_nextStepExplanation="Это неверно. Т.к. внутри ${val('X','р')} нет невычисленные операторов, это значит, что его внутренний операнд полностью вычислен и не мешает дальнейшему вычислению ${val('X','р')}."
+
+                                        _EN_explanation="That's incorrect. There are no unevaluated operators between ${val('X1', 'и')} and ${val('X2', 'и')}."
+                                        _EN_nextStepQuestion="What can we conclude if there are no unevaluated operators between ${val('X1', 'и')} and ${val('X2', 'и')}?"
+                                        _EN_nextStepExplanation="That's incorrect. If all of the operators between ${val('X1', 'и')} and ${val('X2', 'и')} are evaluated, then the inner operand of ${val('X','р')} is fully evaluated. Therefore, it is not preventing its further evaluation."
+                                    >
+                                        <BranchResultNode value="true" />
+                                    </Outcome>
+                                </QuestionNode>
+                            </Outcome>
+                        </FindActionNode>
+                    </Outcome>
+                </QuestionNode>
+            </ThoughtBranch>
+            <ThoughtBranch type="bool" _alias="left"
+                _RU_description="левый операнд ${val('X','р')} ${result ? 'не' : ''} требует дальнейших вычислений"
+                _RU_nextStepQuestion="С чего надо начать при рассмотрении левого операнда?"
+                _RU_nextStepExplanation="Это неверно. Прежде всего необходимо проверить, нужен ли оператору левый операнд."
+
+                _EN_description="left operand of ${val('X','р')} ${result ? 'doesnt require' : 'requires'} further evaluation"
+                _EN_nextStepQuestion="What is the first step when considering operator's left operand?"
+                _EN_nextStepExplanation="That's incorrect. One should first check if the operator needs left operand at all."
+            >
+                <QuestionNode type="bool" _alias="left.isNeeded"
+                    _RU_asNextStep="Необходимо проверить, нужен ли ${val('X','д')} левый операнд."
+                    _RU_question="Нужен ли ${class('X','д')} левый операнд?"
+                    _RU_endingCause="Потому что ${val('X','и')} не требует левого операнда"
+                    
+                    _EN_asNextStep="We should check if ${val('X','д')} needs a left operand."
+                    _EN_question="Does ${class('X','д')} need a left operand?"
+                    _EN_endingCause="Because ${val('X','и')} doesn't need a left operand."
+                >
+                    <Expression>
+                        <GetPropertyValue>
+                            <DecisionTreeVar name="X" />
+                            <Property name="needsLeftOperand" />
+                        </GetPropertyValue>
+                    </Expression>
+                    <Outcome value="false"
+                        _RU_explanation="Это неверно. ${class('X','и')} не имеет (не требует) левого операнда."
+                        _RU_nextStepQuestion="Какие выводы можно сделать, если ${val('X','и')} не требует левого операнда?"
+                        _RU_nextStepExplanation="Это неверно. Если оператор не имеет левого операнда, то и дальнейших вычислений его левый операнд требовать не может."
+                        
+                        _EN_explanation="That's incorrect, because ${class('X','и')} doesn't need a left operand."
+                        _EN_nextStepQuestion="What is the next reasoning step if we know that ${class('X','и')} doesn't need a left operand?"
+                        _EN_nextStepExplanation="That's incorrect. If it doesn't need a left operand, then the left operand can't prevent its further evaluation."
+                    >
+                        <BranchResultNode value="true" />
+                    </Outcome>
+                    <Outcome value="true"
+                        _RU_explanation="Это неверно. ${class('X','д')} всегда необходим левый операнд."
+                        _RU_nextStepQuestion="Какие выводы можно сделать, если ${val('X','д')} нужен левый операнд?"
+                        _RU_nextStepExplanation="Это неверно. Необходимо дальше рассмотреть потенциально конкурирующие с ${val('X','т')} операторы, и делать выводы исходя из их наличия/отсуствия."
+                        
+                        _EN_explanation="That's incorrect, because ${class('X','и')} does require a left operand."
+                        _EN_nextStepQuestion="What is the next reasoning step if we know that ${class('X','и')} needs a left operand?"
+                        _EN_nextStepExplanation="That's incorrect. From here, one should check if there are any operators that should still be evaluated in the left operand, and then reason based on that."
+                    >
+                        <FindActionNode _alias="left.findY"
+                            _RU_asNextStep="Необходимо найти потенциально мешающий оператор слева от ${val('X','р')}"
+                            _RU_question="Какой оператор может помешать выполнению ${val('X', 'Gen')} слева?"
+                            _RU_endingCause="Потому что слева от ${val('X','р')} находятся только вычисленные операторы"
+
+                            _EN_asNextStep="We should look for an unevaluated operator that could be in the left operand of ${val('X','р')}, preventing its further evaluation."
+                            _EN_question="Find an operator that could be in the left operand of ${val('X','р')}, preventing its further evaluation?"
+                            _EN_endingCause="Because there are only evaluated operators to the left of ${val('X','р')}."
+                        >
+                            <DecisionTreeVarDecl name="Y1" type="token"/>
+                            <Expression>
+                                <GetExtreme extremeVarName="y1_ex" varName="y1">
+                                    <LogicalNot>
+                                        <ExistenceQuantifier varName="y1">
+                                            <LogicalAnd>
+                                                <LogicalAnd>
+                                                    <CheckClass>
+                                                        <Variable name="y1" />
+                                                        <Class name="token" />
+                                                    </CheckClass>
+                                                    <CheckRelationship>
+                                                        <Relationship name="leftOf" />
+                                                        <Variable name="y1" />
+                                                        <DecisionTreeVar name="X" />
+                                                    </CheckRelationship>
+                                                </LogicalAnd>
+                                                <LogicalAnd>
+                                                    <CheckClass>
+                                                        <GetByRelationship varName="var">
+                                                            <Variable name="y1" />
+                                                            <Relationship name="belongsTo" />
+                                                        </GetByRelationship>
+                                                        <Class name="operator" />
+                                                    </CheckClass>
+                                                    <Compare operator="EQUAL">
+                                                        <GetPropertyValue>
+                                                            <GetByRelationship varName="var">
+                                                                <Variable name="y1" />
+                                                                <Relationship name="belongsTo" />
+                                                            </GetByRelationship>
+                                                            <Property name="state" />
+                                                        </GetPropertyValue>
+                                                        <Enum owner="state" value="unevaluated" />
+                                                    </Compare>
+                                                </LogicalAnd>
+                                            </LogicalAnd>
+                                            <CheckRelationship>
+                                                <Relationship name="isBetween" />
+                                                <Variable name="y1" />
+                                                <Variable name="y1_ex" />
+                                                <DecisionTreeVar name="X" />
+                                            </CheckRelationship>
+                                        </ExistenceQuantifier>
+                                    </LogicalNot>
+                                    <LogicalAnd>
+                                        <LogicalAnd>
+                                            <CheckClass>
+                                                <Variable name="y1" />
+                                                <Class name="token" />
+                                            </CheckClass>
+                                            <CheckRelationship>
+                                                <Relationship name="leftOf" />
+                                                <Variable name="y1" />
+                                                <DecisionTreeVar name="X" />
+                                            </CheckRelationship>
+                                        </LogicalAnd>
+                                        <LogicalAnd>
+                                            <CheckClass>
+                                                <GetByRelationship varName="var">
+                                                    <Variable name="y1" />
+                                                    <Relationship name="belongsTo" />
+                                                </GetByRelationship>
+                                                <Class name="operator" />
+                                            </CheckClass>
+                                            <Compare operator="EQUAL">
+                                                <GetPropertyValue>
+                                                    <GetByRelationship varName="var">
+                                                        <Variable name="y1" />
+                                                        <Relationship name="belongsTo" />
+                                                    </GetByRelationship>
+                                                    <Property name="state" />
+                                                </GetPropertyValue>
+                                                <Enum owner="state" value="unevaluated" />
+                                            </Compare>
+                                        </LogicalAnd>
+                                    </LogicalAnd>
+                                </GetExtreme>
+                            </Expression>
+                            <FindError priority="1" _alias="Y1_wrongSide"
+                                _RU_explanation="Это неверно, поскольку ${obj(checked, 'Nom')} находится справа от ${val('X', 'Gen')}."
+                                _EN_explanation="That's incorrect, because ${obj(checked, 'Nom')} is to the right of ${val('X', 'Gen')}."
+                            >
+                                <Expression>
+                                    <LogicalAnd>
+                                        <LogicalAnd>
+                                            <CheckClass>
+                                                <Variable name="checked" />
+                                                <Class name="token" />
+                                            </CheckClass>
+                                            <CheckClass>
+                                                <GetByRelationship varName="var">
+                                                    <Variable name="checked" />
+                                                    <Relationship name="belongsTo" />
+                                                </GetByRelationship>
+                                                <Class name="operator" />
+                                            </CheckClass>
+                                        </LogicalAnd>
+                                        <CheckRelationship>
+                                            <Relationship name="rightOf" />
+                                            <Variable name="checked" />
+                                            <DecisionTreeVar name="X" />
+                                        </CheckRelationship>
+                                    </LogicalAnd>
+                                </Expression>
+                            </FindError>
+                            <FindError priority="2" _alias="Y1_evaluated"
+                                _RU_explanation="Это неверно - ${obj(checked, 'Nom')} уже вычислен и по сути является операндом, а значит не может помешать вычислению ${val('X', 'Gen')}."
+                                _EN_explanation="That's incorrect - ${obj(checked, 'Nom')} is already evaluated and now serves as just an operand, and therefore cannot prevent the evaluation of ${val('X', 'Gen')}."
+                            >
+                                <Expression>
+                                    <LogicalAnd>
+                                        <CheckClass>
+                                            <Variable name="checked" />
+                                            <Class name="token" />
+                                        </CheckClass>
+                                        <LogicalAnd>
+                                            <CheckClass>
+                                                <GetByRelationship varName="var">
+                                                    <Variable name="checked" />
+                                                    <Relationship name="belongsTo" />
+                                                </GetByRelationship>
+                                                <Class name="operator" />
+                                            </CheckClass>
+                                            <Compare operator="NOT_EQUAL">
+                                                <GetPropertyValue>
+                                                    <GetByRelationship varName="var">
+                                                        <Variable name="checked" />
+                                                        <Relationship name="belongsTo" />
+                                                    </GetByRelationship>
+                                                    <Property name="state" />
+                                                </GetPropertyValue>
+                                                <Enum owner="state" value="unevaluated" />
+                                            </Compare>
+                                        </LogicalAnd>
+                                    </LogicalAnd>
+                                </Expression>
+                            </FindError>
+                            <FindError priority="3" _alias="Y1_tooFar"
+                                _RU_explanation="Это неверно, ${obj(checked, 'Nom')} слишком далеко от ${val('X', 'Gen')} чтобы помешать ему."
+                                _EN_explanation="That might be true, but there is a fitting operator closer to the ${val('X', 'Gen')} than ${obj(checked, 'Nom')} and it should be considered first."
+                            >
+                                <Expression>
+                                    <LogicalAnd>
+                                        <LogicalAnd>
+                                            <CheckClass>
+                                                <Variable name="checked" />
+                                                <Class name="token" />
+                                            </CheckClass>
+                                            <CheckClass>
+                                                <GetByRelationship varName="var">
+                                                    <Variable name="checked" />
+                                                    <Relationship name="belongsTo" />
+                                                </GetByRelationship>
+                                                <Class name="operator" />
+                                            </CheckClass>
+                                        </LogicalAnd>
+                                        <CheckRelationship>
+                                            <Relationship name="isBetween" />
+                                            <DecisionTreeVar name="Y1" />
+                                            <DecisionTreeVar name="X" />
+                                            <Variable name="checked" />
+                                        </CheckRelationship>
+                                    </LogicalAnd>
+                                </Expression>
+                            </FindError>
+                            <AdditionalVarDecl name="Y" type="operator">
+                                <Expression>
+                                    <Cast>
+                                        <GetByRelationship>
+                                            <DecisionTreeVar name="Y1" />
+                                            <Relationship name="belongsTo" />
+                                        </GetByRelationship>
+                                        <Class name="operator" />
+                                    </Cast>
+                                </Expression>
+                            </AdditionalVarDecl>
+                            <Outcome value="none"
+                                _RU_explanation="слева от ${val('X','р')} нет потенциально мешающих операторов"
+                                _RU_nextStepQuestion="Какие выводы можно сделать, если слева от ${val('X','р')} находятся только вычисленные операторы?"
+                                _RU_nextStepExplanation="Это неверно. Если все выражение слева от ${val('X','р')} вычислено, значит и его левый операнд вычислен и не мешает вычислению ${val('X','р')}."
+
+                                _EN_explanation="there are no unevaluated operators to the left of ${val('X','р')}"
+                                _EN_nextStepQuestion="What is the next reasoning step if we know that there are only evaluated operators to the left of ${val('X','р')}?"
+                                _EN_nextStepExplanation="That's incorrect. If the expression to the left of the ${val('X','р')} is already evaluated, then the left operand of ${val('X','р')} is fully evaluated. Therefore, it is not preventing its further evaluation."
+                            >
+                                <BranchResultNode value="true" />
+                            </Outcome>
+                            <Outcome value="found"
+                                _RU_explanation="слева от ${val('X','р')} есть потенциально мешающий оператор - это ${val('Y','и')}"
+                                _RU_nextStepQuestion="Как определяется порядок вычисления двух конкурирующих операторов?"
+                                _RU_nextStepBranchResult="${branchResult ? 'Правый' : 'Левый'} оператор всегда выполняется первым"
+                                _RU_nextStepExplanation="Это неверно. Определение порядка вычислений двух операторов надо начинать с рассмотрения влияния скобок на их приоритет."
+
+                                _EN_explanation="there is a potentially blocking operator to the left of ${val('X','р')} - it's ${val('Y','и')}"
+                                _EN_nextStepQuestion="How should one determine the order of evaluation between two operators?"
+                                _EN_nextStepBranchResult="The one on the ${branchResult ? 'right' : 'left'} is always evaluated first"
+                                _EN_nextStepExplanation="That's incorrect. One should first determine if parentheses have any effect on the precedence of the two operators."
+                            >
+                                <PredeterminingFactorsNode _alias="left.predetermining"
+                                    _RU_asNextStep="Необходимо рассмотреть влияние скобок на взаимодействие между ${val('X','т')} и ${val('Y','т')}."
+                                    _RU_question="Как скобки влияют на взаимодействие между ${val('X','т')} и ${val('Y','т')}?"
+                                    _RU_endingCause="Из-за роли скобок в выражении"
+
+                                    _EN_asNextStep="We should check if parentheses have any effect on the precedence of the two operators."
+                                    _EN_question="How do parentheses affect the evaluation of ${val('X','т')} and ${val('Y','т')}?"
+                                    _EN_endingCause="Because of the effect of the parentheses"
+                                >
+                                    <Outcome value="predetermined_1"
+                                        _RU_text="${val('Y','и')} окружает ${val('X','в')}"
+                                        _RU_explanation="${val('Y','и')} ${result ? '' : 'не'} окружает ${val('X','в')}"
+                                        _RU_nextStepQuestion="Как определяется порядок вычисления операторов, один из которых окружает другой?"
+                                        _RU_nextStepBranchResult="${branchResult ? 'Внутренний' : 'Внешний'} оператор всегда выполняется первым"
+                                        _RU_nextStepExplanation="Это неверно. То, что ${val('Y','и')} окружает ${val('X','в')}, значит, что ${val('X','и')} является для ${val('Y','р')} внутренним операндом и должен быть вычислен первым."
+
+                                        _EN_text="${val('Y','и')} encloses ${val('X','в')}"
+                                        _EN_explanation="${val('Y','и')} does ${result ? '' : 'not'} enclose ${val('X','в')}"
+                                        _EN_nextStepQuestion="How should one the order of evaluation between two operators, one of which encloses another?"
+                                        _EN_nextStepBranchResult="The ${branchResult ? 'enclosing' : 'enclosed'} operator is always evaluated first."
+                                        _EN_nextStepExplanation="That's incorrect - ${val('Y','и')} enclosing ${val('X','в')} means that the ${val('X','и')} is an inner operand to ${val('Y','р')} and should be evaluated first."
+                                    >
+                                        <BranchResultNode value="true" />
+                                        <ThoughtBranch type="bool" _alias="left.predetermining.1"
+                                            _RU_description="${val('Y','и')} ${result ? '' : 'не'} окружает ${val('X','и')}"
+                                            _EN_description="${val('Y','и')} does ${result ? '' : 'not'} enclose ${val('X','в')}"
+                                        >
+                                            <QuestionNode type="bool"
+                                                _alias="left.predetermining.1.isYTernary"
+                                                _RU_asNextStep="Необходимо определить, является ли ${class('Y','и')} окружающим оператором (имеет два токена)."
+                                                _RU_question="Является ли ${class('Y','и')} окружающим оператором (имеет два токена)?"
+                                                _RU_endingCause="Потому что ${class('Y','и')} не является окружающим оператором, и имеет только один токен"
+
+                                                _EN_asNextStep="We should check if ${class('Y','и')} has two tokens."
+                                                _EN_question="Does ${class('Y','и')} have two tokens?"
+                                                _EN_endingCause="Because ${class('Y','и')} has just one token"
+                                            >
+                                                <Expression>
+                                                    <Compare operator="EQUAL">
+                                                        <GetPropertyValue>
+                                                            <DecisionTreeVar name="Y" />
+                                                            <Property name="countOfTokens" />
+                                                        </GetPropertyValue>
+                                                        <Integer value="2" />
+                                                    </Compare>
+                                                </Expression>
+                                                <Outcome value="false"
+                                                    _RU_nextStepQuestion="Какие выводы можно сделать, если ${class('Y','и')} не является окружающим оператором?"
+                                                    _RU_nextStepExplanation="Это неверно. Т.к. ${class('Y','и')} имеет только один токен, а значит, не имеет внутреннего операнда, то и окружать другие операторы он не может."
+                                                    
+                                                    _EN_nextStepQuestion="What is the next reasoning step if we know that ${class('Y','и')} has just one token?"
+                                                    _EN_nextStepExplanation="That's incorrect - ${class('Y','и')} having only one token means that it does not have an internal operand, and therefore cannot enclose other operators."
+                                                >
+                                                    <BranchResultNode value="false" />
+                                                </Outcome>
+                                                <Outcome value="true"
+                                                    _RU_nextStepQuestion="Какие выводы можно сделать, если ${class('Y','и')} является окружающим оператором?"
+                                                    _RU_nextStepExplanation="Это неверно. Необходимо начать с того, чтобы найти второй токен ${val('Y','р')}."
+                                                    
+                                                    _EN_nextStepQuestion="What is the next reasoning step if we know that ${class('Y','и')} has two tokens?"
+                                                    _EN_nextStepExplanation="That's incorrect. One should first find the second token of ${val('Y','р')} and then check if it encloses ${val('X','и')}."
+                                                >
+                                                    <FindActionNode _alias="left.predetermining.1.findY2"
+                                                        _RU_asNextStep="Необходимо найти второй токен ${val('Y','р')}."
+                                                        _RU_question="Найдите второй токен ${val('Y', 'Gen')}."
+
+                                                        _EN_asNextStep="We should find the second token of ${val('Y','р')}."
+                                                        _EN_question="Find the second token of ${val('Y', 'Gen')}."
+                                                    >
+                                                        <DecisionTreeVarDecl name="Y2" type="token" />
+                                                        <Expression>
+                                                            <GetByCondition varName="y2">
+                                                                <LogicalAnd>
+                                                                    <LogicalAnd>
+                                                                        <CheckClass>
+                                                                            <Variable name="y2" />
+                                                                            <Class name="token" />
+                                                                        </CheckClass>
+                                                                        <CheckRelationship>
+                                                                            <Relationship name="belongsTo" />
+                                                                            <Variable name="y2" />
+                                                                            <DecisionTreeVar name="Y" />
+                                                                        </CheckRelationship>
+                                                                    </LogicalAnd>
+                                                                    <Compare operator="NOT_EQUAL">
+                                                                        <Variable name="y2" />
+                                                                        <DecisionTreeVar name="Y1" />
+                                                                    </Compare>
+                                                                </LogicalAnd>
+                                                            </GetByCondition>
+                                                        </Expression>
+                                                        <FindError priority="1" _alias="Y2_wrongType"
+                                                            _RU_explanation="Это неверно, поскольку ${obj(checked, 'Nom')} не может являться токеном ${class('Y', 'Gen')} - он является токеном другого типа."
+                                                            _EN_explanation="That's incorrect, because ${obj(checked, 'Nom')} can't be the token of ${class('Y', 'Gen')} - tokens of this type are unrelated to ${class('Y', 'Gen')}."
+                                                        >
+                                                            <Expression>
+                                                                <LogicalAnd>
+                                                                    <LogicalAnd>
+                                                                        <CheckClass>
+                                                                            <Variable name="checked" />
+                                                                            <Class name="token" />
+                                                                        </CheckClass>
+                                                                        <CheckClass>
+                                                                            <GetByRelationship varName="var">
+                                                                                <Variable name="checked" />
+                                                                                <Relationship name="belongsTo" />
+                                                                            </GetByRelationship>
+                                                                            <Class name="operator" />
+                                                                        </CheckClass>
+                                                                    </LogicalAnd>
+                                                                    <Compare operator="NOT_EQUAL">
+                                                                        <GetClass>
+                                                                            <GetByRelationship>
+                                                                                <Variable name="checked" />
+                                                                                <Relationship name="belongsTo" />
+                                                                            </GetByRelationship>
+                                                                        </GetClass>
+                                                                        <GetClass>
+                                                                            <DecisionTreeVar name="Y" />
+                                                                        </GetClass>
+                                                                    </Compare>
+                                                                </LogicalAnd>
+                                                            </Expression>
+                                                        </FindError>
+                                                        <FindError priority="2" _alias="Y2_wrongSide"
+                                                            _RU_explanation="Это неверно - ${obj(checked, 'Nom')} находится не с той стороны от ${val('Y1', 'Gen')}."
+                                                            _EN_explanation="That's incorrect - ${obj(checked, 'Nom')} is on the wrong side of ${val('Y1', 'Gen')}."
+                                                        >
+                                                            <Expression>
+                                                                <LogicalAnd>
+                                                                    <LogicalAnd>
+                                                                        <CheckClass>
+                                                                            <Variable name="checked" />
+                                                                            <Class name="token" />
+                                                                        </CheckClass>
+                                                                        <CheckClass>
+                                                                            <GetByRelationship varName="var">
+                                                                                <Variable name="checked" />
+                                                                                <Relationship name="belongsTo" />
+                                                                            </GetByRelationship>
+                                                                            <Class name="operator" />
+                                                                        </CheckClass>
+                                                                    </LogicalAnd>
+                                                                    <CheckRelationship>
+                                                                        <Relationship name="isBetween" />
+                                                                        <DecisionTreeVar name="Y1" />
+                                                                        <DecisionTreeVar name="Y2" />
+                                                                        <Variable name="checked" />
+                                                                    </CheckRelationship>
+                                                                </LogicalAnd>
+                                                            </Expression>
+                                                        </FindError>
+                                                        <FindError priority="3" _alias="Y2_tooFar"
+                                                            _RU_explanation="Это неверно, ${obj(checked, 'Nom')} слишком далеко, чтобы быть парой для ${val('Y1', 'Gen')}."
+                                                            _EN_explanation="That's incorrect, ${obj(checked, 'Nom')} is too far to be the second token to ${val('Y1', 'Gen')}."
+                                                        >
+                                                            <Expression>
+                                                                <LogicalAnd>
+                                                                    <LogicalAnd>
+                                                                        <CheckClass>
+                                                                            <Variable name="checked" />
+                                                                            <Class name="token" />
+                                                                        </CheckClass>
+                                                                        <CheckClass>
+                                                                            <GetByRelationship varName="var">
+                                                                                <Variable name="checked" />
+                                                                                <Relationship name="belongsTo" />
+                                                                            </GetByRelationship>
+                                                                            <Class name="operator" />
+                                                                        </CheckClass>
+                                                                    </LogicalAnd>
+                                                                    <CheckRelationship>
+                                                                        <Relationship name="isBetween" />
+                                                                        <DecisionTreeVar name="Y2" />
+                                                                        <DecisionTreeVar name="Y1" />
+                                                                        <Variable name="checked" />
+                                                                    </CheckRelationship>
+                                                                </LogicalAnd>
+                                                            </Expression>
+                                                        </FindError>
+                                                        <FindError priority="4" _alias="Y2_tooClose"
+                                                            _RU_explanation="Это неверно, ${obj(checked, 'Nom')} слишком близко, чтобы быть парой для ${val('Y1', 'Gen')}."
+                                                            _EN_explanation="That's incorrect, ${obj(checked, 'Nom')} is too close to be the second token to ${val('Y1', 'Gen')}."
+                                                        >
+                                                            <Expression>
+                                                                <LogicalAnd>
+                                                                    <LogicalAnd>
+                                                                        <CheckClass>
+                                                                            <Variable name="checked" />
+                                                                            <Class name="token" />
+                                                                        </CheckClass>
+                                                                        <CheckClass>
+                                                                            <GetByRelationship varName="var">
+                                                                                <Variable name="checked" />
+                                                                                <Relationship name="belongsTo" />
+                                                                            </GetByRelationship>
+                                                                            <Class name="operator" />
+                                                                        </CheckClass>
+                                                                    </LogicalAnd>
+                                                                    <CheckRelationship>
+                                                                        <Relationship name="isBetween" />
+                                                                        <Variable name="checked" />
+                                                                        <DecisionTreeVar name="Y1" />
+                                                                        <DecisionTreeVar name="Y2" />
+                                                                    </CheckRelationship>
+                                                                </LogicalAnd>
+                                                            </Expression>
+                                                        </FindError>
+                                                        <Outcome value="found"
+                                                            _RU_explanation="второй токен ${val('Y','р')} это ${val('Y2','и')}"
+                                                            _RU_nextStepExplanation="Это неверно. Необходимо проверить, находится ли ${val('X','и')} между ${val('Y1','р')} И ${val('Y2','р')}."
+                                                            
+                                                            _EN_explanation="second token of ${val('Y','р')} is ${val('Y2','и')}"
+                                                            _EN_nextStepExplanation="That's incorrect. Enclosing is now determined by checking if ${val('X','и')} is between ${val('Y1', 'и')} and ${val('Y2', 'и')}" 
+                                                         >
+                                                            <QuestionNode type="bool" _alias="left.predetermining.1.isXinY"
+                                                                _RU_asNextStep="Необходимо проверить, находится ли ${val('X','и')} между ${val('Y1','р')} И ${val('Y2','р')}"
+                                                                _RU_question="Верно ли, что ${val('X','и')} находится между ${val('Y1','р')} И ${val('Y2','р')}?"
+                                                                _RU_endingCause="Потому что ${val('X','и')} находится между ${val('Y1','р')} И ${val('Y2','р')}"
+
+                                                                _EN_asNextStep="We should check if ${val('X','и')} is between ${val('Y1', 'и')} and ${val('Y2', 'и')}"
+                                                                _EN_question="Is ${val('X','и')} between ${val('Y1', 'и')} and ${val('Y2', 'и')}?"
+                                                                _EN_endingCause="Because ${val('X','и')} is between ${val('Y1', 'и')} and ${val('Y2', 'и')}"
+                                                            >
+                                                                <Expression>
+                                                                    <CheckRelationship>
+                                                                        <Relationship name="isBetween" />
+                                                                        <DecisionTreeVar name="X" />
+                                                                        <DecisionTreeVar name="Y1" />
+                                                                        <DecisionTreeVar name="Y2" />
+                                                                    </CheckRelationship>
+                                                                </Expression>
+                                                                <Outcome value="false"
+                                                                    _RU_nextStepQuestion="Какие выводы можно сделать на данном этапе?"
+                                                                    _RU_nextStepExplanation="Это неверно."
+
+                                                                    _EN_nextStepQuestion="What can we now conclude?"
+                                                                    _EN_nextStepExplanation="That's incorrect."
+                                                                >
+                                                                    <BranchResultNode value="false" />
+                                                                </Outcome>
+                                                                <Outcome value="true"
+                                                                    _RU_nextStepQuestion="Какие выводы можно сделать на данном этапе?"
+                                                                    _RU_nextStepExplanation="Это неверно."
+
+                                                                    _EN_nextStepQuestion="What can we now conclude?"
+                                                                    _EN_nextStepExplanation="That's incorrect."
+                                                                >
+                                                                    <BranchResultNode value="true" />
+                                                                </Outcome>
+                                                            </QuestionNode>
+                                                        </Outcome>
+                                                    </FindActionNode>
+                                                </Outcome>
+                                            </QuestionNode>
+                                        </ThoughtBranch>
+                                    </Outcome>
+                                    <Outcome value="predetermined_2"
+                                        _RU_text="${val('X','и')} находится в скобках, а ${val('Y','и')} - за их пределами"
+                                        _RU_explanation="${result ? '${val('X','и')} находится в скобках, а ${val('Y','и')} - за их пределами' : 'не существует скобок, окружающих ${val('X','и')}, но не окружающих ${val('Y','в')}'}"
+                                        _RU_nextStepQuestion="Как определяется порядок вычисления операторов, один из которых находится в скобках, а другой - за их пределами?"
+                                        _RU_nextStepBranchResult="Оператор ${branchResult ? 'в скобках' : 'вне скобок'} всегда выполняется первым"
+                                        _RU_nextStepExplanation="Это неверно. У операторов, находящихся в скобках, всегда приоритет над внешними операторами. Поэтому, т.к. ${val('X','и')} находится в скобках, а ${val('Y','и')} - за их пределами, то ${val('X','и')} может выполниться первым без помех."
+                                        
+                                        _EN_text="There are parenthesis that enclose ${val('X','и')} but not ${val('Y','в')}"
+                                        _EN_explanation="there are ${result ? '' : 'no' } parenthesis that enclose ${val('X','и')} but not ${val('Y','в')}"
+                                        _EN_nextStepQuestion="How should one determine the order of evaluation between two operators, if one of them is inside of parenthesis, and the other is ouside of them?"
+                                        _EN_nextStepBranchResult="The operator ${branchResult ? 'inside' : 'outside'} the parenthesis is always evaluated first"
+                                        _EN_nextStepExplanation="That's incorrect. Operators in parenthesis always take precedence over external operators. Therefore, as ${val('X','и')} is inside of parenthesis, and ${val('Y','и')} is ouside of them, then the ${val('X','и')} should be evaluated first."
+                                    >
+                                        <BranchResultNode value="true" />
+                                        <ThoughtBranch type="bool" _alias="left.predetermining.2"
+                                            _RU_description="${result ? '${val('X','и')} находится в скобках, а ${val('Y','и')} - за их пределами' : 'не существует скобок, окружающих ${val('X','и')}, но не окружающих ${val('Y','в')}'}"
+                                            _EN_description="${result ? '${val('X','и')} is inside of parenthesis, and ${val('Y','и')} is ouside of them' : 'there are no parenthesis that enclose ${val('X','и')} but not ${val('Y','в')}'}"
+                                        >
+                                            <!-- Вопросы не задаются, поскольку ветка тривиальна, так что формулировки не прописал-->
+                                            <QuestionNode type="bool" _alias="left.predetermining.2.isXinParenthesis"
+                                                _RU_asNextStep="Необходимо проверить, существуют ли скобки, окружающие ${val('X','и')}, но не ${val('Y','и')}"
+                                                _RU_question="Существуют ли скобки, окружающие ${val('X','и')}, но не ${val('Y','и')}?"
+                                                _RU_endingCause="Потому что существуют скобки, окружающие ${val('X','и')}, но не ${val('Y','и')}"
+
+                                                _EN_asNextStep="Необходимо проверить, существуют ли скобки, окружающие ${val('X','и')}, но не ${val('Y','и')}"
+                                                _EN_question="Существуют ли скобки, окружающие ${val('X','и')}, но не ${val('Y','и')}?"
+                                                _EN_endingCause="Потому что существуют скобки, окружающие ${val('X','и')}, но не ${val('Y','и')}"
+                                            >
+                                                <Expression>
+                                                    <ExistenceQuantifier varName="p">
+                                                        <CheckClass>
+                                                            <Variable name="p" />
+                                                            <Class name="parenthesis" />
+                                                        </CheckClass>
+                                                        <ExistenceQuantifier varName="p1" type="token">
+                                                            <CheckRelationship>
+                                                                <Relationship name="belongsTo" />
+                                                                <Variable name="p1" />
+                                                                <Variable name="p" />
+                                                            </CheckRelationship>
+                                                            <ExistenceQuantifier varName="p2" type="token">
+                                                                <CheckRelationship>
+                                                                    <Relationship name="belongsTo" />
+                                                                    <Variable name="p2" />
+                                                                    <Variable name="p" />
+                                                                </CheckRelationship>
+                                                                <LogicalAnd>
+                                                                    <CheckRelationship>
+                                                                        <Relationship name="isBetween" />
+                                                                        <DecisionTreeVar name="X" />
+                                                                        <Variable name="p1" />
+                                                                        <Variable name="p2" />
+                                                                    </CheckRelationship>
+                                                                    <LogicalNot>
+                                                                        <CheckRelationship>
+                                                                            <Relationship name="isBetween" />
+                                                                            <DecisionTreeVar name="Y" />
+                                                                            <Variable name="p1" />
+                                                                            <Variable name="p2" />
+                                                                        </CheckRelationship>
+                                                                    </LogicalNot>
+                                                                </LogicalAnd>
+                                                            </ExistenceQuantifier>
+                                                        </ExistenceQuantifier>
+                                                    </ExistenceQuantifier>
+                                                </Expression>
+                                                <Outcome value="false">
+                                                    <BranchResultNode value="false" />
+                                                </Outcome>
+                                                <Outcome value="true">
+                                                    <BranchResultNode value="true" />
+                                                </Outcome>
+                                            </QuestionNode>
+                                        </ThoughtBranch>
+                                    </Outcome>
+                                    <Outcome value="predetermined_3"
+                                        _RU_text="${val('Y','и')} находится в скобках, а ${val('X','и')} - за их пределами"
+                                        _RU_explanation="${result ? '${val('Y','и')} находится в скобках, а ${val('X','и')} - за их пределами' : 'не существует скобок, окружающих ${val('Y','и')}, но не окружающих ${val('X','в')}'}"
+                                        _RU_nextStepQuestion="Как определяется порядок вычисления операторов, один из которых находится в скобках, а другой - за их пределами?"
+                                        _RU_nextStepBranchResult="Оператор ${branchResult ? 'вне скобок' : 'в скобках'} всегда выполняется первым"
+                                        _RU_nextStepExplanation="Это неверно. У операторов, находящихся в скобках, всегда приоритет над внешними операторами. Поэтому, т.к. ${val('Y','и')} находится в скобках, а ${val('X','и')} - за их пределами, то ${val('Y','и')} должен выполниться раньше, мешая ${val('X','д')}."
+                                        
+                                        _EN_text="There are parenthesis that enclose ${val('Y','и')} but not ${val('X','в')}"
+                                        _EN_explanation="there are ${result ? '' : 'no' } parenthesis that enclose ${val('Y','и')} but not ${val('X','в')}"
+                                        _EN_nextStepQuestion="How should one determine the order of evaluation between two operators, if one of them is inside of parenthesis, and the other is ouside of them?"
+                                        _EN_nextStepBranchResult="The operator ${branchResult ? 'outside' : 'inside'} the parenthesis is always evaluated first"
+                                        _EN_nextStepExplanation="That's incorrect. Operators in parenthesis always take precedence over external operators. Therefore, as ${val('Y','и')} is inside of parenthesis, and ${val('X','и')} is ouside of them, then the ${val('Y','и')} should be evaluated first, blocking ${val('X','д')}."
+                                    >
+                                        <BranchResultNode value="false" />
+                                        <ThoughtBranch type="bool" _alias="left.predetermining.3"
+                                            _RU_description="${result ? '${val('Y','и')} находится в скобках, а ${val('X','и')} - за их пределами' : 'не существует скобок, окружающих ${val('Y','и')}, но не окружающих ${val('X','в')}'}"
+                                            _EN_description="${result ? '${val('Y','и')} is inside of parenthesis, and ${val('X','и')} is ouside of them' : 'there are no parenthesis that enclose ${val('Y','и')} but not ${val('X','в')}'}"
+                                        >
+                                            <!-- Вопросы не задаются, поскольку ветка тривиальна, так что формулировки не прописал-->
+                                            <QuestionNode type="bool"
+                                                _alias="left.predetermining.3.isYinParenthesis"
+                                                _RU_asNextStep="Необходимо проверить, существуют ли скобки, окружающие ${val('Y','и')}, но не ${val('X','в')}"
+                                                _RU_question="Существуют ли скобки, окружающие ${val('Y','и')}, но не ${val('X','в')}?"
+                                                _RU_endingCause="Потому что существуют скобки, окружающие ${val('Y','и')}, но не ${val('X','в')}"
+
+                                                _EN_asNextStep="Необходимо проверить, существуют ли скобки, окружающие ${val('Y','и')}, но не ${val('X','в')}"
+                                                _EN_question="Существуют ли скобки, окружающие ${val('Y','и')}, но не ${val('X','в')}?"
+                                                _EN_endingCause="Потому что существуют скобки, окружающие ${val('Y','и')}, но не ${val('X','в')}"
+                                            >
+                                                <Expression>
+                                                    <ExistenceQuantifier varName="p">
+                                                        <CheckClass>
+                                                            <Variable name="p" />
+                                                            <Class name="parenthesis" />
+                                                        </CheckClass>
+                                                        <ExistenceQuantifier varName="p1" type="token">
+                                                            <CheckRelationship>
+                                                                <Relationship name="belongsTo" />
+                                                                <Variable name="p1" />
+                                                                <Variable name="p" />
+                                                            </CheckRelationship>
+                                                            <ExistenceQuantifier varName="p2" type="token">
+                                                                <CheckRelationship>
+                                                                    <Relationship name="belongsTo" />
+                                                                    <Variable name="p2" />
+                                                                    <Variable name="p" />
+                                                                </CheckRelationship>
+                                                                <LogicalAnd>
+                                                                    <CheckRelationship>
+                                                                        <Relationship name="isBetween" />
+                                                                        <DecisionTreeVar name="Y" />
+                                                                        <Variable name="p1" />
+                                                                        <Variable name="p2" />
+                                                                    </CheckRelationship>
+                                                                    <LogicalNot>
+                                                                        <CheckRelationship>
+                                                                            <Relationship name="isBetween" />
+                                                                            <DecisionTreeVar name="X" />
+                                                                            <Variable name="p1" />
+                                                                            <Variable name="p2" />
+                                                                        </CheckRelationship>
+                                                                    </LogicalNot>
+                                                                </LogicalAnd>
+                                                            </ExistenceQuantifier>
+                                                        </ExistenceQuantifier>
+                                                    </ExistenceQuantifier>
+                                                </Expression>
+                                                <Outcome value="false">
+                                                    <BranchResultNode value="false" />
+                                                </Outcome>
+                                                <Outcome value="true">
+                                                    <BranchResultNode value="true" />
+                                                </Outcome>
+                                            </QuestionNode>
+                                        </ThoughtBranch>
+                                    </Outcome>
+                                    <Outcome value="undetermined"
+                                        _RU_text="Никак - скобки не влияют на порядок вычисления ${val('X','р')} и ${val('Y','р')}"
+                                        _RU_explanation="${result ? 'скобки не влияют на порядок вычисления ${val('X','р')} и ${val('Y','р')}' : 'скобки имеют влияние на порядок вычисления ${val('X','р')} и ${val('Y','р')}'}"
+                                        _RU_nextStepQuestion="В отсутствии влияния скобок, как определяется порядок выполнения стоящих рядом операторов?"
+                                        _RU_nextStepBranchResult="${branchResult ? 'Правый' : 'Левый'} оператор всегда выполняется первым"
+                                        _RU_nextStepExplanation="Это неверно. В отсутствии скобок, порядок выполнения стоящих рядом операторов определяется их приоритетом - его и надо рассматривать следующим."
+
+                                        _EN_text="They don't - parentheses have no effect on ${val('X','т')} and ${val('Y','т')}"
+                                        _EN_explanation="parentheses do ${result ? 'not' : ''} affect the evaluation of ${val('X','т')} and ${val('Y','т')}"
+                                        _EN_nextStepQuestion="In the absence of parentheses' effect, how should one determine the order of evaluation between two operator?"
+                                        _EN_nextStepBranchResult="The operator on the ${branchResult ? 'right' : 'left'} is always evaluated first."
+                                        _EN_nextStepExplanation="That's incorrect. In the absence of parentheses' effect, the order of evaluation is determined by the precedence of the operators - so it should be considered next."
+                                    >
+                                        <QuestionNode type="comparison" _alias="left.precedence"
+                                            _RU_asNextStep="Необходимо сравнить приоритеты ${class('X','р')} и ${class('Y','р')}"
+                                            _RU_question="Сравните приоритеты ${class('X','р')} и ${class('Y','р')}"
+                                            _RU_endingCause="Из-за соотношения приоритетов ${class('X','р')} и ${class('Y','р')}"
+                                            
+                                            _EN_asNextStep="We should compare the precendence of ${class('X','р')} and ${class('Y','р')}."
+                                            _EN_question="Compare the precendence of ${class('X','р')} and ${class('Y','р')}."
+                                            _EN_endingCause="Because of the precendences of ${class('X','р')} and ${class('Y','р')}."
+                                            
+                                            _RU_triviality="Приоритеты ${val('X','р')} и ${val('Y','р')} очевидно равны, так как это один и тот же оператор."
+                                            _EN_triviality="Precendences of ${val('X','р')} and ${val('Y','р')} are obviously equal as they are the same operator."
+                                        >
+                                            <Expression>
+                                                <Compare>
+                                                    <GetPropertyValue>
+                                                        <DecisionTreeVar name="X" />
+                                                        <Property name="precedence" />
+                                                    </GetPropertyValue>
+                                                    <GetPropertyValue>
+                                                        <DecisionTreeVar name="Y" />
+                                                        <Property name="precedence" />
+                                                    </GetPropertyValue>
+                                                </Compare>
+                                            </Expression>
+                                            <Triviality>
+                                                <Compare operator="EQUAL">
+                                                    <GetClass>
+                                                        <DecisionTreeVar name="X" />
+                                                    </GetClass>
+                                                    <GetClass>
+                                                        <DecisionTreeVar name="Y" />
+                                                    </GetClass>
+                                                </Compare>
+                                            </Triviality>
+                                             <!--обратное сравнение приоритетов, потому что 1 наивысший приоритет -->
+                                            <Outcome value="Comparison:less"
+                                                _RU_text="Приоритет ${class('X','р')} больше."
+                                                _RU_explanation="Это неверно, поскольку ${class('X','и')} имеет больший приоритет, чем ${class('Y','и')}."
+                                                _RU_nextStepQuestion="Как определяется порядок выполнения операторов, имеющих разные приоритеты?"
+                                                _RU_nextStepBranchResult="Оператор с ${branchResult ? 'большим' : 'меньшим'} приоритетом всегда выполняется первым"
+                                                _RU_nextStepExplanation="Это неверно. Оператор с большим приоритетом всегда выполняется первым. Т.к. ${class('X','и')} имеет больший приоритет, а значит может быть вычислен первым. Получается, левый операнд ${val('X','и')} не требует дальнейших вычислений."
+
+                                                _EN_text="${class('X','р')} has higher precendence."
+                                                _EN_explanation="That's incorrect, because ${class('X','р')} has higher precendence than ${class('Y','р')}."
+                                                _EN_nextStepQuestion="How should one determine the order of evaluation between two operators that have different precedences?"
+                                                _EN_nextStepBranchResult="Operator with a ${branchResult ? 'higher' : 'lower'} precedence is always evaluated first"
+                                                _EN_nextStepExplanation="That's incorrect. The operator with a higher precedence is always evaluated first. Therefore, in this case, the ${val('X','и')} should be evaluated first, and we can conclude that its left operand does not prevent its evaluation."
+                                            >
+                                                <BranchResultNode value="true" />
+                                            </Outcome>
+                                            <Outcome value="Comparison:greater"
+                                                _RU_text="Приоритет ${class('Y','р')} больше."
+                                                _RU_explanation="Это неверно, поскольку ${class('Y','и')} имеет больший приоритет, чем ${class('X','и')}."
+                                                _RU_nextStepQuestion="Как определяется порядок выполнения операторов, имеющих разные приоритеты?"
+                                                _RU_nextStepBranchResult="Оператор с ${branchResult ? 'меньшим' : 'большим'} приоритетом всегда выполняется первым"
+                                                _RU_nextStepExplanation="Это неверно. Оператор с большим приоритетом всегда выполняется первым. Т.к. ${class('Y','и')} имеет больший приоритет, он должен быть вычислен первым. Получается, левый операнд ${val('X','и')} требует дальнейших вычислений."
+
+                                                _EN_text="${class('Y','р')} has higher precendence."
+                                                _EN_explanation="That's incorrect, because ${class('Y','р')} has higher precendence than ${class('X','р')}."
+                                                _EN_nextStepQuestion="How should one determine the order of evaluation between two operators that have different precedences?"
+                                                _EN_nextStepBranchResult="Operator with a ${branchResult ? 'lower' : 'higher'} precedence is always evaluated first"
+                                                _EN_nextStepExplanation="That's incorrect. The operator with a higher precedence is always evaluated first. Therefore, in this case, the ${val('Y','и')} should be evaluated first, and we can conclude that the left operand of ${val('X','и')} does prevent its evaluation."
+                                            >
+                                                <BranchResultNode value="false" />
+                                            </Outcome>
+                                            <Outcome value="Comparison:equal"
+                                                _RU_text="Их приоритеты одинаковы."
+                                                _RU_explanation="Это неверно, поскольку приоритеты ${class('X','р')} и ${class('Y','р')} одинаковы."
+                                                _RU_nextStepQuestion="Как определяется порядок выполнения операторов, имеющих равные приоритеты?"
+                                                _RU_nextStepBranchResult="${branchResult ? 'Правый' : 'Левый'} оператор всегда выполняется первым"
+                                                _RU_nextStepExplanation="Это неверно. Порядок выполнения операторов, имеющих одинаковые приоритеты, задается ассоциативностью, а значит следующим шагом необходимо проверить ассоциативность ${class('X','р')} и ${class('Y','р')}."
+                                                
+                                                _EN_text="They have the same precedence."
+                                                _EN_explanation="That's incorrect because ${class('X','р')} and ${class('Y','р')} have the same precedence."
+                                                _EN_nextStepQuestion="How should one determine the order of evaluation between two operators that have the same precedence?"
+                                                _EN_nextStepBranchResult="The operator on the ${branchResult ? 'right' : 'left'} is always evaluated first."
+                                                _EN_nextStepExplanation="That's incorrect. The order of evaluation between two operators that have the same precedence is determined by their associativity. Therefore we should next check the associativity of ${class('X','р')} and ${class('Y','р')}."
+                                            >
+                                                <QuestionNode type="enum" enumOwner="associativity" _alias="left.associativity"
+                                                    _RU_asNextStep="Необходимо проверить, какова ассоциативность ${class('X','р')} и ${class('Y','р')}"
+                                                    _RU_question="Какова ассоциативность ${class('X','р')} и ${class('Y','р')}?"
+                                                    _RU_endingCause="Из-за ассоциативности ${class('X','р')} и ${class('Y','р')}"
+
+                                                    _EN_asNextStep="We should determine the associativity of ${class('X','р')} and ${class('Y','р')}"
+                                                    _EN_question="What's the associativity of ${class('X','р')} and ${class('Y','р')}?"
+                                                    _EN_endingCause="Because of the associatity of ${class('X','р')} and ${class('Y','р')}"
+                                                >
+                                                    <Expression>
+                                                        <GetPropertyValue>
+                                                            <DecisionTreeVar name="Y" />
+                                                            <Property name="associativity" />
+                                                        </GetPropertyValue>
+                                                    </Expression>
+                                                    <Outcome value="associativity:left"
+                                                        _RU_text="левая"
+                                                        _RU_explanation="Это неверно, поскольку ${class('X','и')} и ${class('Y','и')} имеют левую ассоциативность."
+                                                        _RU_nextStepQuestion="Какой из двух рядом стоящих операторов выполнится первым, если операторы имеют левую ассоциативность?"
+                                                        _RU_nextStepBranchResult="${branchResult ? 'Правый' : 'Левый'}"
+                                                        _RU_nextStepExplanation="Это неверно. При левой ассоциативности операторы выполняются слева направо. В данном случае это значит, ${class('Y','и')} должен быть вычислен первым. Получается, левый операнд ${val('X','и')} требует дальнейших вычислений."
+                                                        
+                                                        _EN_text="left"
+                                                        _EN_explanation="That's incorrect, because ${class('X','р')} and ${class('Y','р')} have left associativity."
+                                                        _EN_nextStepQuestion="Which of the two nearby operators evaluates first if they have left associativity?"
+                                                        _EN_nextStepBranchResult="The one on the ${branchResult ? 'right' : 'left'}"
+                                                        _EN_nextStepExplanation="That's incorrect. Operators that have left associativity evaluate from left to right. Therefore, in this case, ${class('Y','и')} should be evaluated first, and we can conclude that the left operand of ${val('X','и')} does prevent its evaluation."
+                                                    >
+                                                        <BranchResultNode value="false" />
+                                                    </Outcome>
+                                                    <Outcome value="associativity:right"
+                                                        _RU_text="правая"
+                                                        _RU_explanation="Это неверно, поскольку ${class('X','и')} и ${class('Y','и')} имеют правую ассоциативность."
+                                                        _RU_nextStepQuestion="Какой из двух рядом стоящих операторов выполнится первым, если операторы имеют правую ассоциативность?"
+                                                        _RU_nextStepBranchResult="${branchResult ? 'Правый' : 'Левый'}"
+                                                        _RU_nextStepExplanation="Это неверно. При правой ассоциативности операторы выполняются справа налево. В данном случае это значит, ${class('X','и')} должен быть вычислен первым. Получается, левый операнд ${val('X','и')} не требует дальнейших вычислений."
+                                                        
+                                                        _EN_text="right"
+                                                        _EN_explanation="That's incorrect, because ${class('X','р')} and ${class('Y','р')} have right associativity."
+                                                        _EN_nextStepQuestion="Which of the two nearby operators evaluates first if they have right associativity?"
+                                                        _EN_nextStepBranchResult="The one on the ${branchResult ? 'right' : 'left'}"
+                                                        _EN_nextStepExplanation="That's incorrect. Operators that have right associativity evaluate from right to left. Therefore, in this case, ${class('X','и')} should be evaluated first, anand we can conclude that its left operand does not prevent its evaluation."
+                                                    >
+                                                        <BranchResultNode value="true" />
+                                                    </Outcome>
+                                                </QuestionNode>
+                                            </Outcome>
+                                        </QuestionNode>
+                                    </Outcome>
+                                </PredeterminingFactorsNode>
+                            </Outcome>
+                        </FindActionNode>
+                    </Outcome>
+                </QuestionNode>
+            </ThoughtBranch>
+            <ThoughtBranch type="bool" _alias="right"
+                _RU_description="правый операнд ${val('X','р')} ${result ? 'не' : ''} требует дальнейших вычислений"
+                _RU_nextStepQuestion="С чего надо начать при рассмотрении правого операнда?"
+                _RU_nextStepExplanation="Это неверно. Прежде всего необходимо проверить, нужен ли оператору правый операнд."
+
+                _EN_description="right operand of ${val('X','р')} ${result ? 'doesnt require' : 'requires'} further evaluation"
+                _EN_nextStepQuestion="What is the first step when considering operator's right operand?"
+                _EN_nextStepExplanation="That's incorrect. One should first check if the operator needs right operand at all."
+            >
+                <QuestionNode type="bool" _alias="right.isNeeded"
+                    _RU_asNextStep="Необходимо проверить, нужен ли ${val('X','д')} правый операнд."
+                    _RU_question="Нужен ли ${class('X','д')} правый операнд?"
+                    _RU_endingCause="Потому что ${val('X','и')} не требует правого операнда"
+                    
+                    _EN_asNextStep="We should check if ${val('X','д')} needs a right operand."
+                    _EN_question="Does ${class('X','д')} need a right operand?"
+                    _EN_endingCause="Because ${val('X','и')} doesn't need a right operand."
+                >
+                    <Expression>
+                        <GetPropertyValue>
+                            <DecisionTreeVar name="X" />
+                            <Property name="needsRightOperand" />
+                        </GetPropertyValue>
+                    </Expression>
+                    <Outcome value="false"
+                        _RU_explanation="Это неверно. ${class('X','и')} не имеет (не требует) правого операнда."
+                        _RU_nextStepQuestion="Какие выводы можно сделать, если ${val('X','и')} не требует правого операнда?"
+                        _RU_nextStepExplanation="Это неверно. Если оператор не имеет правого операнда, то и дальнейших вычислений его правый операнд требовать не может."
+                        
+                        _EN_explanation="That's incorrect, because ${class('X','и')} doesn't need a right operand."
+                        _EN_nextStepQuestion="What is the next reasoning step if we know that ${class('X','и')} doesn't need a right operand?"
+                        _EN_nextStepExplanation="That's incorrect. If it doesn't need a right operand, then the right operand can't prevent its further evaluation."
+                    >
+                        <BranchResultNode value="true" />
+                    </Outcome>
+                    <Outcome value="true"
+                        _RU_explanation="Это неверно. ${class('X','д')} всегда необходим правый операнд."
+                        _RU_nextStepQuestion="Какие выводы можно сделать, если ${val('X','д')} нужен правый операнд?"
+                        _RU_nextStepExplanation="Это неверно. Необходимо дальше рассмотреть потенциально конкурирующие с ${val('X','т')} операторы, и делать выводы исходя из их наличия/отсуствия."
+                        
+                        _EN_explanation="That's incorrect, because ${class('X','и')} does require a right operand."
+                        _EN_nextStepQuestion="What is the next reasoning step if we know that ${class('X','и')} needs a right operand?"
+                        _EN_nextStepExplanation="That's incorrect. From here, one should check if there are any operators that should still be evaluated in the right operand, and then reason based on that."
+                    >
+                        <FindActionNode _alias="right.findZ"
+                            _RU_asNextStep="Необходимо найти потенциально мешающий оператор справа от ${val('X','р')}"
+                            _RU_question="Какой оператор может помешать выполнению ${val('X', 'Gen')} справа?"
+                            _RU_endingCause="Потому что справа от ${val('X','р')} находятся только вычисленные операторы"
+
+                            _EN_asNextStep="We should look for an unevaluated operator that could be in the right operand of ${val('X','р')}, preventing its further evaluation."
+                            _EN_question="Find an operator that could be in the right operand of ${val('X','р')}, preventing its further evaluation?"
+                            _EN_endingCause="Because there are only evaluated operators to the right of ${val('X','р')}."
+                        >
+                            <DecisionTreeVarDecl name="Z1" type="token" />
+                            <Expression>
+                                <GetExtreme extremeVarName="z1_ex" varName="z1">
+                                    <LogicalNot>
+                                        <ExistenceQuantifier varName="z1">
+                                            <LogicalAnd>
+                                                <LogicalAnd>
+                                                    <CheckClass>
+                                                        <Variable name="z1" />
+                                                        <Class name="token" />
+                                                    </CheckClass>
+                                                    <CheckRelationship>
+                                                        <Relationship name="rightOf" />
+                                                        <Variable name="z1" />
+                                                        <DecisionTreeVar name="X" />
+                                                    </CheckRelationship>
+                                                </LogicalAnd>
+                                                <LogicalAnd>
+                                                    <CheckClass>
+                                                        <GetByRelationship varName="var">
+                                                            <Variable name="z1" />
+                                                            <Relationship name="belongsTo" />
+                                                        </GetByRelationship>
+                                                        <Class name="operator" />
+                                                    </CheckClass>
+                                                    <Compare operator="EQUAL">
+                                                        <GetPropertyValue>
+                                                            <GetByRelationship varName="var">
+                                                                <Variable name="z1" />
+                                                                <Relationship name="belongsTo" />
+                                                            </GetByRelationship>
+                                                            <Property name="state" />
+                                                        </GetPropertyValue>
+                                                        <Enum owner="state" value="unevaluated" />
+                                                    </Compare>
+                                                </LogicalAnd>
+                                            </LogicalAnd>
+                                            <CheckRelationship>
+                                                <Relationship name="isBetween" />
+                                                <Variable name="z1" />
+                                                <Variable name="z1_ex" />
+                                                <DecisionTreeVar name="X" />
+                                            </CheckRelationship>
+                                        </ExistenceQuantifier>
+                                    </LogicalNot>
+                                    <LogicalAnd>
+                                        <LogicalAnd>
+                                            <CheckClass>
+                                                <Variable name="z1" />
+                                                <Class name="token" />
+                                            </CheckClass>
+                                            <CheckRelationship>
+                                                <Relationship name="rightOf" />
+                                                <Variable name="z1" />
+                                                <DecisionTreeVar name="X" />
+                                            </CheckRelationship>
+                                        </LogicalAnd>
+                                        <LogicalAnd>
+                                            <CheckClass>
+                                                <GetByRelationship varName="var">
+                                                    <Variable name="z1" />
+                                                    <Relationship name="belongsTo" />
+                                                </GetByRelationship>
+                                                <Class name="operator" />
+                                            </CheckClass>
+                                            <Compare operator="EQUAL">
+                                                <GetPropertyValue>
+                                                    <GetByRelationship varName="var">
+                                                        <Variable name="z1" />
+                                                        <Relationship name="belongsTo" />
+                                                    </GetByRelationship>
+                                                    <Property name="state" />
+                                                </GetPropertyValue>
+                                                <Enum owner="state" value="unevaluated" />
+                                            </Compare>
+                                        </LogicalAnd>
+                                    </LogicalAnd>
+                                </GetExtreme>
+                            </Expression>
+                            <FindError priority="1" _alias="Z1_wrongSide"
+                                _RU_explanation="Это неверно, поскольку ${obj(checked, 'Nom')} находится слева от ${val('X', 'Gen')}."
+                                _EN_explanation="That's incorrect, because ${obj(checked, 'Nom')} is to the left of ${val('X', 'Gen')}."
+                            >
+                                <Expression>
+                                    <LogicalAnd>
+                                        <LogicalAnd>
+                                            <CheckClass>
+                                                <Variable name="checked" />
+                                                <Class name="token" />
+                                            </CheckClass>
+                                            <CheckClass>
+                                                <GetByRelationship varName="var">
+                                                    <Variable name="checked" />
+                                                    <Relationship name="belongsTo" />
+                                                </GetByRelationship>
+                                                <Class name="operator" />
+                                            </CheckClass>
+                                        </LogicalAnd>
+                                        <CheckRelationship>
+                                            <Relationship name="leftOf" />
+                                            <Variable name="checked" />
+                                            <DecisionTreeVar name="X" />
+                                        </CheckRelationship>
+                                    </LogicalAnd>
+                                </Expression>
+                            </FindError>
+                            <FindError priority="2" _alias="Z1_evaluated"
+                                _RU_explanation="Это неверно - ${obj(checked, 'Nom')} уже вычислен и по сути является операндом, а значит не может помешать вычислению ${val('X', 'Gen')}."
+                                _EN_explanation="That's incorrect - ${obj(checked, 'Nom')} is already evaluated and now serves as just an operand, and therefore cannot prevent the evaluation of ${val('X', 'Gen')}."
+                            >
+                                <Expression>
+                                    <LogicalAnd>
+                                        <CheckClass>
+                                            <Variable name="checked" />
+                                            <Class name="token" />
+                                        </CheckClass>
+                                        <LogicalAnd>
+                                            <CheckClass>
+                                                <GetByRelationship varName="var">
+                                                    <Variable name="checked" />
+                                                    <Relationship name="belongsTo" />
+                                                </GetByRelationship>
+                                                <Class name="operator" />
+                                            </CheckClass>
+                                            <Compare operator="NOT_EQUAL">
+                                                <GetPropertyValue>
+                                                    <GetByRelationship varName="var">
+                                                        <Variable name="checked" />
+                                                        <Relationship name="belongsTo" />
+                                                    </GetByRelationship>
+                                                    <Property name="state" />
+                                                </GetPropertyValue>
+                                                <Enum owner="state" value="unevaluated" />
+                                            </Compare>
+                                        </LogicalAnd>
+                                    </LogicalAnd>
+                                </Expression>
+                            </FindError>
+                            <FindError priority="3" _alias="Z1_tooFar"
+                                _RU_explanation="Это неверно, ${obj(checked, 'Nom')} слишком далеко от ${val('X', 'Gen')} чтобы помешать ему."
+                                _EN_explanation="That might be true, but there is a fitting operator closer to the ${val('X', 'Gen')} than ${obj(checked, 'Nom')} and it should be considered first."
+                            >
+                                <Expression>
+                                    <LogicalAnd>
+                                        <LogicalAnd>
+                                            <CheckClass>
+                                                <Variable name="checked" />
+                                                <Class name="token" />
+                                            </CheckClass>
+                                            <CheckClass>
+                                                <GetByRelationship varName="var">
+                                                    <Variable name="checked" />
+                                                    <Relationship name="belongsTo" />
+                                                </GetByRelationship>
+                                                <Class name="operator" />
+                                            </CheckClass>
+                                        </LogicalAnd>
+                                        <CheckRelationship>
+                                            <Relationship name="isBetween" />
+                                            <DecisionTreeVar name="Z1" />
+                                            <DecisionTreeVar name="X" />
+                                            <Variable name="checked" />
+                                        </CheckRelationship>
+                                    </LogicalAnd>
+                                </Expression>
+                            </FindError>
+                            <AdditionalVarDecl name="Z" type="operator">
+                                <Expression>
+                                    <Cast>
+                                        <GetByRelationship>
+                                            <DecisionTreeVar name="Z1" />
+                                            <Relationship name="belongsTo" />
+                                        </GetByRelationship>
+                                        <Class name="operator" />
+                                    </Cast>
+                                </Expression>
+                            </AdditionalVarDecl>
+                            <Outcome value="none"
+                                _RU_explanation="справа от ${val('X','р')} нет потенциально мешающих операторов"
+                                _RU_nextStepQuestion="Какие выводы можно сделать, если справа от ${val('X','р')} находятся только вычисленные операторы?"
+                                _RU_nextStepExplanation="Это неверно. Если все выражение справа от ${val('X','р')} вычислено, значит и его правый операнд вычислен и не мешает вычислению ${val('X','р')}."
+
+                                _EN_explanation="there are no unevaluated operators to the right of ${val('X','р')}"
+                                _EN_nextStepQuestion="What is the next reasoning step if we know that there are only evaluated operators to the right of ${val('X','р')}?"
+                                _EN_nextStepExplanation="That's incorrect. If the expression to the right of the ${val('X','р')} is already evaluated, then the right operand of ${val('X','р')} is fully evaluated. Therefore, it is not preventing its further evaluation."
+                            >
+                                <BranchResultNode value="true" />
+                            </Outcome>
+                            <Outcome value="found"
+                                _RU_explanation="справа от ${val('X','р')} есть потенциально мешающий оператор - это ${val('Z','и')}"
+                                _RU_nextStepQuestion="Как определяется порядок вычисления двух конкурирующих операторов?"
+                                _RU_nextStepBranchResult="${branchResult ? 'Левый' : 'Правый'} оператор всегда выполняется первым"
+                                _RU_nextStepExplanation="Это неверно. Определение порядка вычислений двух операторов надо начинать с рассмотрения влияния скобок на их приоритет."
+
+                                _EN_explanation="there is a potentially blocking operator to the right of ${val('X','р')} - it's ${val('Z','и')}"
+                                _EN_nextStepQuestion="How should one determine the order of evaluation between two operators?"
+                                _EN_nextStepBranchResult="The one on the ${branchResult ? 'left' : 'right'} is always evaluated first"
+                                _EN_nextStepExplanation="That's incorrect. One should first determine if parentheses have any effect on the precedence of the two operators."
+                            >
+                                <PredeterminingFactorsNode _alias="right.predetermining"
+                                    _RU_asNextStep="Необходимо рассмотреть влияние скобок на взаимодействие между ${val('X','т')} и ${val('Z','т')}."
+                                    _RU_question="Как скобки влияют на взаимодействие между ${val('X','т')} и ${val('Z','т')}?"
+                                    _RU_endingCause="Из-за роли скобок в выражении"
+
+                                    _EN_asNextStep="We should check if parentheses have any effect on the precedence of the two operators."
+                                    _EN_question="How do parentheses affect the evaluation of ${val('X','т')} and ${val('Z','т')}?"
+                                    _EN_endingCause="Because of the effect of the parentheses"
+                                >
+                                    <Outcome value="predetermined_1"
+                                        _RU_text="${val('Z','и')} окружает ${val('X','в')}"
+                                        _RU_explanation="${val('Z','и')} ${result ? '' : 'не'} окружает ${val('X','в')}"
+                                        _RU_nextStepQuestion="Как определяется порядок вычисления операторов, один из которых окружает другой?"
+                                        _RU_nextStepBranchResult="${branchResult ? 'Внутренний' : 'Внешний'} оператор всегда выполняется первым"
+                                        _RU_nextStepExplanation="Это неверно. То, что ${val('Z','и')} окружает ${val('X','в')}, значит, что ${val('X','и')} является для ${val('Z','р')} внутренним операндом и должен быть вычислен первым."
+
+                                        _EN_text="${val('Z','и')} encloses ${val('X','в')}"
+                                        _EN_explanation="${val('Z','и')} does ${result ? '' : 'not'} enclose ${val('X','в')}"
+                                        _EN_nextStepQuestion="How should one the order of evaluation between two operators, one of which encloses another?"
+                                        _EN_nextStepBranchResult="The ${branchResult ? 'enclosing' : 'enclosed'} operator is always evaluated first."
+                                        _EN_nextStepExplanation="That's incorrect - ${val('Z','и')} enclosing ${val('X','в')} means that the ${val('X','и')} is an inner operand to ${val('Z','р')} and should be evaluated first."
+                                    >
+                                        <BranchResultNode value="true" />
+                                        <ThoughtBranch type="bool" _alias="right.predetermining.1"
+                                            _RU_description="${val('Z','и')} ${result ? '' : 'не'} окружает ${val('X','и')}"
+                                            _EN_description="${val('Z','и')} does ${result ? '' : 'not'} enclose ${val('X','в')}"
+                                        >
+                                            <QuestionNode type="bool"
+                                                _alias="right.predetermining.1.isZTernary"
+                                                _RU_asNextStep="Необходимо определить, является ли ${class('Z','и')} окружающим оператором."
+                                                _RU_question="Является ли ${class('Z','и')} окружающим оператором?"
+                                                _RU_endingCause="Потому что ${class('Z','и')} не является окружающим оператором"
+
+                                                _EN_asNextStep="We should check if ${class('Z','и')} has two tokens."
+                                                _EN_question="Does ${class('Z','и')} have two tokens?"
+                                                _EN_endingCause="Because ${class('Z','и')} has just one token"
+                                            >
+                                                <Expression>
+                                                    <Compare operator="EQUAL">
+                                                        <GetPropertyValue>
+                                                            <DecisionTreeVar name="Z" />
+                                                            <Property name="countOfTokens" />
+                                                        </GetPropertyValue>
+                                                        <Integer value="2" />
+                                                    </Compare>
+                                                </Expression>
+                                                <Outcome value="false"
+                                                    _RU_nextStepQuestion="Какие выводы можно сделать, если ${class('Z','и')} не является окружающим оператором?"
+                                                    _RU_nextStepExplanation="Это неверно. Т.к. ${class('Z','и')} имеет только один токен, а значит, не имеет внутреннего операнда, то и окружать другие операторы он не может."
+                                                    
+                                                    _EN_nextStepQuestion="What is the next reasoning step if we know that ${class('Z','и')} has just one token?"
+                                                    _EN_nextStepExplanation="That's incorrect - ${class('Z','и')} having only one token means that it does not have an internal operand, and therefore cannot enclose other operators."
+                                                >
+                                                    <BranchResultNode value="false" />
+                                                </Outcome>
+                                                <Outcome value="true"
+                                                    _RU_nextStepQuestion="Какие выводы можно сделать, если ${class('Z','и')} является окружающим оператором?"
+                                                    _RU_nextStepExplanation="Это неверно. Необходимо начать с того, чтобы найти второй токен ${val('Z','р')}."
+                                                    
+                                                    _EN_nextStepQuestion="What is the next reasoning step if we know that ${class('Z','и')} has two tokens?"
+                                                    _EN_nextStepExplanation="That's incorrect. One should first find the second token of ${val('Z','р')} and then check if it encloses ${val('X','и')}."
+                                                >
+                                                    <FindActionNode _alias="right.predetermining.1.findZ2"
+                                                        _RU_question="Найдите второй токен ${val('Z', 'Gen')}."
+                                                        _RU_asNextStep="Необходимо найти второй токен ${val('Z','р')}."
+
+                                                        _EN_asNextStep="We should find the second token of ${val('Z','р')}."
+                                                        _EN_question="Find the second token of ${val('Z', 'Gen')}."
+                                                    >
+                                                        <DecisionTreeVarDecl name="Z2" type="token" />
+                                                        <Expression>
+                                                            <GetByCondition varName="z2">
+                                                                <LogicalAnd>
+                                                                    <LogicalAnd>
+                                                                        <CheckClass>
+                                                                            <Variable name="z2" />
+                                                                            <Class name="token" />
+                                                                        </CheckClass>
+                                                                        <CheckRelationship>
+                                                                            <Relationship name="belongsTo" />
+                                                                            <Variable name="z2" />
+                                                                            <DecisionTreeVar name="Z" />
+                                                                        </CheckRelationship>
+                                                                    </LogicalAnd>
+                                                                    <Compare operator="NOT_EQUAL">
+                                                                        <Variable name="z2" />
+                                                                        <DecisionTreeVar name="Z1" />
+                                                                    </Compare>
+                                                                </LogicalAnd>
+                                                            </GetByCondition>
+                                                        </Expression>
+                                                        <FindError priority="1" _alias="Z2_wrongType"
+                                                            _RU_explanation="Это неверно, поскольку ${obj(checked, 'Nom')} не может являться токеном ${class('Z', 'Gen')} - он является токеном другого типа."
+                                                            _EN_explanation="That's incorrect, because ${obj(checked, 'Nom')} can't be the token of ${class('Z', 'Gen')} - tokens of this type are unrelated to ${class('Z', 'Gen')}."
+                                                        >
+                                                            <Expression>
+                                                                <LogicalAnd>
+                                                                    <LogicalAnd>
+                                                                        <CheckClass>
+                                                                            <Variable name="checked" />
+                                                                            <Class name="token" />
+                                                                        </CheckClass>
+                                                                        <CheckClass>
+                                                                            <GetByRelationship varName="var">
+                                                                                <Variable name="checked" />
+                                                                                <Relationship name="belongsTo" />
+                                                                            </GetByRelationship>
+                                                                            <Class name="operator" />
+                                                                        </CheckClass>
+                                                                    </LogicalAnd>
+                                                                    <Compare operator="NOT_EQUAL">
+                                                                        <GetClass>
+                                                                            <GetByRelationship>
+                                                                                <Variable name="checked" />
+                                                                                <Relationship name="belongsTo" />
+                                                                            </GetByRelationship>
+                                                                        </GetClass>
+                                                                        <GetClass>
+                                                                            <DecisionTreeVar name="Z" />
+                                                                        </GetClass>
+                                                                    </Compare>
+                                                                </LogicalAnd>
+                                                            </Expression>
+                                                        </FindError>
+                                                        <FindError priority="2" _alias="Z2_wrongSide"
+                                                            _RU_explanation="Это неверно - ${obj(checked, 'Nom')} находится не с той стороны от ${val('Z1', 'Gen')}."
+                                                            _EN_explanation="That's incorrect - ${obj(checked, 'Nom')} is on the wrong side of ${val('Z1', 'Gen')}."
+                                                        >
+                                                            <Expression>
+                                                                <LogicalAnd>
+                                                                    <LogicalAnd>
+                                                                        <CheckClass>
+                                                                            <Variable name="checked" />
+                                                                            <Class name="token" />
+                                                                        </CheckClass>
+                                                                        <CheckClass>
+                                                                            <GetByRelationship varName="var">
+                                                                                <Variable name="checked" />
+                                                                                <Relationship name="belongsTo" />
+                                                                            </GetByRelationship>
+                                                                            <Class name="operator" />
+                                                                        </CheckClass>
+                                                                    </LogicalAnd>
+                                                                    <CheckRelationship>
+                                                                        <Relationship name="isBetween" />
+                                                                        <DecisionTreeVar name="Z1" />
+                                                                        <DecisionTreeVar name="Z2" />
+                                                                        <Variable name="checked" />
+                                                                    </CheckRelationship>
+                                                                </LogicalAnd>
+                                                            </Expression>
+                                                        </FindError>
+                                                        <FindError priority="3" _alias="Z2_tooFar"
+                                                            _RU_explanation="Это неверно, ${obj(checked, 'Nom')} слишком далеко, чтобы быть парой для ${val('Z1', 'Gen')}."
+                                                            _EN_explanation="That's incorrect, ${obj(checked, 'Nom')} is too far to be the second token to ${val('Z1', 'Gen')}."
+                                                        >
+                                                            <Expression>
+                                                                <LogicalAnd>
+                                                                    <LogicalAnd>
+                                                                        <CheckClass>
+                                                                            <Variable name="checked" />
+                                                                            <Class name="token" />
+                                                                        </CheckClass>
+                                                                        <CheckClass>
+                                                                            <GetByRelationship varName="var">
+                                                                                <Variable name="checked" />
+                                                                                <Relationship name="belongsTo" />
+                                                                            </GetByRelationship>
+                                                                            <Class name="operator" />
+                                                                        </CheckClass>
+                                                                    </LogicalAnd>
+                                                                    <CheckRelationship>
+                                                                        <Relationship name="isBetween" />
+                                                                        <DecisionTreeVar name="Z2" />
+                                                                        <DecisionTreeVar name="Z1" />
+                                                                        <Variable name="checked" />
+                                                                    </CheckRelationship>
+                                                                </LogicalAnd>
+                                                            </Expression>
+                                                        </FindError>
+                                                        <FindError priority="4" _alias="Z2_tooClose"
+                                                            _RU_explanation="Это неверно, ${obj(checked, 'Nom')} слишком близко, чтобы быть парой для ${val('Z1', 'Gen')}."
+                                                            _EN_explanation="That's incorrect, ${obj(checked, 'Nom')} is too close to be the second token to ${val('Z1', 'Gen')}."
+                                                        >
+                                                            <Expression>
+                                                                <LogicalAnd>
+                                                                    <LogicalAnd>
+                                                                        <CheckClass>
+                                                                            <Variable name="checked" />
+                                                                            <Class name="token" />
+                                                                        </CheckClass>
+                                                                        <CheckClass>
+                                                                            <GetByRelationship varName="var">
+                                                                                <Variable name="checked" />
+                                                                                <Relationship name="belongsTo" />
+                                                                            </GetByRelationship>
+                                                                            <Class name="operator" />
+                                                                        </CheckClass>
+                                                                    </LogicalAnd>
+                                                                    <CheckRelationship>
+                                                                        <Relationship name="isBetween" />
+                                                                        <Variable name="checked" />
+                                                                        <DecisionTreeVar name="Z1" />
+                                                                        <DecisionTreeVar name="Z2" />
+                                                                    </CheckRelationship>
+                                                                </LogicalAnd>
+                                                            </Expression>
+                                                        </FindError>
+                                                        <Outcome value="found"
+                                                            _RU_explanation="второй токен ${val('Z','р')} это ${val('Z2','и')}"
+                                                            _RU_nextStepExplanation="Это неверно. Необходимо проверить, находится ли ${val('X','и')} между  ${val('Z','р')}."
+                                                            
+                                                            _EN_explanation="second token of ${val('Z','р')} is ${val('Z2','и')}"
+                                                            _EN_nextStepExplanation="That's incorrect. Enclosing is now determined by checking if ${val('X','и')} is between ${val('Z1', 'и')} and ${val('Z2', 'и')}" 
+                                                        >
+                                                            <QuestionNode type="bool" _alias="right.predetermining.1.isXinZ"
+                                                                _RU_asNextStep="Необходимо проверить, находится ли ${val('X','и')} между ${val('Z1','р')} и между ${val('Z2','р')}"
+                                                                _RU_question="Верно ли, что ${val('X','и')} находится между ${val('Z1','р')} и между ${val('Z2','р')}?"
+                                                                _RU_endingCause="Потому что ${val('X','и')} находится между ${val('Z1','р')} и между ${val('Z2','р')}"
+
+                                                                _EN_asNextStep="We should check if ${val('X','и')} is between ${val('Z1', 'и')} and ${val('Z2', 'и')}"
+                                                                _EN_question="Is ${val('X','и')} between ${val('Z1', 'и')} and ${val('Z2', 'и')}?"
+                                                                _EN_endingCause="Because ${val('X','и')} is between ${val('Z1', 'и')} and ${val('Z2', 'и')}"
+                                                            >
+                                                                <Expression>
+                                                                    <CheckRelationship>
+                                                                        <Relationship name="isBetween" />
+                                                                        <DecisionTreeVar name="X" />
+                                                                        <DecisionTreeVar name="Z1" />
+                                                                        <DecisionTreeVar name="Z2" />
+                                                                    </CheckRelationship>
+                                                                </Expression>
+                                                                <Outcome value="false"
+                                                                    _RU_nextStepQuestion="Какие выводы можно сделать на данном этапе?"
+                                                                    _RU_nextStepExplanation="Это неверно."
+
+                                                                    _EN_nextStepQuestion="What can we now conclude?"
+                                                                    _EN_nextStepExplanation="That's incorrect."
+                                                                >
+                                                                    <BranchResultNode value="false" />
+                                                                </Outcome>
+                                                                <Outcome value="true"
+                                                                    _RU_nextStepQuestion="Какие выводы можно сделать на данном этапе?"
+                                                                    _RU_nextStepExplanation="Это неверно."
+
+                                                                    _EN_nextStepQuestion="What can we now conclude?"
+                                                                    _EN_nextStepExplanation="That's incorrect."
+                                                                >
+                                                                    <BranchResultNode value="true" />
+                                                                </Outcome>
+                                                            </QuestionNode>
+                                                        </Outcome>
+                                                    </FindActionNode>
+                                                </Outcome>
+                                            </QuestionNode>
+                                        </ThoughtBranch>
+                                    </Outcome>
+                                    <Outcome value="predetermined_2"
+                                        _RU_text="${val('X','и')} находится в скобках, а ${val('Z','и')} - за их пределами"
+                                        _RU_explanation="${result ? '${val('X','и')} находится в скобках, а ${val('Z','и')} - за их пределами' : 'не существует скобок, окружающих ${val('X','и')}, но не окружающих ${val('Z','в')}'}"
+                                        _RU_nextStepQuestion="Как определяется порядок вычисления операторов, один из которых находится в скобках, а другой - за их пределами?"
+                                        _RU_nextStepBranchResult="Оператор ${branchResult ? 'в скобках' : 'вне скобок'} всегда выполняется первым"
+                                        _RU_nextStepExplanation="Это неверно. У операторов, находящихся в скобках, всегда приоритет над внешними операторами. Поэтому, т.к. ${val('X','и')} находится в скобках, а ${val('Z','и')} - за их пределами, то ${val('X','и')} может выполниться первым без помех."
+                                        
+                                        _EN_text="There are parenthesis that enclose ${val('X','и')} but not ${val('Z','в')}"
+                                        _EN_explanation="there are ${result ? '' : 'no' } parenthesis that enclose ${val('X','и')} but not ${val('Z','в')}"
+                                        _EN_nextStepQuestion="How should one determine the order of evaluation between two operators, if one of them is inside of parenthesis, and the other is ouside of them?"
+                                        _EN_nextStepBranchResult="The operator ${branchResult ? 'inside' : 'outside'} the parenthesis is always evaluated first"
+                                        _EN_nextStepExplanation="That's incorrect. Operators in parenthesis always take precedence over external operators. Therefore, as ${val('X','и')} is inside of parenthesis, and ${val('Z','и')} is ouside of them, then the ${val('X','и')} should be evaluated first."
+                                    >
+                                        <BranchResultNode value="true" />
+                                        <ThoughtBranch type="bool" _alias="right.predetermining.2"
+                                            _RU_description="${result ? '${val('X','и')} находится в скобках, а ${val('Z','и')} - за их пределами' : 'не существует скобок, окружающих ${val('X','и')}, но не окружающих ${val('Z','в')}'}"
+                                            _EN_description="${result ? '${val('X','и')} is inside of parenthesis, and ${val('Z','и')} is ouside of them' : 'there are no parenthesis that enclose ${val('X','и')} but not ${val('Z','в')}'}"
+                                        >
+                                            <!-- Вопросы не задаются, поскольку ветка тривиальна, так что формулировки не прописал-->
+                                            <QuestionNode type="bool" _alias="right.predetermining.2.isXinParenthesis"
+                                                _RU_asNextStep="Необходимо проверить, существуют ли скобки, окружающие ${val('X','и')}, но не ${val('Z','и')}"
+                                                _RU_question="Существуют ли скобки, окружающие ${val('X','и')}, но не ${val('Z','и')}?"
+                                                _RU_endingCause="Потому что существуют скобки, окружающие ${val('X','и')}, но не ${val('Z','и')}"
+                                            >
+                                                <Expression>
+                                                    <ExistenceQuantifier varName="p">
+                                                        <CheckClass>
+                                                            <Variable name="p" />
+                                                            <Class name="parenthesis" />
+                                                        </CheckClass>
+                                                        <ExistenceQuantifier varName="p1" type="token">
+                                                            <CheckRelationship>
+                                                                <Relationship name="belongsTo" />
+                                                                <Variable name="p1" />
+                                                                <Variable name="p" />
+                                                            </CheckRelationship>
+                                                            <ExistenceQuantifier varName="p2" type="token">
+                                                                <CheckRelationship>
+                                                                    <Relationship name="belongsTo" />
+                                                                    <Variable name="p2" />
+                                                                    <Variable name="p" />
+                                                                </CheckRelationship>
+                                                                <LogicalAnd>
+                                                                    <CheckRelationship>
+                                                                        <Relationship name="isBetween" />
+                                                                        <DecisionTreeVar name="X" />
+                                                                        <Variable name="p1" />
+                                                                        <Variable name="p2" />
+                                                                    </CheckRelationship>
+                                                                    <LogicalNot>
+                                                                        <CheckRelationship>
+                                                                            <Relationship name="isBetween" />
+                                                                            <DecisionTreeVar name="Z" />
+                                                                            <Variable name="p1" />
+                                                                            <Variable name="p2" />
+                                                                        </CheckRelationship>
+                                                                    </LogicalNot>
+                                                                </LogicalAnd>
+                                                            </ExistenceQuantifier>
+                                                        </ExistenceQuantifier>
+                                                    </ExistenceQuantifier>
+                                                </Expression>
+                                                <Outcome value="false">
+                                                    <BranchResultNode value="false" />
+                                                </Outcome>
+                                                <Outcome value="true">
+                                                    <BranchResultNode value="true" />
+                                                </Outcome>
+                                            </QuestionNode>
+                                        </ThoughtBranch>
+                                    </Outcome>
+                                    <Outcome value="predetermined_3"
+                                        _RU_text="${val('Z','и')} находится в скобках, а ${val('X','и')} - за их пределами"
+                                        _RU_explanation="${result ? '${val('Z','и')} находится в скобках, а ${val('X','и')} - за их пределами' : 'не существует скобок, окружающих ${val('Z','и')}, но не окружающих ${val('X','в')}'}"
+                                        _RU_nextStepQuestion="Как определяется порядок вычисления операторов, один из которых находится в скобках, а другой - за их пределами?"
+                                        _RU_nextStepBranchResult="Оператор ${branchResult ? 'вне скобок' : 'в скобках'} всегда выполняется первым"
+                                        _RU_nextStepExplanation="Это неверно. У операторов, находящихся в скобках, всегда приоритет над внешними операторами. Поэтому, т.к. ${val('Z','и')} находится в скобках, а ${val('X','и')} - за их пределами, то ${val('Z','и')} должен выполниться раньше, мешая ${val('X','д')}."
+                                        
+                                        _EN_text="There are parenthesis that enclose ${val('Z','и')} but not ${val('X','в')}"
+                                        _EN_explanation="there are ${result ? '' : 'no' } parenthesis that enclose ${val('Z','и')} but not ${val('X','в')}"
+                                        _EN_nextStepQuestion="How should one determine the order of evaluation between two operators, if one of them is inside of parenthesis, and the other is ouside of them?"
+                                        _EN_nextStepBranchResult="The operator ${branchResult ? 'outside' : 'inside'} the parenthesis is always evaluated first"
+                                        _EN_nextStepExplanation="That's incorrect. Operators in parenthesis always take precedence over external operators. Therefore, as ${val('Z','и')} is inside of parenthesis, and ${val('X','и')} is ouside of them, then the ${val('Z','и')} should be evaluated first, blocking ${val('X','д')}."
+                                    >
+                                        <BranchResultNode value="false" />
+                                        <ThoughtBranch type="bool" _alias="right.predetermining.3"
+                                            _RU_description="${result ? '${val('Z','и')} находится в скобках, а ${val('X','и')} - за их пределами' : 'не существует скобок, окружающих ${val('Z','и')}, но не окружающих ${val('X','в')}'}"
+                                            _EN_description="${result ? '${val('Z','и')} is inside of parenthesis, and ${val('X','и')} is ouside of them' : 'there are no parenthesis that enclose ${val('Z','и')} but not ${val('X','в')}'}"
+                                        >
+                                            <!-- Вопросы не задаются, поскольку ветка тривиальна, так что формулировки не прописал-->
+                                            <QuestionNode type="bool"
+                                                _alias="right.predetermining.3.isZinParenthesis"
+                                                _RU_asNextStep="Необходимо проверить, существуют ли скобки, окружающие ${val('Z','и')}, но не ${val('X','в')}"
+                                                _RU_question="Существуют ли скобки, окружающие ${val('Z','и')}, но не ${val('X','в')}?"
+                                                _RU_endingCause="Потому что существуют скобки, окружающие ${val('Z','и')}, но не ${val('X','в')}"
+                                            >
+                                                <Expression>
+                                                    <ExistenceQuantifier varName="p">
+                                                        <CheckClass>
+                                                            <Variable name="p" />
+                                                            <Class name="parenthesis" />
+                                                        </CheckClass>
+                                                        <ExistenceQuantifier varName="p1" type="token">
+                                                            <CheckRelationship>
+                                                                <Relationship name="belongsTo" />
+                                                                <Variable name="p1" />
+                                                                <Variable name="p" />
+                                                            </CheckRelationship>
+                                                            <ExistenceQuantifier varName="p2" type="token">
+                                                                <CheckRelationship>
+                                                                    <Relationship name="belongsTo" />
+                                                                    <Variable name="p2" />
+                                                                    <Variable name="p" />
+                                                                </CheckRelationship>
+                                                                <LogicalAnd>
+                                                                    <CheckRelationship>
+                                                                        <Relationship name="isBetween" />
+                                                                        <DecisionTreeVar name="Z" />
+                                                                        <Variable name="p1" />
+                                                                        <Variable name="p2" />
+                                                                    </CheckRelationship>
+                                                                    <LogicalNot>
+                                                                        <CheckRelationship>
+                                                                            <Relationship name="isBetween" />
+                                                                            <DecisionTreeVar name="X" />
+                                                                            <Variable name="p1" />
+                                                                            <Variable name="p2" />
+                                                                        </CheckRelationship>
+                                                                    </LogicalNot>
+                                                                </LogicalAnd>
+                                                            </ExistenceQuantifier>
+                                                        </ExistenceQuantifier>
+                                                    </ExistenceQuantifier>
+                                                </Expression>
+                                                <Outcome value="false">
+                                                    <BranchResultNode value="false" />
+                                                </Outcome>
+                                                <Outcome value="true">
+                                                    <BranchResultNode value="true" />
+                                                </Outcome>
+                                            </QuestionNode>
+                                        </ThoughtBranch>
+                                    </Outcome>
+                                    <Outcome value="undetermined"
+                                        _RU_text="Никак - скобки не влияют на порядок вычисления ${val('X','р')} и ${val('Z','р')}"
+                                        _RU_explanation="${result ? 'скобки не влияют на порядок вычисления ${val('X','р')} и ${val('Z','р')}' : 'скобки имеют влияние на порядок вычисления ${val('X','р')} и ${val('Z','р')}'}"
+                                        _RU_nextStepQuestion="В отсутствии влияния скобок, как определяется порядок выполнения стоящих рядом операторов?"
+                                        _RU_nextStepBranchResult="${branchResult ? 'Левый' : 'Правый'} оператор всегда выполняется первым"
+                                        _RU_nextStepExplanation="Это неверно. В отсутствии скобок, порядок выполнения стоящих рядом операторов определяется их приоритетом - его и надо рассматривать следующим."
+
+                                        _EN_text="They don't - parentheses have no effect on ${val('X','т')} and ${val('Z','т')}"
+                                        _EN_explanation="parentheses do ${result ? 'not' : ''} affect the evaluation of ${val('X','т')} and ${val('Z','т')}"
+                                        _EN_nextStepQuestion="In the absence of parentheses' effect, how should one determine the order of evaluation between two operator?"
+                                        _EN_nextStepBranchResult="The operator on the ${branchResult ? 'right' : 'left'} is always evaluated first."
+                                        _EN_nextStepExplanation="That's incorrect. In the absence of parentheses' effect, the order of evaluation is determined by the precedence of the operators - so it should be considered next."
+                                    >
+                                        <QuestionNode type="comparison"
+                                            _alias="right.precedence"
+                                            _RU_asNextStep="Необходимо сравнить приоритеты ${class('X','р')} и ${class('Z','р')}"
+                                            _RU_question="Сравните приоритеты ${class('X','р')} и ${class('Z','р')}"
+                                            _RU_endingCause="Из-за соотношения приоритетов ${class('X','р')} и ${class('Z','р')}"
+                                            
+                                            _EN_asNextStep="We should compare the precendence of ${class('X','р')} and ${class('Z','р')}."
+                                            _EN_question="Compare the precendence of ${class('X','р')} and ${class('Z','р')}."
+                                            _EN_endingCause="Because of the precendences of ${class('X','р')} and ${class('Z','р')}."
+                                            
+                                            _RU_triviality="Приоритеты ${val('X','р')} и ${val('Z','р')} очевидно равны, так как это один и тот же оператор."
+                                            _EN_triviality="Precendences of ${val('X','р')} and ${val('Z','р')} are obviously equal as they are the same operator."
+                                        >
+                                        <!-- ${class('X','р') != class('Z','р')  ?  class('X','р') + ' и ' + class('Z','р')  :  val('X','р') + ' и ' + val('Z','р')}-->
+                                            <Expression>
+                                                <Compare>
+                                                    <GetPropertyValue>
+                                                        <DecisionTreeVar name="X" />
+                                                        <Property name="precedence" />
+                                                    </GetPropertyValue>
+                                                    <GetPropertyValue>
+                                                        <DecisionTreeVar name="Z" />
+                                                        <Property name="precedence" />
+                                                    </GetPropertyValue>
+                                                </Compare>
+                                            </Expression>
+                                            <Triviality>
+                                                <Compare operator="EQUAL">
+                                                    <GetClass>
+                                                        <DecisionTreeVar name="X" />
+                                                    </GetClass>
+                                                    <GetClass>
+                                                        <DecisionTreeVar name="Z" />
+                                                    </GetClass>
+                                                </Compare>
+                                            </Triviality>
+                                            <!--обратное сравнение приоритетов, потому что 1 наивысший приоритет -->
+                                            <Outcome value="Comparison:less"
+                                                _RU_text="Приоритет ${class('X','р')} больше."
+                                                _RU_explanation="Это неверно, поскольку ${class('X','и')} имеет больший приоритет, чем ${class('Z','и')}."
+                                                _RU_nextStepQuestion="Как определяется порядок выполнения операторов, имеющих разные приоритеты?"
+                                                _RU_nextStepBranchResult="Оператор с ${branchResult ? 'большим' : 'меньшим'} приоритетом всегда выполняется первым"
+                                                _RU_nextStepExplanation="Это неверно. Оператор с большим приоритетом всегда выполняется первым. Т.к. ${class('X','и')} имеет больший приоритет, а значит может быть вычислен первым. Получается, правый операнд ${val('X','и')} не требует дальнейших вычислений."
+
+                                                _EN_text="${class('X','р')} has higher precendence."
+                                                _EN_explanation="That's incorrect, because ${class('X','р')} has higher precendence than ${class('Z','р')}."
+                                                _EN_nextStepQuestion="How should one determine the order of evaluation between two operators that have different precedences?"
+                                                _EN_nextStepBranchResult="Operator with a ${branchResult ? 'higher' : 'lower'} precedence is always evaluated first"
+                                                _EN_nextStepExplanation="That's incorrect. The operator with a higher precedence is always evaluated first. Therefore, in this case, the ${val('X','и')} should be evaluated first, and we can conclude that its left operand does not prevent its evaluation."
+                                            >
+                                                <BranchResultNode value="true" />
+                                            </Outcome>
+                                            <Outcome value="Comparison:greater"
+                                                _RU_text="Приоритет ${class('Z','р')} больше."
+                                                _RU_explanation="Это неверно, поскольку ${class('Z','и')} имеет больший приоритет, чем ${class('X','и')}."
+                                                _RU_nextStepQuestion="Как определяется порядок выполнения операторов, имеющих разные приоритеты?"
+                                                _RU_nextStepBranchResult="Оператор с ${branchResult ? 'меньшим' : 'большим'} приоритетом всегда выполняется первым"
+                                                _RU_nextStepExplanation="Это неверно. Оператор с большим приоритетом всегда выполняется первым. Т.к. ${class('Z','и')} имеет больший приоритет, он должен быть вычислен первым. Получается, правый операнд ${val('X','и')} требует дальнейших вычислений."
+
+                                                _EN_text="${class('Z','р')} has higher precendence."
+                                                _EN_explanation="That's incorrect, because ${class('Z','р')} has higher precendence than ${class('X','р')}."
+                                                _EN_nextStepQuestion="How should one determine the order of evaluation between two operators that have different precedences?"
+                                                _EN_nextStepBranchResult="Operator with a ${branchResult ? 'lower' : 'higher'} precedence is always evaluated first"
+                                                _EN_nextStepExplanation="That's incorrect. The operator with a higher precedence is always evaluated first. Therefore, in this case, the ${val('Z','и')} should be evaluated first, and we can conclude that the left operand of ${val('X','и')} does prevent its evaluation."
+                                            >
+                                                <BranchResultNode value="false" />
+                                            </Outcome>
+                                            <Outcome value="Comparison:equal"
+                                                _RU_text="Их приоритеты одинаковы."
+                                                _RU_explanation="Это неверно, поскольку приоритеты ${class('X','р')} и ${class('Z','р')} одинаковы."
+                                                _RU_nextStepQuestion="Как определяется порядок выполнения операторов, имеющих равные приоритеты?"
+                                                _RU_nextStepBranchResult="${branchResult ? 'Левый' : 'Правый'} оператор всегда выполняется первым"
+                                                _RU_nextStepExplanation="Это неверно. Порядок выполнения операторов, имеющих одинаковые приоритеты, задается ассоциативностью, а значит следующим шагом необходимо проверить ассоциативность ${class('X','р')} и ${class('Z','р')}."
+                                                
+                                                _EN_text="They have the same precedence."
+                                                _EN_explanation="That's incorrect because ${class('X','р')} and ${class('Z','р')} have the same precedence."
+                                                _EN_nextStepQuestion="How should one determine the order of evaluation between two operators that have the same precedence?"
+                                                _EN_nextStepBranchResult="The operator on the ${branchResult ? 'right' : 'left'} is always evaluated first."
+                                                _EN_nextStepExplanation="That's incorrect. The order of evaluation between two operators that have the same precedence is determined by their associativity. Therefore we should next check the associativity of ${class('X','р')} and ${class('Z','р')}."
+                                            >
+                                                <QuestionNode type="enum" enumOwner="associativity" _alias="right.associativity"
+                                                    _RU_asNextStep="Необходимо проверить, какова ассоциативность ${class('X','р')} и ${class('Z','р')}"
+                                                    _RU_question="Какова ассоциативность ${class('X','р')} и ${class('Z','р')}?"
+                                                    _RU_endingCause="Из-за ассоциативности ${class('X','р')} и ${class('Z','р')}"
+
+                                                    _EN_asNextStep="We should determine the associativity of ${class('X','р')} and ${class('Z','р')}"
+                                                    _EN_question="What's the associativity of ${class('X','р')} and ${class('Z','р')}?"
+                                                    _EN_endingCause="Because of the associatity of ${class('X','р')} and ${class('Z','р')}"
+                                                >
+                                                    <Expression>
+                                                        <GetPropertyValue>
+                                                            <DecisionTreeVar name="Z" />
+                                                            <Property name="associativity" />
+                                                        </GetPropertyValue>
+                                                    </Expression>
+                                                    <Outcome value="associativity:right"
+                                                        _RU_text="правая"
+                                                        _RU_explanation="Это неверно, поскольку ${class('X','и')} и ${class('Z','и')} имеют правую ассоциативность."
+                                                        _RU_nextStepQuestion="Какой из двух рядом стоящих операторов выполнится первым, если операторы имеют правую ассоциативность?"
+                                                        _RU_nextStepBranchResult="${branchResult ? 'Левый' : 'Правый'}"
+                                                        _RU_nextStepExplanation="Это неверно. При правой ассоциативности операторы выполняются справа налево. В данном случае это значит, ${class('Z','и')} должен быть вычислен первым. Получается, правый операнд ${val('X','и')} требует дальнейших вычислений."
+                                                        
+                                                        _EN_text="right"
+                                                        _EN_explanation="That's incorrect, because ${class('X','р')} and ${class('Z','р')} have right associativity."
+                                                        _EN_nextStepQuestion="Which of the two nearby operators evaluates first if they have right associativity?"
+                                                        _EN_nextStepBranchResult="The one on the ${branchResult ? 'left' : 'right'}"
+                                                        _EN_nextStepExplanation="That's incorrect. Operators that have right associativity evaluate from right to left. Therefore, in this case, ${class('Z','и')} should be evaluated first, and we can conclude that the right operand of ${val('X','и')} does prevent its evaluation."
+                                                    >
+                                                        <BranchResultNode value="false" />
+                                                    </Outcome>
+                                                    <Outcome value="associativity:left"
+                                                        _RU_text="правая"
+                                                        _RU_explanation="Это неверно, поскольку ${class('X','и')} и ${class('Z','и')} имеют правую ассоциативность."
+                                                        _RU_nextStepQuestion="Какой из двух рядом стоящих операторов выполнится первым, если операторы имеют правую ассоциативность?"
+                                                        _RU_nextStepBranchResult="${branchResult ? 'Правый' : 'Левый'}"
+                                                        _RU_nextStepExplanation="Это неверно. При левой ассоциативности операторы выполняются слева направо. В данном случае это значит, ${class('X','и')} должен быть вычислен первым. Получается, правый операнд ${val('X','и')} не требует дальнейших вычислений."
+                                                        
+                                                        _EN_text="left"
+                                                        _EN_explanation="That's incorrect, because ${class('X','р')} and ${class('Z','р')} have left associativity."
+                                                        _EN_nextStepQuestion="Which of the two nearby operators evaluates first if they have left associativity?"
+                                                        _EN_nextStepBranchResult="The one on the ${branchResult ? 'left' : 'right'}"
+                                                        _EN_nextStepExplanation="That's incorrect. Operators that have left associativity evaluate from left to right. Therefore, in this case, ${class('X','и')} should be evaluated first, anand we can conclude that its left operand does not prevent its evaluation."
+                                                    >
+                                                        <BranchResultNode value="true" />
+                                                    </Outcome>
+                                                </QuestionNode>
+                                            </Outcome>
+                                        </QuestionNode>
+                                    </Outcome>
+                                </PredeterminingFactorsNode>
+                            </Outcome>
+                        </FindActionNode>
+                    </Outcome>
+                </QuestionNode>
+            </ThoughtBranch>
+            <Outcome value="true">
+                <BranchResultNode value="true">
+                    <Expression>
+                        <Block>
+                            <IfThen>
+                                <GetPropertyValue>
+                                    <DecisionTreeVar name="X" />
+                                    <Property name="needsInnerOperand" />
+                                </GetPropertyValue>
+                                <With varName="c">
+                                    <GetByCondition varName="c">
+                                        <LogicalAnd>
+                                            <LogicalAnd>
+                                                <CheckClass>
+                                                    <Variable name="c" />
+                                                    <Class name="operand" />
+                                                </CheckClass>
+                                                <CheckRelationship>
+                                                    <Relationship name="isBetween" />
+                                                    <Variable name="c" />
+                                                    <DecisionTreeVar name="X1" />
+                                                    <GetByCondition varName="x2">
+                                                        <LogicalAnd>
+                                                            <LogicalAnd>
+                                                                <CheckClass>
+                                                                    <Variable name="x2" />
+                                                                    <Class name="token" />
+                                                                </CheckClass>
+                                                                <CheckRelationship>
+                                                                    <Relationship name="belongsTo" />
+                                                                    <Variable name="x2" />
+                                                                    <DecisionTreeVar name="X" />
+                                                                </CheckRelationship>
+                                                            </LogicalAnd>
+                                                            <CheckRelationship>
+                                                                <Relationship name="rightOf" />
+                                                                <Variable name="x2" />
+                                                                <DecisionTreeVar name="X1" />
+                                                            </CheckRelationship>
+                                                        </LogicalAnd>
+                                                    </GetByCondition>
+                                                </CheckRelationship>
+                                            </LogicalAnd>
+                                            <Compare operator="EQUAL">
+                                                <GetPropertyValue>
+                                                    <Variable name="c" />
+                                                    <Property name="state" />
+                                                </GetPropertyValue>
+                                                <Enum owner="state" value="evaluated" />
+                                            </Compare>
+                                        </LogicalAnd>
+                                    </GetByCondition>
+                                    <Block>
+                                        <AddRelationshipLink>
+                                            <Relationship name="isOperandOf" />
+                                            <Variable name="c" />
+                                            <DecisionTreeVar name="X" />
+                                        </AddRelationshipLink>
+                                        <AssignToProperty>
+                                            <Variable name="c" />
+                                            <Property name="state" />
+                                            <Enum owner="state" value="used"/>
+                                        </AssignToProperty>
+                                    </Block>
+                                </With>
+                            </IfThen>
+                            <IfThen>
+                                <GetPropertyValue>
+                                    <DecisionTreeVar name="X" />
+                                    <Property name="needsLeftOperand" />
+                                </GetPropertyValue>
+                                <With varName="a">
+                                    <GetExtreme varName="a" extremeVarName="a_ex">
+                                        <LogicalNot>
+                                            <ExistenceQuantifier varName="a">
+                                                <LogicalAnd>
+                                                    <LogicalAnd>
+                                                        <CheckClass>
+                                                            <Variable name="a" />
+                                                            <Class name="operand" />
+                                                        </CheckClass>
+                                                        <Compare operator="EQUAL">
+                                                            <GetPropertyValue>
+                                                                <Variable name="a" />
+                                                                <Property name="state" />
+                                                            </GetPropertyValue>
+                                                            <Enum owner="state" value="evaluated" />
+                                                        </Compare>
+                                                    </LogicalAnd>
+                                                    <CheckRelationship>
+                                                        <Relationship name="leftOf" />
+                                                        <Variable name="a" />
+                                                        <DecisionTreeVar name="X" />
+                                                    </CheckRelationship>
+                                                </LogicalAnd>
+                                                <CheckRelationship>
+                                                    <Relationship name="isBetween" />
+                                                    <Variable name="a" />
+                                                    <Variable name="a_ex" />
+                                                    <DecisionTreeVar name="X" />
+                                                </CheckRelationship>
+                                            </ExistenceQuantifier>
+                                        </LogicalNot>
+                                        <LogicalAnd>
+                                            <LogicalAnd>
+                                                <CheckClass>
+                                                    <Variable name="a" />
+                                                    <Class name="operand" />
+                                                </CheckClass>
+                                                <Compare operator="EQUAL">
+                                                    <GetPropertyValue>
+                                                        <Variable name="a" />
+                                                        <Property name="state" />
+                                                    </GetPropertyValue>
+                                                    <Enum owner="state" value="evaluated" />
+                                                </Compare>
+                                            </LogicalAnd>
+                                            <CheckRelationship>
+                                                <Relationship name="leftOf" />
+                                                <Variable name="a" />
+                                                <DecisionTreeVar name="X" />
+                                            </CheckRelationship>
+                                        </LogicalAnd>
+                                    </GetExtreme>
+                                    <Block>
+                                        <AddRelationshipLink>
+                                            <Relationship name="isOperandOf" />
+                                            <Variable name="a" />
+                                            <DecisionTreeVar name="X" />
+                                        </AddRelationshipLink>
+                                        <AssignToProperty>
+                                            <Variable name="a" />
+                                            <Property name="state" />
+                                            <Enum owner="state" value="used"/>
+                                        </AssignToProperty>
+                                    </Block>
+                                </With>
+                            </IfThen>
+                            <IfThen>
+                                <GetPropertyValue>
+                                    <DecisionTreeVar name="X" />
+                                    <Property name="needsRightOperand" />
+                                </GetPropertyValue>
+                                <With varName = "b">
+                                    <GetExtreme varName="b" extremeVarName="b_ex">
+                                        <LogicalNot>
+                                            <ExistenceQuantifier varName="b">
+                                                <LogicalAnd>
+                                                    <LogicalAnd>
+                                                        <CheckClass>
+                                                            <Variable name="b" />
+                                                            <Class name="operand" />
+                                                        </CheckClass>
+                                                        <Compare operator="EQUAL">
+                                                            <GetPropertyValue>
+                                                                <Variable name="b" />
+                                                                <Property name="state" />
+                                                            </GetPropertyValue>
+                                                            <Enum owner="state" value="evaluated" />
+                                                        </Compare>
+                                                    </LogicalAnd>
+                                                    <CheckRelationship>
+                                                        <Relationship name="rightOf" />
+                                                        <Variable name="b" />
+                                                        <DecisionTreeVar name="X" />
+                                                    </CheckRelationship>
+                                                </LogicalAnd>
+                                                <CheckRelationship>
+                                                    <Relationship name="isBetween" />
+                                                    <Variable name="b" />
+                                                    <Variable name="b_ex" />
+                                                    <DecisionTreeVar name="X" />
+                                                </CheckRelationship>
+                                            </ExistenceQuantifier>
+                                        </LogicalNot>
+                                        <LogicalAnd>
+                                            <LogicalAnd>
+                                                <CheckClass>
+                                                    <Variable name="b" />
+                                                    <Class name="operand" />
+                                                </CheckClass>
+                                                <Compare operator="EQUAL">
+                                                    <GetPropertyValue>
+                                                        <Variable name="b" />
+                                                        <Property name="state" />
+                                                    </GetPropertyValue>
+                                                    <Enum owner="state" value="evaluated" />
+                                                </Compare>
+                                            </LogicalAnd>
+                                            <CheckRelationship>
+                                                <Relationship name="rightOf" />
+                                                <Variable name="b" />
+                                                <DecisionTreeVar name="X" />
+                                            </CheckRelationship>
+                                        </LogicalAnd>
+                                    </GetExtreme>
+                                    <Block>
+                                        <AddRelationshipLink>
+                                            <Relationship name="isOperandOf" />
+                                            <Variable name="b" />
+                                            <DecisionTreeVar name="X" />
+                                        </AddRelationshipLink>
+                                        <AssignToProperty>
+                                            <Variable name="b" />
+                                            <Property name="state" />
+                                            <Enum owner="state" value="used"/>
+                                        </AssignToProperty>
+                                    </Block>
+                                </With>
+                            </IfThen>
+                            <AssignToProperty>
+                                <DecisionTreeVar name="X" />
+                                <Property name="state" />
+                                <Enum owner="state" value="evaluated"/>
+                            </AssignToProperty>
+                        </Block>
+                    </Expression>
+                </BranchResultNode> <!-- A, B, C становятся операндами и т.д.-->
+            </Outcome>
+            <Outcome value="false">
+                <BranchResultNode value="false" />
+            </Outcome>
+        </LogicAggregationNode>
+    </ThoughtBranch>
+</StartNode>
