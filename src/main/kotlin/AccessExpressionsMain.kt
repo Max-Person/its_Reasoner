@@ -220,60 +220,6 @@ fun main() {
         (?var4... http://www.vstu.ru/poas/code#predicate2... ?var5...)
         ]
 
-        [
-        (?parentItem http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://www.vstu.ru/poas/code#Item) 
-        #isReachable(?var92...,http://www.w3.org/2000/01/rdf-schema#subClassOf,,"true"^^http://www.w3.org/2001/XMLSchema#boolean) 
-        (?item http://www.vstu.ru/poas/code#contained_in ?parentItem)
-        makeSkolem(?var94...)
-        combine(?var95..., ?item, ?parentItem)
-        ->
-        (?var94... http://www.vstu.ru/poas/code#predicate11... ?var95...)
-        ]
-
-        <pause>
-
-                    [
-                    (?var84... http://www.vstu.ru/poas/code#var... "stage"^^http://www.w3.org/2001/XMLSchema#string) 
-        (?var84... http://www.vstu.ru/poas/code#current_stage ?var83...) 
-        equal(?var83...,http://www.vstu.ru/poas/code#Start) 
-        (?item http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://www.vstu.ru/poas/code#Item) 
-        #isReachable(?var85...,http://www.w3.org/2000/01/rdf-schema#subClassOf,,"true"^^http://www.w3.org/2001/XMLSchema#boolean) 
-        (?connection http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://www.vstu.ru/poas/code#Connection) 
-        #isReachable(?var86...,http://www.w3.org/2000/01/rdf-schema#subClassOf,,"true"^^http://www.w3.org/2001/XMLSchema#boolean) 
-        (?item http://www.vstu.ru/poas/code#is_a ?connection)
-        (?var89... http://www.vstu.ru/poas/code#var... "symbol"^^http://www.w3.org/2001/XMLSchema#string) 
-        (?var89... http://www.vstu.ru/poas/code#operand ??var88...)
-        (??var88... http://www.vstu.ru/poas/code#linked_with ?connection)
-        (?parentItem http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://www.vstu.ru/poas/code#Item) 
-        #isReachable(?var92...,http://www.w3.org/2000/01/rdf-schema#subClassOf,,"true"^^http://www.w3.org/2001/XMLSchema#boolean) 
-        (?var94... http://www.vstu.ru/poas/code#predicate11... ?var96...) 
-        checkCombined("false"^^http://www.w3.org/2001/XMLSchema#boolean, ?var94..., http://www.vstu.ru/poas/code#predicate11..., ?item)
-                    makeSkolem(?var97...)
-                    ->
-                    (?item http://www.vstu.ru/poas/code#var... "nextItem"^^http://www.w3.org/2001/XMLSchema#string)
-                    (?var97... http://www.vstu.ru/poas/code#predicate12... ?item)
-                    ]
-        <pause>
-
-
-        [
-        (?var80... http://www.vstu.ru/poas/code#var... "targetItem"^^http://www.w3.org/2001/XMLSchema#string) 
-        (?var81... http://www.vstu.ru/poas/code#var... "nextItem"^^http://www.w3.org/2001/XMLSchema#string) 
-        (?var80... http://www.vstu.ru/poas/code#reachable_from ?var81...)
-        makeSkolem(?var79...)
-        ->
-        (?var79... http://www.vstu.ru/poas/code#predicate10... "true"^^http://www.w3.org/2001/XMLSchema#boolean)
-        ]
-
-        [
-        (?var99... http://www.vstu.ru/poas/code#var... "targetItem"^^http://www.w3.org/2001/XMLSchema#string) 
-        (?var100... http://www.vstu.ru/poas/code#var... "currentItem"^^http://www.w3.org/2001/XMLSchema#string) 
-        equal(?var99...,?var100...) 
-        makeSkolem(?var98...)
-        ->
-        (?var98... http://www.vstu.ru/poas/code#predicate13... "true"^^http://www.w3.org/2001/XMLSchema#boolean)
-        ]
-
         <pause>
 
 
@@ -397,68 +343,6 @@ fun main() {
         (?var272... http://www.vstu.ru/poas/code#predicate25... "7"^^http://www.w3.org/2001/XMLSchema#integer)
         ]
 
-        <pause>
-
-
-        [
-        (?var358... http://www.vstu.ru/poas/code#predicate14... http://www.vstu.ru/poas/code#Start)
-        (?var359... http://www.vstu.ru/poas/code#predicate12... ?var360...)
-        (?var361... http://www.vstu.ru/poas/code#predicate10... ?var362...)
-        makeSkolem(?var272...)
-        noValue(?var363..., http://www.vstu.ru/poas/code#predicate25...)
-        ->
-        (?var272... http://www.vstu.ru/poas/code#predicate25... "8"^^http://www.w3.org/2001/XMLSchema#integer)
-        ]
-
-        <pause>
-
-
-        [
-        (?var364... http://www.vstu.ru/poas/code#predicate14... http://www.vstu.ru/poas/code#Start)
-        (?var365... http://www.vstu.ru/poas/code#predicate12... ?var366...)
-        noValue(?var367... http://www.vstu.ru/poas/code#predicate10... ?var368...)
-        makeSkolem(?var272...)
-        noValue(?var369..., http://www.vstu.ru/poas/code#predicate25...)
-        ->
-        (?var272... http://www.vstu.ru/poas/code#predicate25... "9"^^http://www.w3.org/2001/XMLSchema#integer)
-        ]
-
-        <pause>
-
-
-        [
-        (?var370... http://www.vstu.ru/poas/code#predicate14... http://www.vstu.ru/poas/code#Start)
-        noValue(?var371... http://www.vstu.ru/poas/code#predicate12... ?var372...)
-        makeSkolem(?var272...)
-        noValue(?var373..., http://www.vstu.ru/poas/code#predicate25...)
-        ->
-        (?var272... http://www.vstu.ru/poas/code#predicate25... "10"^^http://www.w3.org/2001/XMLSchema#integer)
-        ]
-
-        <pause>
-
-
-        [
-        (?var374... http://www.vstu.ru/poas/code#predicate14... http://www.vstu.ru/poas/code#Final)
-        noValue(?var375... http://www.vstu.ru/poas/code#predicate13... ?var376...)
-        makeSkolem(?var272...)
-        noValue(?var377..., http://www.vstu.ru/poas/code#predicate25...)
-        ->
-        (?var272... http://www.vstu.ru/poas/code#predicate25... "11"^^http://www.w3.org/2001/XMLSchema#integer)
-        ]
-
-        <pause>
-
-
-        [
-        (?var378... http://www.vstu.ru/poas/code#predicate14... http://www.vstu.ru/poas/code#Final)
-        (?var379... http://www.vstu.ru/poas/code#predicate13... ?var380...)
-        makeSkolem(?var272...)
-        noValue(?var381..., http://www.vstu.ru/poas/code#predicate25...)
-        ->
-        (?var272... http://www.vstu.ru/poas/code#predicate25... "12"^^http://www.w3.org/2001/XMLSchema#integer)
-        ]
-        
     """.trimIndent()
 
     val rulesSets = rulesString.split(PAUSE_MARK.trim())
@@ -490,14 +374,15 @@ fun main() {
 
         println("Interpreter reasoning start: ++++++++++++++++++++++")
         val interpreterResult: BranchResultNode
-        val interpreterReasoningTime = measureTimeMillis {
-            val memory = measureMemoryUsage {
+        val interpreterReasoningTime: Long
+        val interpreterMemoryUsage = measureMemoryUsage {
+            interpreterReasoningTime = measureTimeMillis {
                 interpreterResult = model.decisionTree.mainBranch.getCorrectPath(first).last() as BranchResultNode
             }
-            println(memory / 1024F / 1024)
-        }
+        } / 1024F / 1024
         interpreterTimes[situationSize] = interpreterReasoningTime
         println("Interpreter reasoning time: $interpreterReasoningTime")
+        println("Interpreter memory usage: $interpreterMemoryUsage")
 
         getDefaultOperatorReasoner = {
             JenaRulesReasoner(it)
@@ -505,14 +390,15 @@ fun main() {
 
         println("Rules reasoning start: ++++++++++++++++++++++")
         val rulesReasonerResult: BranchResultNode
-        val rulesReasoningTime = measureTimeMillis {
-            val memory = measureMemoryUsage {
+        val rulesReasoningTime: Long
+        val rulesReasoningMemoryUsage = measureMemoryUsage {
+            rulesReasoningTime = measureTimeMillis {
                 rulesReasonerResult = model.decisionTree.mainBranch.getCorrectPath(second).last() as BranchResultNode
             }
-            println(memory / 1024F / 1024)
-        }
+        } / 1024F / 1024
         rulesReasoningTimes[situationSize] = rulesReasoningTime
         println("Rules reasoning time: $rulesReasoningTime")
+        println("Rules memory usage: $rulesReasoningMemoryUsage")
 
         val jenaModel = DomainRDFWriter.saveDomain(third.domain)
         var inf = ModelFactory.createInfModel(GenericRuleReasoner(listOf()), jenaModel)
@@ -524,15 +410,16 @@ fun main() {
 
         println("Compiled tree reasoning start: ++++++++++++++++++++++")
         val compiledTreeReasonerResult: BranchResultNode
-        val compiledTreeReasoningTime = measureTimeMillis {
-            val memory = measureMemoryUsage {
+        val compiledTreeReasoningTime: Long
+        val compiledTreeReasoningMemoryUsage = measureMemoryUsage {
+            compiledTreeReasoningTime = measureTimeMillis {
                 val prop = inf.getProperty(resPredicate)
                 compiledTreeReasonerResult = endings[inf.listObjectsOfProperty(prop).next().asLiteral().int]
             }
-            println(memory / 1024F / 1024)
-        }
+        } / 1024F / 1024
         compiledTreeReasoningTimes[situationSize] = compiledTreeReasoningTime
         println("Compiled tree reasoning time: $compiledTreeReasoningTime")
+        println("Compiled tree memory usage: $compiledTreeReasoningMemoryUsage")
 
         val jenaModelOtherStrategy = DomainRDFWriter.saveDomain(fourth.domain)
         var infOtherStrategy = ModelFactory.createInfModel(GenericRuleReasoner(listOf()), jenaModelOtherStrategy)
