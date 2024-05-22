@@ -586,6 +586,7 @@ private fun obtainModels(dir: String, model: DomainSolvingModel): Map<String, Tr
 //    "Final 3x5" to "${dir}/ttls/measure/tmpFinal3x5.ttl",
 
 //    "Start 4x4" to "${dir}/ttls/measure/tmpStart4x4.ttl",
+//    "Main 3x6" to "${dir}/ttls/measure/tmpMain3x6.ttl",
     "Main 4x4" to "${dir}/ttls/measure/tmpMain4x4.ttl",
 //    "Final 4x4" to "${dir}/ttls/measure/tmpFinal4x4.ttl",
 
