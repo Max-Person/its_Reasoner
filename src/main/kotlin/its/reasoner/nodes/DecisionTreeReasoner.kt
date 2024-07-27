@@ -72,9 +72,21 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
     }
 
     data class FindResult(
-        val correct: Obj?,
-        val errors: Map<FindActionNode.FindErrorCategory, List<Obj>>,
+        val correct: List<Obj>,
+        val errors: Map<FindErrorCategory, List<Obj>>,
     )
+
+    fun searchWithErrors(node: CycleAggregationNode): FindResult {
+        val iteratedValues = exprReasoner.getObjectsByCondition(node.selectorExpr, node.variable)
+
+        val errors = mutableMapOf<FindErrorCategory, List<Obj>>()
+        for (category in node.errorCategories.sortedBy { it.priority }) {
+            val objects = exprReasoner.getObjectsByCondition(category.selectorExpr, category.checkedVariable)
+            errors[category] = objects.filter { obj -> errors.values.none { it.contains(obj) } }
+        }
+
+        return FindResult(iteratedValues, errors)
+    }
 
     fun processWithErrors(node: FindActionNode): FindResult {
         val isFound = process(node)
@@ -82,7 +94,7 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
             .map { it.variable.varName }
             .toSet()
 
-        val errors = mutableMapOf<FindActionNode.FindErrorCategory, List<Obj>>()
+        val errors = mutableMapOf<FindErrorCategory, List<Obj>>()
         for (category in node.errorCategories.sortedBy { it.priority }) {
             if (!isFound && category.selectorExpr.getUsedVariables().intersect(allVariables).isNotEmpty())
                 continue
@@ -92,7 +104,7 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
         }
 
         val correct = if (isFound) situation.decisionTreeVariables[node.varAssignment.variable.varName] else null
-        return FindResult(correct, errors)
+        return FindResult(listOf(correct).filterNotNull(), errors)
     }
 
     override fun process(node: LogicAggregationNode): Boolean {
