@@ -1,6 +1,5 @@
 package its.reasoner.nodes
 
-import its.model.ValueTuple
 import its.model.definition.ThisShouldNotHappen
 import its.model.definition.types.Obj
 import its.model.expressions.Operator
@@ -126,12 +125,12 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
     }
 
     override fun process(node: QuestionNode): Any {
-        return if (!node.isTuple) {
-            node.expr.evalAs<Any>()
-        } else {
-            val exprTuple = node.expressions.map { it.evalAs<Any>() }
-            node.outcomes.keys.firstOrNull { it is ValueTuple && it.matches(exprTuple) } ?: exprTuple
-        }
+        return node.expr.evalAs<Any>()
+    }
+
+    override fun processTupleQuestionNode(node: TupleQuestionNode): Any? {
+        val exprTuple = node.parts.map { it.expr.evalAs<Any>() }
+        return node.outcomes.keys.firstOrNull { it.matches(exprTuple) } ?: exprTuple
     }
 
     companion object _static{
