@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>reasoner</artifactId>
-    <groupId>ru.compprehension.its</groupId>
-    <version>2.0-SNAPSHOT</version>
+    <artifactId>its_Reasoner</artifactId>
+    <groupId>com.github.Max-Person</groupId>
+    <version>master-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Reasoner</name>
