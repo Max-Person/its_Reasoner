@@ -211,7 +211,7 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
         fun DecisionTree.solve(situation: LearningSituation): List<DecisionTreeEvaluationResult> {
             variables.forEach { variable ->
                 require(situation.decisionTreeVariables.containsKey(variable.varName))
-                val obj = situation.decisionTreeVariables[variable.varName]!!.findInOrUnkown(situation.domain)
+                val obj = situation.decisionTreeVariables[variable.varName]!!.findInOrUnkown(situation.domainModel)
                 require(obj.isInstanceOf(variable.className))
             }
             implicitVariables.forEach {

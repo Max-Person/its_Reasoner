@@ -13,7 +13,7 @@ import its.reasoner.*
 
 /**
  * Ризонер для операторов на основе наивной интерпретации:
- * выполняет действия в операторах "как сказано" на основе информации в предметной области ([Domain])
+ * выполняет действия в операторах "как сказано" на основе информации в предметной области ([DomainModel])
  */
 class DomainInterpreterReasoner(
     val situation: LearningSituation,
@@ -21,7 +21,7 @@ class DomainInterpreterReasoner(
 ) : OperatorReasoner {
 
     private val domain
-        get() = situation.domain
+        get() = situation.domainModel
 
     private fun <T> Operator.evalAs(reasoner: OperatorReasoner = this@DomainInterpreterReasoner): T = use(reasoner) as T
 

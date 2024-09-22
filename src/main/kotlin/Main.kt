@@ -1,59 +1,41 @@
 import its.model.DomainSolvingModel
-import its.model.definition.Domain
-import its.model.definition.ObjectDef
-import its.model.definition.loqi.DomainLoqiWriter
-import its.model.definition.rdf.DomainRDFFiller
-import its.model.definition.types.EnumValue
+import its.model.definition.loqi.DomainLoqiBuilder
 import its.reasoner.LearningSituation
+import its.reasoner.nodes.DecisionTreeReasoner._static.getAnswer
+import its.reasoner.nodes.DecisionTreeReasoner._static.getCorrectPath
+import its.reasoner.nodes.DecisionTreeReasoner._static.getResults
 import its.reasoner.nodes.DecisionTreeReasoner._static.solve
 import java.io.File
 
-
-fun run() {
-    val dir = "..\\inputs\\input_examples" //путь к папке с данными
-    //val dir = "inputs\\"
+/**
+ * Пример использования библиотеки для решения задач, описанных в формате its_DomainModel
+ */
+fun main(args: Array<String>) {
+    //путь к папке с данными
+    val dir = "../inputs/input_examples_expressions_prod"
 
     //Создать модель домена
-    val model = DomainSolvingModel(dir)
+    val model = DomainSolvingModel(dir, DomainSolvingModel.BuildMethod.LOQI)
 
     //Создать условие конкретной задачи
-    val i = 3
-    val situationDomain = model.domain.copy()
-    DomainRDFFiller.fillDomain(situationDomain, "${dir}\\_$i\\$i.ttl")
+    val i = 2
+    val situationDomain = DomainLoqiBuilder.buildDomain(File("$dir/questions/s_$i.loqi").bufferedReader())
+
+    //Получить полное описание ситуации и провалидировать его
+    situationDomain.add(model.getMergedTagDomain("c++"))
+    situationDomain.validateAndThrow()
 
     val situation = LearningSituation(situationDomain)
 
-    //решение задачи - от наиболее краткого ответа до наиболее подробного - выбрать одно из трех
-//    val answer = DomainModel.decisionTree.main.getAnswer(situation) //Получить тру/фолс ответ
-//    val path = DomainModel.decisionTree.main.getCorrectPath(situation) //Получить посещенные узлы на самом верхнем уровне (без ухода во вложенные ветки) - в порядке вычисления
-//    val trace = DomainModel.decisionTree.main.getTrace(situation) //Получить посещенные узлы по всему дереву - в порядке полного вычисления
+    //   Решение задачи - от наиболее краткого ответа до наиболее подробного - выбрать одно из трех
+    //1. Получить тру/фолс ответ (значение финального узла BranchResultNode)
+    val answer = model.decisionTree.mainBranch.getAnswer(situation)
+    //2. Получить все посещенные узлы на самом верхнем уровне (без ухода во вложенные ветки) - в порядке вычисления
+    val path = model.decisionTree.mainBranch.getCorrectPath(situation)
+    //3. Получить посещенные узлы результатов (BranchResultNode) по всему дереву - в порядке полного вычисления
+    val resultsA = model.decisionTree.mainBranch.getResults(situation)
+    val resultsB = model.decisionTree.solve(situation)
 
-    //Прорешать задачу - только для задачи вычисления порядка выражений
+//    println(resultsB)
 
-    fun getUnevaluated(domain: Domain): List<ObjectDef> {
-        return situationDomain.objects.filter {
-            it.findPropertyDef("state") != null
-                    && it.getPropertyValue("state") == EnumValue("state", "unevaluated")
-        }
-    }
-
-    var unevaluated = getUnevaluated(situationDomain)
-    while (unevaluated.isNotEmpty()) {
-        situation.decisionTreeVariables.clear()
-        for (x in unevaluated) {
-            situation.decisionTreeVariables["X"] = x.reference
-            model.decisionTree.solve(situation)
-        }
-        unevaluated = getUnevaluated(situationDomain)
-    }
-
-    DomainLoqiWriter.saveDomain(
-        situationDomain.apply { subtract(model.domain) },
-        File("${dir}\\$i-s.loqi").bufferedWriter()
-    )
-
-}
-
-fun main(args: Array<String>) {
-    run()
 }
