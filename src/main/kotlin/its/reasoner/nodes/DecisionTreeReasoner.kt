@@ -15,37 +15,32 @@ import its.reasoner.operators.OperatorReasoner.Companion.evalAs
  * Описывается как поведение узлов дерева решений, выдающее ответ на конкретный узел
  * @param situation текущая ситуация, описывающая задачу (изменяется ризонером)
  */
-class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour<Any?> {
+class DecisionTreeReasoner private constructor(val situation: LearningSituation) :
+    LinkNodeBehaviour<DecisionTreeReasoner.Answer<Any>> {
 
     private val exprReasoner = OperatorReasoner.defaultReasoner(situation)
     private fun <T> Operator.evalAs(): T = evalAs(exprReasoner)
 
-    override fun process(node: CycleAggregationNode): Boolean {
-        val iteratedValues = exprReasoner.getObjectsByCondition(node.selectorExpr, node.variable)
-        var res =
-            node.logicalOp == LogicalOp.AND //Исходное значение результата зависит от оператора: true для И, false для ИЛИ
-        for(value in iteratedValues){
-            situation.decisionTreeVariables[node.variable.varName] = value
-            val cur = node.thoughtBranch.getAnswer(situation)
-            res = when(node.logicalOp){
-                LogicalOp.AND -> res && cur
-                LogicalOp.OR -> res || cur
+    override fun process(node: CycleAggregationNode): Answer<BranchResult> {
+        val nestedResults = exprReasoner.getObjectsByCondition(node.selectorExpr, node.variable)
+            .map { obj ->
+                situation.decisionTreeVariables[node.variable.varName] = obj
+                val result = node.thoughtBranch.getResult(situation)
+                situation.decisionTreeVariables.remove(node.variable.varName)
+                result
             }
-        }
-        situation.decisionTreeVariables.remove(node.variable.varName)
-        return  res
+
+        return evaluateAggregation(node, nestedResults).asAnswer()
     }
 
-    override fun process(node: WhileAggregationNode): Boolean {
-        var res = node.logicalOp == LogicalOp.AND
+    override fun process(node: WhileCycleNode): Answer<BranchResult> {
         while (node.conditionExpr.evalAs<Boolean>()) {
-            val cur = node.thoughtBranch.getAnswer(situation)
-            res = when(node.logicalOp){ //FIXME? Уточнить семантику - точно ли данном цикле не надо прерываться если результат известен
-                LogicalOp.AND -> res && cur
-                LogicalOp.OR -> res || cur
+            val branchResult = node.thoughtBranch.getResult(situation)
+            if (branchResult.value != BranchResult.NULL) {
+                return branchResult.asAnswer()
             }
         }
-        return res
+        return BranchResult.NULL.asAnswer()
     }
 
     private fun process(assignment: DecisionTreeVarAssignment): Boolean {
@@ -57,7 +52,7 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
         return false
     }
 
-    override fun process(node: FindActionNode): Boolean {
+    override fun process(node: FindActionNode): Answer<Boolean> {
         val found = process(node.varAssignment)
         if (found) {
             node.secondaryAssignments.forEach {
@@ -65,9 +60,9 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
                 if (!secondaryFound)
                     throw ThisShouldNotHappen()
             }
-            return true
+            return true.asAnswer()
         }
-        return false
+        return false.asAnswer()
     }
 
     data class FindResult(
@@ -88,7 +83,7 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
     }
 
     fun processWithErrors(node: FindActionNode): FindResult {
-        val isFound = process(node)
+        val isFound = process(node).value
         val allVariables = listOf(node.varAssignment).plus(node.secondaryAssignments)
             .map { it.variable.varName }
             .toSet()
@@ -106,61 +101,103 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
         return FindResult(listOf(correct).filterNotNull(), errors)
     }
 
-    override fun process(node: LogicAggregationNode): Boolean {
-        var res = node.logicalOp == LogicalOp.AND
-        for(branch in node.thoughtBranches){
-            val cur = branch.getAnswer(situation)
-            res = when(node.logicalOp){
-                LogicalOp.AND -> res && cur
-                LogicalOp.OR -> res || cur
-            }
+    override fun process(node: BranchAggregationNode): Answer<BranchResult> {
+        return evaluateAggregation(node, node.thoughtBranches.map { it.getResult(situation) }).asAnswer()
+    }
+
+    private fun evaluateAggregation(
+        node: AggregationNode,
+        nestedResults: List<DecisionTreeEvaluationResult<*>>
+    ): AggregatedDecisionTreeEvaluationResult {
+        val resultsValues = nestedResults.map { it.value }
+        val aggregatedResult = when (node.aggregationMethod) {
+            AggregationMethod.AND ->
+                if (resultsValues.all { it == BranchResult.NULL })
+                    BranchResult.NULL
+                else if (resultsValues.all { it == BranchResult.CORRECT || it == BranchResult.NULL })
+                    BranchResult.CORRECT
+                else
+                    BranchResult.ERROR
+
+            AggregationMethod.OR ->
+                if (resultsValues.all { it == BranchResult.NULL })
+                    BranchResult.NULL
+                else if (resultsValues.any { it == BranchResult.CORRECT })
+                    BranchResult.CORRECT
+                else
+                    BranchResult.ERROR
+
+            AggregationMethod.HYP ->
+                if (resultsValues.any { it == BranchResult.CORRECT })
+                    BranchResult.CORRECT
+                else if (resultsValues.any { it == BranchResult.ERROR })
+                    BranchResult.ERROR
+                else
+                    BranchResult.NULL
+
+            AggregationMethod.MUTEX -> resultsValues.singleOrNull { it != BranchResult.NULL } ?: BranchResult.NULL
         }
-        return  res
+        return AggregatedDecisionTreeEvaluationResult(
+            aggregatedResult,
+            node,
+            nestedResults,
+            situation.decisionTreeVariables.toMap()
+        )
     }
 
-    override fun process(node: PredeterminingFactorsNode): ThoughtBranch? {
-        val predetermining = node.predetermining.singleOrNull { it.key!!.getAnswer(situation) }
-        return predetermining?.key
-            ?: (node.undetermined ?: throw ThisShouldNotHappen()).key
+    override fun process(node: QuestionNode): Answer<Any> {
+        return node.expr.evalAs<Any>().asAnswer()
     }
 
-    override fun process(node: QuestionNode): Any {
-        return node.expr.evalAs<Any>()
-    }
-
-    override fun processTupleQuestionNode(node: TupleQuestionNode): Any? {
+    override fun processTupleQuestionNode(node: TupleQuestionNode): Answer<List<Any?>> {
         val exprTuple = node.parts.map { it.expr.evalAs<Any>() }
-        return node.outcomes.keys.firstOrNull { it.matches(exprTuple) } ?: exprTuple
+        return (node.outcomes.keys.firstOrNull { it.matches(exprTuple) } ?: exprTuple).asAnswer()
     }
 
-    companion object _static{
+    data class Answer<out T : Any?>(
+        val value: T,
+        val evaluationResult: DecisionTreeEvaluationResult<*>?,
+    )
+
+    companion object {
+
+        private fun DecisionTreeEvaluationResult<*>.asAnswer() =
+            Answer(this.value, this)
+
+        private fun <T> T.asAnswer() =
+            Answer(this, null)
+
+        @JvmStatic
+        fun LinkNode<*>.getAnswerUnion(situation: LearningSituation): Answer<*> {
+            return use(DecisionTreeReasoner(situation))
+        }
+
         /**
          * Получить ответ на узел дерева решений
          */
         @JvmStatic
         fun <AnswerType : Any?> LinkNode<AnswerType>.getAnswer(situation: LearningSituation): AnswerType {
-            return use(DecisionTreeReasoner(situation)) as AnswerType
+            return this.getAnswerUnion(situation).value as AnswerType
+        }
+
+        @JvmStatic
+        private fun LinkNode<*>.getNext(answer: Any?): DecisionTreeNode? {
+            val outcomes = outcomes as Outcomes<Any?>
+            if (this is EndingNode && !outcomes.containsKey(answer)) {
+                return null
+            }
+            require(outcomes.containsKey(answer)) {
+                "Node $this has no outcome with value '$answer', but such an answer was returned"
+            }
+            return outcomes[answer]!!.node
         }
 
         /**
          * Получить корректный следующий узел
          */
         @JvmStatic
-        fun LinkNode<*>.correctNext(situation: LearningSituation): DecisionTreeNode {
-            val ans = this.getAnswer(situation)
-            val outcomes = outcomes as Outcomes<Any?>
-            require(outcomes.containsKey(ans)) { "Node $this has no outcome with value '$ans', but such an answer was returned" }
-            return outcomes[ans]!!.node
-        }
-
-        /**
-         * Получить ответ на ветвь мысли
-         */
-        @JvmStatic
-        fun ThoughtBranch.getAnswer(situation: LearningSituation): Boolean {
-            val path = this.getCorrectPath(situation)
-            val last = path.last() as BranchResultNode
-            return last.value
+        fun LinkNode<*>.correctNext(situation: LearningSituation): DecisionTreeNode? {
+            return this.getNext(this.getAnswer(situation))
         }
 
         /**
@@ -170,37 +207,24 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
          * посещенных на самом верхнем уровне (без ухода во вложенные ветки) узлов
          */
         @JvmStatic
-        fun ThoughtBranch.getCorrectPath(situation: LearningSituation): List<DecisionTreeNode> {
-            val path = mutableListOf<DecisionTreeNode>()
+        fun ThoughtBranch.getResult(situation: LearningSituation): DecisionTreeEvaluationResult<*> {
             var curr = this.start
-            path.add(curr)
             while (curr is LinkNode<*>) {
-                curr = curr.correctNext(situation)
-                path.add(curr)
+                val answer = curr.getAnswerUnion(situation)
+                val next = curr.getNext(answer.value)
+                if (next == null) {
+                    require(answer.evaluationResult != null) {
+                        "An evaluation result should have been formed at $curr (Reasoner error)"
+                    }
+                    return answer.evaluationResult
+                }
+                curr = next
             }
-            val last = path.last()
-            require(last is BranchResultNode)
-            last.actionExpr?.use(OperatorReasoner.defaultReasoner(situation))
-            results?.add(DecisionTreeEvaluationResult(last, situation.decisionTreeVariables.toMap()))
-            return path
-        }
-
-        @JvmStatic
-        private var results : MutableList<DecisionTreeEvaluationResult>? = null
-
-        /**
-         * Получить результаты решения ветви;
-         *
-         * Результаты решения представляют собой последовательность посещенных (на всех уровнях)
-         * узлов результатов, а также запись состояния переменных на момент посещения данного узла
-         */
-        @JvmStatic
-        fun ThoughtBranch.getResults(situation: LearningSituation): List<DecisionTreeEvaluationResult> {
-            results = mutableListOf()
-            this.getCorrectPath(situation)
-            val trace = results!!
-            results = null
-            return trace
+            require(curr is BranchResultNode) {
+                "The final node of the branch '$this' somehow wasn't a BranchResultNode (Reasoner error)"
+            }
+            curr.actionExpr?.use(OperatorReasoner.defaultReasoner(situation))
+            return BasicDecisionTreeEvaluationResult(curr, situation.decisionTreeVariables.toMap())
         }
 
         /**
@@ -208,7 +232,7 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
          * @see getResults
          */
         @JvmStatic
-        fun DecisionTree.solve(situation: LearningSituation): List<DecisionTreeEvaluationResult> {
+        fun DecisionTree.solve(situation: LearningSituation): DecisionTreeEvaluationResult<*> {
             variables.forEach { variable ->
                 require(situation.decisionTreeVariables.containsKey(variable.varName))
                 val obj = situation.decisionTreeVariables[variable.varName]!!.findInOrUnkown(situation.domainModel)
@@ -219,12 +243,27 @@ class DecisionTreeReasoner(val situation: LearningSituation) : LinkNodeBehaviour
                     DecisionTreeReasoner(situation).process(it)
                 }
             }
-            return mainBranch.getResults(situation)
+            return mainBranch.getResult(situation)
         }
     }
 
-    data class DecisionTreeEvaluationResult(
-            val node: BranchResultNode,
-            val variablesSnapshot: Map<String, Obj>,
+    sealed class DecisionTreeEvaluationResult<Node : EndingNode>(
+        val value: BranchResult,
+        val node: Node,
+        val variablesSnapshot: Map<String, Obj>,
     )
+
+    class BasicDecisionTreeEvaluationResult(
+        node: BranchResultNode,
+        variablesSnapshot: Map<String, Obj>
+    ) : DecisionTreeEvaluationResult<BranchResultNode>(node.value, node, variablesSnapshot)
+
+    class AggregatedDecisionTreeEvaluationResult(
+        result: BranchResult,
+        node: AggregationNode,
+        val nestedResults: List<DecisionTreeEvaluationResult<*>>,
+        variablesSnapshot: Map<String, Obj>
+    ) : DecisionTreeEvaluationResult<AggregationNode>(result, node, variablesSnapshot) {
+        val aggregationMethod = node.aggregationMethod
+    }
 }

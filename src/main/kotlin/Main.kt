@@ -1,10 +1,7 @@
 import its.model.DomainSolvingModel
 import its.model.definition.loqi.DomainLoqiBuilder
 import its.reasoner.LearningSituation
-import its.reasoner.nodes.DecisionTreeReasoner._static.getAnswer
-import its.reasoner.nodes.DecisionTreeReasoner._static.getCorrectPath
-import its.reasoner.nodes.DecisionTreeReasoner._static.getResults
-import its.reasoner.nodes.DecisionTreeReasoner._static.solve
+import its.reasoner.nodes.DecisionTreeReasoner.Companion.solve
 import java.io.File
 
 /**
@@ -27,14 +24,8 @@ fun main(args: Array<String>) {
 
     val situation = LearningSituation(situationDomain)
 
-    //   Решение задачи - от наиболее краткого ответа до наиболее подробного - выбрать одно из трех
-    //1. Получить тру/фолс ответ (значение финального узла BranchResultNode)
-    val answer = model.decisionTree.mainBranch.getAnswer(situation)
-    //2. Получить все посещенные узлы на самом верхнем уровне (без ухода во вложенные ветки) - в порядке вычисления
-    val path = model.decisionTree.mainBranch.getCorrectPath(situation)
-    //3. Получить посещенные узлы результатов (BranchResultNode) по всему дереву - в порядке полного вычисления
-    val resultsA = model.decisionTree.mainBranch.getResults(situation)
-    val resultsB = model.decisionTree.solve(situation)
+    //Решение задачи
+    val result = model.decisionTree.solve(situation)
 
 //    println(resultsB)
 
