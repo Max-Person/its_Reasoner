@@ -249,11 +249,7 @@ class DomainInterpreterReasoner(
     }
 
     override fun process(literal: ObjectLiteral): Obj {
-        val obj = Obj(literal.name)
-        val def = obj.def
-        if (!def.isInstanceOf(literal.className))
-            throw TypingException("$def is expected to be of type '${literal.className}', but was '${def.className}'")
-        return obj
+        return Obj(literal.name)
     }
 
     //---Значения---
