@@ -18,8 +18,8 @@ interface OperatorReasoner : OperatorBehaviour<Any?> {
     override fun process(op: AssignDecisionTreeVar)
     override fun process(op: AddRelationshipLink)
 
-    override fun process(op: Block)
-    override fun process(op: IfThen)
+    override fun process(op: Block): Any?
+    override fun process(op: IfThen): Any?
     override fun process(op: With): Any?
 
     override fun process(op: Compare): EnumValue
@@ -39,7 +39,7 @@ interface OperatorReasoner : OperatorBehaviour<Any?> {
     override fun process(op: CheckRelationship): Boolean
 
     override fun process(op: ExistenceQuantifier): Boolean
-    override fun process(op: ForAllQuantifier): Boolean
+    override fun process(op: ForAllQuantifier): Boolean?
     override fun process(op: LogicalAnd): Boolean
     override fun process(op: LogicalNot): Boolean
     override fun process(op: LogicalOr): Boolean
