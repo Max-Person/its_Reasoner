@@ -50,7 +50,7 @@ class AggregatedDecisionTreeEvaluationResult(
  * Вспомогательный класс, позволяющий определить некоторую обработку для различных видов [DecisionTreeEvaluationResult]
  * @param T тип возвращаемого обработчиком значения
  */
-abstract class DecisionTreeEvaluationResultsProcessor<T> {
+interface DecisionTreeEvaluationResultsProcessor<T> {
     /**
      * Обработать результат
      */
@@ -72,25 +72,39 @@ abstract class DecisionTreeEvaluationResultsProcessor<T> {
     /**
      * Обработать [AggregatedDecisionTreeEvaluationResult] с типом [AggregationMethod.AND]
      */
-    abstract fun processAndRes(result: AggregatedDecisionTreeEvaluationResult): T
+    fun processAndRes(result: AggregatedDecisionTreeEvaluationResult): T
 
     /**
      * Обработать [AggregatedDecisionTreeEvaluationResult] с типом [AggregationMethod.OR]
      */
-    abstract fun processOrRes(result: AggregatedDecisionTreeEvaluationResult): T
+    fun processOrRes(result: AggregatedDecisionTreeEvaluationResult): T
 
     /**
      * Обработать [AggregatedDecisionTreeEvaluationResult] с типом [AggregationMethod.HYP]
      */
-    abstract fun processHypRes(result: AggregatedDecisionTreeEvaluationResult): T
+    fun processHypRes(result: AggregatedDecisionTreeEvaluationResult): T
 
     /**
      * Обработать [AggregatedDecisionTreeEvaluationResult] с типом [AggregationMethod.MUTEX]
      */
-    abstract fun processMutexRes(result: AggregatedDecisionTreeEvaluationResult): T
+    fun processMutexRes(result: AggregatedDecisionTreeEvaluationResult): T
 
     /**
      * Обработать [BasicDecisionTreeEvaluationResult]
      */
-    abstract fun processBasicRes(result: BasicDecisionTreeEvaluationResult): T
+    fun processBasicRes(result: BasicDecisionTreeEvaluationResult): T
+
+    companion object {
+        /**
+         * Пустой обработчик, на случай необходимости передать обработчик как заглушку
+         */
+        @JvmStatic
+        val EMPTY = object : DecisionTreeEvaluationResultsProcessor<Unit> {
+            override fun processAndRes(result: AggregatedDecisionTreeEvaluationResult) {}
+            override fun processOrRes(result: AggregatedDecisionTreeEvaluationResult) {}
+            override fun processHypRes(result: AggregatedDecisionTreeEvaluationResult) {}
+            override fun processMutexRes(result: AggregatedDecisionTreeEvaluationResult) {}
+            override fun processBasicRes(result: BasicDecisionTreeEvaluationResult) {}
+        }
+    }
 }

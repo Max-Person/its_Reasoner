@@ -220,12 +220,18 @@ class DecisionTreeReasoner private constructor(val situation: LearningSituation)
         /**
          * Получить результат вычисления ветви дерева мысли
          * @see DecisionTree.solve для прорешивания целого дерева
+         * @param situation конкретная учебная ситуация
+         * @param resultCallback произвольный обработчик любых (всех) возникающих результатов [DecisionTreeEvaluationResult]
          */
         @JvmStatic
-        fun ThoughtBranch.getResult(situation: LearningSituation): DecisionTreeEvaluationResult<*> {
+        fun ThoughtBranch.getResult(
+            situation: LearningSituation,
+            resultCallback: DecisionTreeEvaluationResultsProcessor<*>,
+        ): DecisionTreeEvaluationResult<*> {
             var curr = this.start
             while (curr is LinkNode<*>) {
                 val (next, evaluationResult) = curr.getNextOrResult(situation)
+                if (evaluationResult != null) resultCallback.process(evaluationResult)
                 if (next == null) return evaluationResult!!
                 curr = next
             }
@@ -234,15 +240,29 @@ class DecisionTreeReasoner private constructor(val situation: LearningSituation)
             }
             curr.actionExpr?.use(OperatorReasoner.defaultReasoner(situation))
             return BasicDecisionTreeEvaluationResult(curr, situation.decisionTreeVariables.toMap())
+                .also { resultCallback.process(it) }
+        }
+
+        /**
+         * @see [ThoughtBranch.getResult]
+         */
+        @JvmStatic
+        fun ThoughtBranch.getResult(situation: LearningSituation): DecisionTreeEvaluationResult<*> {
+            return getResult(situation, DecisionTreeEvaluationResultsProcessor.EMPTY)
         }
 
         /**
          * Прорешать дерево мысли для конкретной ситуации
          * При заходе в дерево проверяет наличие переменных [DecisionTree.variables],
-         * и довычисляет [DecisionTree.implicitVariables], если это необходимо
+         * и довычисляет [DecisionTree.implicitVariables], если это необходимо.
+         * @param situation конкретная учебная ситуация
+         * @param resultCallback произвольный обработчик любых (всех) возникающих результатов [DecisionTreeEvaluationResult]
          */
         @JvmStatic
-        fun DecisionTree.solve(situation: LearningSituation): DecisionTreeEvaluationResult<*> {
+        fun DecisionTree.solve(
+            situation: LearningSituation,
+            resultCallback: DecisionTreeEvaluationResultsProcessor<*>,
+        ): DecisionTreeEvaluationResult<*> {
             variables.forEach { variable ->
                 require(situation.decisionTreeVariables.containsKey(variable.varName))
                 val obj = situation.decisionTreeVariables[variable.varName]!!.findInOrUnkown(situation.domainModel)
@@ -253,7 +273,15 @@ class DecisionTreeReasoner private constructor(val situation: LearningSituation)
                     DecisionTreeReasoner(situation).process(it)
                 }
             }
-            return mainBranch.getResult(situation)
+            return mainBranch.getResult(situation, resultCallback)
+        }
+
+        /**
+         * @see [DecisionTree.solve]
+         */
+        @JvmStatic
+        fun DecisionTree.solve(situation: LearningSituation): DecisionTreeEvaluationResult<*> {
+            return solve(situation, DecisionTreeEvaluationResultsProcessor.EMPTY)
         }
     }
 }
