@@ -56,14 +56,19 @@ class DomainInterpreterReasoner(
 
     //---Управляющие конструкции
 
-    override fun process(op: Block) {
-        op.nestedExprs.forEach { it.use(this) }
+    override fun process(op: Block): Any? {
+        return op.nestedExprs.map { it.use(this) }.last()
     }
 
-    override fun process(op: IfThen) {
-        val condition = op.conditionExpr.evalAs<Boolean>()
-        if (condition)
-            op.thenExpr.use(this)
+    override fun process(op: IfThen): Any? {
+        val isConditionSatisfied = op.conditionExpr.evalAs<Boolean>()
+        if (isConditionSatisfied) {
+            val thenVal = op.thenExpr.use(this)
+            if (op.elseExpr != null)
+                return thenVal
+            return null
+        }
+        return op.elseExpr?.use(this)
     }
 
     override fun process(op: With): Any? {
@@ -213,9 +218,22 @@ class DomainInterpreterReasoner(
         return objects.any { it.def.fitsCondition(op.conditionExpr, op.variable.varName) }
     }
 
-    override fun process(op: ForAllQuantifier): Boolean {
+    override fun process(op: ForAllQuantifier): Boolean? {
         val objects = getObjectsByCondition(op.selectorExpr, op.variable)
-        return objects.all { it.def.fitsCondition(op.conditionExpr, op.variable.varName) }
+        val values = mutableListOf<Any?>()
+        for (obj in objects) {
+            val value = op.conditionExpr.use(this.copy(varContext = varContext.plus(op.variable.varName to obj)))
+            //Если в булевском режиме и встречаем false, то останавливаем сразу
+            if (value == false) {
+                return false
+            }
+            values.add(value)
+        }
+        //Возвращаем true, если все значения булевские (значит они все true, т.к. при false выбросилось бы false ранее)
+        return if (values.all { it is Boolean })
+            true
+        else
+            null //в режиме цикла возвращаем null
     }
 
     override fun process(op: LogicalAnd): Boolean {
