@@ -9,6 +9,7 @@ import its.model.definition.types.Obj
 import its.model.expressions.Operator
 import its.model.expressions.literals.*
 import its.model.expressions.operators.*
+import its.model.expressions.utils.ParamsValuesExprList
 import its.reasoner.*
 
 /**
@@ -35,7 +36,10 @@ class DomainInterpreterReasoner(
         val obj = op.objectExpr.evalAs<Obj>().def
         val value = op.valueExpr.evalAs<Any>()
 
-        obj.definedPropertyValues.addOrReplace(PropertyValueStatement(obj, op.propertyName, value))
+        val propertyParams = obj.findPropertyDef(op.propertyName)!!.paramsDecl
+        val paramsValues = NamedParamsValues(evalParamsToMap(op.paramsValues, propertyParams))
+
+        obj.definedPropertyValues.addOrReplace(PropertyValueStatement(obj, op.propertyName, paramsValues, value))
     }
 
     override fun process(op: AssignDecisionTreeVar) {
@@ -51,7 +55,10 @@ class DomainInterpreterReasoner(
         val subj = op.subjectExpr.evalAs<Obj>().def
         val objectNames = op.objectExprs.map { it.evalAs<Obj>().def.name }
 
-        subj.relationshipLinks.add(RelationshipLinkStatement(subj, op.relationshipName, objectNames))
+        val relationshipParams = subj.findRelationshipDef(op.relationshipName)!!.effectiveParams
+        val paramsValues = NamedParamsValues(evalParamsToMap(op.paramsValues, relationshipParams))
+
+        subj.relationshipLinks.add(RelationshipLinkStatement(subj, op.relationshipName, objectNames, paramsValues))
     }
 
     //---Управляющие конструкции
@@ -145,29 +152,43 @@ class DomainInterpreterReasoner(
     }
 
     override fun process(op: GetPropertyValue): Any {
-        val subj = op.objectExpr.evalAs<Obj>().def
+        val obj = op.objectExpr.evalAs<Obj>().def
 
-        return subj.getPropertyValue(op.propertyName)
+        val propertyParams = obj.findPropertyDef(op.propertyName)!!.paramsDecl
+        val paramsValuesMap = evalParamsToMap(op.paramsValues, propertyParams)
+
+        return obj.getPropertyValue(op.propertyName, paramsValuesMap)
     }
 
     override fun process(op: GetByRelationship): Obj {
         val subj = op.subjectExpr.evalAs<Obj>().def
         val relationship = subj.findRelationshipDef(op.relationshipName)!!
 
-        val (base, signature) = relationship.getCanonicalDependencySignature()
+        val relationshipParams = subj.findRelationshipDef(op.relationshipName)!!.effectiveParams
+        val paramsValues = evalParamsToMap(op.paramsValues, relationshipParams)
 
-        return if (signature.contains(DependantRelationshipKind.Type.OPPOSITE)) {
-            domain.objects
-                .filter { it.isInstanceOf(base.subjectClass) }
-                .first { obj ->
-                    obj.relationshipLinks.any { link ->
-                        link.relationshipName == base.name && link.objects.first() == subj
-                    }
-                }
-                .reference
-        } else {
-            subj.getByBaseRelationship(base)!!.reference
-        }
+        return RelationshipUtils.findSingleRelationshipLinkOrThrow(
+            subj,
+            relationship,
+            objects = null,
+            paramsValues = paramsValues
+        ).objects[0].reference
+    }
+
+    override fun process(op: GetRelationshipParamValue): Any {
+        val subj = op.subjectExpr.evalAs<Obj>().def
+        val relationship = subj.findRelationshipDef(op.relationshipName)!!
+        val objects = op.objectExprs.map { it.evalAs<Obj>().def }
+
+        val relationshipParams = subj.findRelationshipDef(op.relationshipName)!!.effectiveParams
+        val paramsValues = evalParamsToMap(op.paramsValues, relationshipParams)
+
+        return RelationshipUtils.findSingleRelationshipLinkOrThrow(
+            subj,
+            relationship,
+            objects,
+            paramsValues
+        ).paramsValues.asMap(relationshipParams)[op.paramName]!!
     }
 
     //---Типизация---
@@ -188,12 +209,6 @@ class DomainInterpreterReasoner(
         return subj.isInstanceOf(clazz)
     }
 
-    override fun process(op: CheckPropertyValue): Boolean {
-        val get = GetPropertyValue(op.objectExpr, op.propertyName)
-
-        return this.process(get) == op.valueExpr.evalAs<Obj>()
-    }
-
     override fun process(op: CheckRelationship): Boolean {
         val subj = op.subjectExpr.evalAs<Obj>().def
         val objects = op.objectExprs.map { it.evalAs<Obj>().def }
@@ -204,9 +219,16 @@ class DomainInterpreterReasoner(
         val projList = listOf(subj).plus(objects)
             .mapIndexed { i, obj -> obj.getProjection(classList[i]) }
 
+        val paramsValues = evalParamsToMap(op.paramsValues, relationship.effectiveParams)
+
         var res = true
         forEachCombination(projList, { objComb: List<ObjectDef> ->
-            res = res && objComb.first().checkRelationship(relationship, objComb.subList(1, objComb.size))
+            res = res && RelationshipUtils.findRelationshipLinks(
+                objComb.first(),
+                relationship,
+                objComb.subList(1, objComb.size),
+                paramsValues
+            ).isNotEmpty()
         })
         return res
     }
@@ -301,6 +323,10 @@ class DomainInterpreterReasoner(
         return DomainInterpreterReasoner(situation, varContext)
     }
 
+    private fun evalParamsToMap(paramsValuesExprList: ParamsValuesExprList, paramsDecl: ParamsDecl): Map<String, Any> {
+        return paramsValuesExprList.asMap(paramsDecl).mapValues { it.value.evalAs<Any>() }
+    }
+
     private fun <T> forEachCombination(lists: List<List<T>>, block : (combination : List<T>) -> Unit,
                                        depth: Int = 0, currentComb: List<T> = listOf() ){
 
@@ -322,108 +348,6 @@ class DomainInterpreterReasoner(
         return this.relationshipLinks
             .filter { it.relationshipName == projectionRelationship.name }
             .map { Obj(it.objectNames.first()).def }
-    }
-
-    private fun ObjectDef.checkRelationship(relationship: RelationshipDef, objects: List<ObjectDef>): Boolean {
-        return if (relationship.isBinary) {
-            this.checkBinaryRelationship(relationship, objects)
-        } else if (relationship.kind is BaseRelationshipKind) {
-            this.checkBaseNaryRelationship(relationship, objects)
-        } else {
-            this.checkDependantNaryRelationship(relationship, objects)
-        }
-    }
-
-    private fun ObjectDef.checkBaseNaryRelationship(relationship: RelationshipDef, objects: List<ObjectDef>): Boolean {
-        return this.relationshipLinks.any { link ->
-            link.relationshipName == relationship.name
-                    && if (relationship.isUnordered)
-                link.objects.sortedBy { it.name } == objects.sortedBy { it.name }
-            else link.objects == objects
-        }
-    }
-
-    private fun ObjectDef.checkDependantNaryRelationship(
-        relationship: RelationshipDef,
-        objects: List<ObjectDef>
-    ): Boolean {
-        require(
-            relationship.kind is DependantRelationshipKind
-                    && setOf(
-                DependantRelationshipKind.Type.BETWEEN,
-                DependantRelationshipKind.Type.CLOSER,
-                DependantRelationshipKind.Type.FURTHER
-            ).contains((relationship.kind as DependantRelationshipKind).type)
-        ) //Проверка на дурака
-
-        val (base, signature) = relationship.getCanonicalDependencySignature()
-        val isTransitive = signature.contains(DependantRelationshipKind.Type.TRANSITIVE)
-
-        val (boundaryA, inner, boundaryB) =
-            if ((relationship.kind as DependantRelationshipKind).type == DependantRelationshipKind.Type.FURTHER)
-                listOf(objects[0], objects[1], this)
-            else listOf(objects[0], this, objects[1])
-
-        return boundaryA.canReach(inner, base, isTransitive) && inner.canReach(boundaryB, base, isTransitive)
-                || boundaryB.canReach(inner, base, isTransitive) && inner.canReach(boundaryA, base, isTransitive)
-    }
-
-    private fun ObjectDef.checkBinaryRelationship(relationship: RelationshipDef, objects: List<ObjectDef>): Boolean {
-        val (base, signature) = relationship.getCanonicalDependencySignature()
-        val isTransitive = signature.contains(DependantRelationshipKind.Type.TRANSITIVE)
-
-        val (actSubject, actObject) =
-            if (signature.contains(DependantRelationshipKind.Type.OPPOSITE))
-                (objects.first() to this)
-            else
-                (this to objects.first())
-
-        return actSubject.canReach(actObject, base, isTransitive)
-    }
-
-    private fun ObjectDef.listByBaseRelationship(relationship: RelationshipDef): List<ObjectDef> {
-        require(relationship.isBinary)
-        return this.relationshipLinks.filter { it.relationshipName == relationship.name }.map { it.objects.first() }
-    }
-
-    private fun ObjectDef.getByBaseRelationship(relationship: RelationshipDef): ObjectDef? {
-        require(relationship.isBinary && relationship.effectiveQuantifier.objCount == 1)
-        return this.listByBaseRelationship(relationship).firstOrNull()
-    }
-
-    private fun ObjectDef.canReach(other: ObjectDef, relationship: RelationshipDef, isTransitive: Boolean): Boolean {
-        require(
-            relationship.kind is BaseRelationshipKind && relationship.isBinary
-                    && (!isTransitive || relationship.effectiveQuantifier.objCount == 1)
-        )
-
-        if (isTransitive) {
-            var next = getByBaseRelationship(relationship)
-            while (next != null) {
-                if (next == other) return true
-                next = next.getByBaseRelationship(relationship)
-            }
-            return false
-        } else {
-            return listByBaseRelationship(relationship).contains(other)
-        }
-    }
-
-    private fun RelationshipDef.getCanonicalDependencySignature(): Pair<RelationshipDef, Set<DependantRelationshipKind.Type>> {
-        val signature = mutableSetOf<DependantRelationshipKind.Type>()
-        var base = this
-        while (base.kind is DependantRelationshipKind) {
-            val type = (base.kind as DependantRelationshipKind).type
-            if (type == DependantRelationshipKind.Type.OPPOSITE
-                && signature.contains(DependantRelationshipKind.Type.OPPOSITE)
-            ) {
-                signature.remove(DependantRelationshipKind.Type.OPPOSITE) //Два противоположных уничтожаются
-            } else {
-                signature.add(type)
-            }
-            base = base.baseRelationship!!
-        }
-        return base to signature
     }
 
     private fun ObjectDef.fitsCondition(condition: Operator, asVar: String): Boolean {

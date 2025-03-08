@@ -30,12 +30,12 @@ interface OperatorReasoner : OperatorBehaviour<Any?> {
 
     override fun process(op: GetClass): Clazz
     override fun process(op: GetPropertyValue): Any
+    override fun process(op: GetRelationshipParamValue): Any
     override fun process(op: GetByRelationship): Obj
 
     override fun process(op: Cast): Obj
 
     override fun process(op: CheckClass): Boolean
-    override fun process(op: CheckPropertyValue): Boolean
     override fun process(op: CheckRelationship): Boolean
 
     override fun process(op: ExistenceQuantifier): Boolean
