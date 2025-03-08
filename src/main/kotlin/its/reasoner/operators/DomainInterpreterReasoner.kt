@@ -363,8 +363,9 @@ class DomainInterpreterReasoner(
         )
     }
 
-    override fun getObjectsByCondition(condition: Operator, asVar: TypedVariable): List<Obj> {
+    override fun getObjectsByCondition(condition: Operator?, asVar: TypedVariable): List<Obj> {
         val objects = domain.objects.filter { it.isInstanceOf(asVar.className) }
+        if (condition == null) return objects.map { it.reference }
         return objects.filter { it.fitsCondition(condition, asVar.varName) }.map { it.reference }
     }
 

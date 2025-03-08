@@ -54,7 +54,7 @@ interface OperatorReasoner : OperatorBehaviour<Any?> {
     override fun process(literal: StringLiteral): String
     override fun process(literal: EnumLiteral): EnumValue
 
-    fun getObjectsByCondition(condition: Operator, asVar: TypedVariable): List<Obj>
+    fun getObjectsByCondition(condition: Operator?, asVar: TypedVariable): List<Obj>
 
     companion object {
         @JvmStatic
