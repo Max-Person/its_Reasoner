@@ -20,7 +20,6 @@ interface OperatorReasoner : OperatorBehaviour<Any?> {
 
     override fun process(op: Block): Any?
     override fun process(op: IfThen): Any?
-    override fun process(op: With): Any?
 
     override fun process(op: Compare): EnumValue
     override fun process(op: CompareWithComparisonOperator): Boolean
@@ -38,7 +37,7 @@ interface OperatorReasoner : OperatorBehaviour<Any?> {
     override fun process(op: CheckClass): Boolean
     override fun process(op: CheckRelationship): Boolean
 
-    override fun process(op: ExistenceQuantifier): Boolean
+    override fun process(op: ExistenceQuantifier): Boolean?
     override fun process(op: ForAllQuantifier): Boolean?
     override fun process(op: LogicalAnd): Boolean
     override fun process(op: LogicalNot): Boolean

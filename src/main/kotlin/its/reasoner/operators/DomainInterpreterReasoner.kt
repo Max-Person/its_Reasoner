@@ -78,11 +78,6 @@ class DomainInterpreterReasoner(
         return op.elseExpr?.use(this)
     }
 
-    override fun process(op: With): Any? {
-        val obj = op.objExpr.evalAs<Obj>()
-        return op.nestedExpr.use(this.copy(varContext = this.varContext.plus(op.varName to obj)))
-    }
-
     //---Сравнения---
 
     override fun process(op: Compare): EnumValue {
@@ -235,9 +230,21 @@ class DomainInterpreterReasoner(
 
     //---Логические операции---
 
-    override fun process(op: ExistenceQuantifier): Boolean {
+    override fun process(op: ExistenceQuantifier): Boolean? {
         val objects = getObjectsByCondition(op.selectorExpr, op.variable)
-        return objects.any { it.def.fitsCondition(op.conditionExpr, op.variable.varName) }
+        for (obj in objects) {
+            val value = op.conditionExpr.use(this.copy(varContext = varContext.plus(op.variable.varName to obj)))
+            //Продолжаем цикл только если встретили false - т.е. это булевский режим, и данный объект не подходит под условие
+            if (value != false) {
+                //Во всех остальных случаях возвращаемся
+                return if (value == true)
+                    true
+                else
+                    null
+            }
+        }
+        //Если прошлись по всем объектам (или объектов и не
+        return false
     }
 
     override fun process(op: ForAllQuantifier): Boolean? {
@@ -251,8 +258,8 @@ class DomainInterpreterReasoner(
             }
             values.add(value)
         }
-        //Возвращаем true, если все значения булевские (значит они все true, т.к. при false выбросилось бы false ранее)
-        return if (values.all { it is Boolean })
+        //Возвращаем true, если все значения булевские true
+        return if (values.all { it == true })
             true
         else
             null //в режиме цикла возвращаем null
