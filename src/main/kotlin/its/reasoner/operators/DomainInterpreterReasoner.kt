@@ -127,7 +127,16 @@ class DomainInterpreterReasoner(
         //throw InterpretationException(NoSuchElementException("GetExtreme cannot find any objects that fit the condition"))
 
         val extreme = filtered.filter { obj ->
-            obj.def.fitsCondition(op.extremeConditionExpr, op.extremeVarName)
+            //Проверяем, что текущий объект obj "экстремальней" всех остальных объектов other
+            filtered.filter { it != obj }.all { other ->
+                op.extremeConditionExpr.evalAs<Boolean>(
+                    this.copy(
+                        varContext = varContext
+                            .plus(op.varName to other)
+                            .plus(op.extremeVarName to obj)
+                    )
+                )
+            }
         }
 
         //if (extreme.isEmpty())
