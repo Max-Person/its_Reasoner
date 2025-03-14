@@ -15,7 +15,7 @@ import its.reasoner.operators.OperatorReasoner.Companion.evalAs
  * Описывается как поведение узлов дерева решений, выдающее ответ на конкретный узел
  * @param situation текущая ситуация, описывающая задачу (изменяется ризонером)
  */
-class DecisionTreeReasoner private constructor(val situation: LearningSituation) :
+class DecisionTreeReasoner(val situation: LearningSituation) :
     LinkNodeBehaviour<DecisionTreeReasoner.Answer<Any>> {
 
     private val exprReasoner = OperatorReasoner.defaultReasoner(situation)
