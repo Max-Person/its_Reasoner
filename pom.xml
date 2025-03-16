@@ -6,7 +6,7 @@
 
     <artifactId>its_Reasoner</artifactId>
     <groupId>com.github.Max-Person</groupId>
-    <version>master-SNAPSHOT</version>
+    <version>2.10.1</version>
     <packaging>jar</packaging>
 
     <name>Reasoner</name>
@@ -109,7 +109,7 @@
         <dependency>
             <groupId>com.github.Max-Person</groupId>
             <artifactId>its_DomainModel</artifactId>
-            <version>master-SNAPSHOT</version>
+            <version>2.15.1</version>
         </dependency>
     </dependencies>
 
