@@ -44,6 +44,14 @@ class DecisionTreeTrace(
         get() = this.last().nodeResult as BranchResult
 
     /**
+     * Выполнялся ли узел в данной ветви
+     * @see containsWithNested
+     */
+    fun containsNode(node: DecisionTreeNode): Boolean {
+        return this.any { traceElement -> traceElement.node == node }
+    }
+
+    /**
      * Выполнялся ли узел в данной ветви или во вложенных ветвях
      */
     fun containsWithNested(node: DecisionTreeNode): Boolean {
