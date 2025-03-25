@@ -76,7 +76,7 @@ class DecisionTreeTrace(
     fun containsWithNested(node: DecisionTreeNode): Boolean {
         return this.any { traceElement ->
             traceElement.node == node
-                    || traceElement.nestedTraces().any { nestedTrace -> nestedTrace.containsWithNested(node) }
+                    || traceElement.nestedTraces()?.any { nestedTrace -> nestedTrace.containsWithNested(node) } ?: false
         }
     }
 }
@@ -96,11 +96,17 @@ sealed class DecisionTreeTraceElement<Result : Any, Node : DecisionTreeNode>(
     val variablesSnapshot: Map<String, Obj>,
 ) {
     /**
-     * Трассы вложенных для данного шага ветвей, если они есть
+     * Является ли данный элемент агрегацией вложенных трасс.
+     * true, если [nestedTraces] != null
      */
-    open fun nestedTraces(): Collection<DecisionTreeTrace> {
-        return listOf()
-    }
+    val isAggregated: Boolean
+        get() = nestedTraces() != null
+
+    /**
+     * Трассы вложенных для данного шага ветвей, или null, если не может иметь ветви
+     * @see isAggregated
+     */
+    open fun nestedTraces(): Collection<DecisionTreeTrace>? = null
 }
 
 /**
