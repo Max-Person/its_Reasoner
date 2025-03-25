@@ -7,7 +7,7 @@ import its.model.nodes.*
  * Трасса выполнения одной ветви дерева решения.
  * Состоит из [DecisionTreeTraceElement].
  *
- * Итоговый результат ветви всегда определяется по последнему элементу в трасе.
+ * Итоговый результат ветви определяется по результирующему элементу ([resultingElement]) в трассе.
  */
 class DecisionTreeTrace(
     traceElements: List<DecisionTreeTraceElement<*, *>>,
@@ -26,22 +26,41 @@ class DecisionTreeTrace(
     }
 
     /**
-     * Узел, на котором завершилось выполнение ветви
+     * Элемент трассы, определяющий ее результат. В большинстве случаев это последний элемент,
+     * за исключением случая, когда предпоследний элемент совпадает с последним по результату -
+     * тогда результирующим элементом является предпоследний элемент.
+     *
+     * (Такое исключение нужно для случаев, когда после узла агрегации идет узел результата с доп. действиями -
+     * узел агрегации все равно должен считаться результирующим),
      */
-    val resultingNode: DecisionTreeNode
-        get() = this.last().node
+    val resultingElement: DecisionTreeTraceElement<BranchResult, *>
+        get() {
+            return if (this.size >= 2 && this[size - 2].nodeResult == last().nodeResult)
+                this[size - 2] as DecisionTreeTraceElement<BranchResult, *>
+            else
+                last() as DecisionTreeTraceElement<BranchResult, *>
+        }
 
     /**
-     * Состояние переменных на момент завершения выполнения ветви
+     * Узел, определивший результат ветви
+     * @see resultingElement
+     */
+    val resultingNode: DecisionTreeNode
+        get() = this.resultingElement.node
+
+    /**
+     * Состояние переменных на момент определения результата ветви
+     * @see resultingElement
      */
     val finalVariableSnapshot: Map<String, Obj>
-        get() = this.last().variablesSnapshot
+        get() = this.resultingElement.variablesSnapshot
 
     /**
      * Итоговый результат выполнения ветви
+     * @see resultingElement
      */
     val branchResult: BranchResult
-        get() = this.last().nodeResult as BranchResult
+        get() = this.resultingElement.nodeResult
 
     /**
      * Выполнялся ли узел в данной ветви
