@@ -43,7 +43,7 @@ interface OperatorReasoner : OperatorBehaviour<Any?> {
     override fun process(op: LogicalNot): Boolean
     override fun process(op: LogicalOr): Boolean
 
-    override fun process(literal: VariableLiteral): Obj
+    override fun process(literal: VariableLiteral): Any
     override fun process(literal: DecisionTreeVarLiteral): Obj
     override fun process(literal: ClassLiteral): Clazz
     override fun process(literal: ObjectLiteral): Obj

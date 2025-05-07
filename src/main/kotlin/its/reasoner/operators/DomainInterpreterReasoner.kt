@@ -18,7 +18,7 @@ import its.reasoner.*
  */
 class DomainInterpreterReasoner(
     val situation: LearningSituation,
-    val varContext: Map<String, Obj> = mutableMapOf(),
+    val varContext: Map<String, Any> = mutableMapOf(),
 ) : OperatorReasoner {
 
     private val domain
@@ -288,7 +288,7 @@ class DomainInterpreterReasoner(
 
     //---Ссылки---
 
-    override fun process(literal: VariableLiteral): Obj {
+    override fun process(literal: VariableLiteral): Any {
         if (!varContext.containsKey(literal.name))
             throw UnknownVariableException("Context variable ${literal.name} not present during evaluation.")
         return varContext[literal.name]!!
@@ -334,7 +334,7 @@ class DomainInterpreterReasoner(
 
     private fun copy(
         situation: LearningSituation = this.situation,
-        varContext: Map<String, Obj> = this.varContext,
+        varContext: Map<String, Any> = this.varContext,
     ): DomainInterpreterReasoner {
         return DomainInterpreterReasoner(situation, varContext)
     }
