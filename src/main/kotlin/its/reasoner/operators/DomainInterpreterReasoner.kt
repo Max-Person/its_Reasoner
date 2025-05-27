@@ -97,8 +97,11 @@ class DomainInterpreterReasoner(
         val valB = op.secondExpr.evalAs<Any>()
 
         return when(op.operator){
-            CompareWithComparisonOperator.ComparisonOperator.Equal -> valA == valB
-            CompareWithComparisonOperator.ComparisonOperator.NotEqual -> valA != valB
+            CompareWithComparisonOperator.ComparisonOperator.Equal -> if (valA is Number && valB is Number) valA.toDouble() == valB.toDouble()
+            else valA == valB
+
+            CompareWithComparisonOperator.ComparisonOperator.NotEqual -> if (valA is Number && valB is Number) valA.toDouble() != valB.toDouble()
+            else valA != valB
             CompareWithComparisonOperator.ComparisonOperator.Greater -> (valA as Number).toDouble() > (valB as Number).toDouble()
             CompareWithComparisonOperator.ComparisonOperator.GreaterEqual -> (valA as Number).toDouble() >= (valB as Number).toDouble()
             CompareWithComparisonOperator.ComparisonOperator.Less -> (valA as Number).toDouble() < (valB as Number).toDouble()
