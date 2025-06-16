@@ -1,3 +1,5 @@
+package misc
+
 import its.model.DomainSolvingModel
 import its.model.definition.loqi.DomainLoqiBuilder
 import its.reasoner.LearningSituation
@@ -7,8 +9,7 @@ import java.io.File
 /**
  * Пример использования библиотеки для решения задач, описанных в формате its_DomainModel
  */
-fun main(args: Array<String>) {
-    //путь к папке с данными
+fun main(args: Array<String>) { //путь к папке с данными
     val dir = "../inputs/input_examples_expressions_prod"
 
     //Создать модель домена
@@ -26,7 +27,5 @@ fun main(args: Array<String>) {
 
     //Решение задачи
     val result = model.decisionTree.solve(situation)
-
-//    println(resultsB)
 
 }
