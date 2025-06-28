@@ -375,10 +375,33 @@ class DomainInterpreterReasoner(
         )
     }
 
-    override fun getObjectsByCondition(condition: Operator?, asVar: TypedVariable): List<Obj> {
+    override fun getObjectsByCondition(condition: Operator?, asVar: TypedVariable): List<Obj> { //обрабатываем случаи поиска типа $X == <выражение получения объекта>
+        if (condition is CompareWithComparisonOperator && condition.operator == CompareWithComparisonOperator.ComparisonOperator.Equal) {
+            if (condition.firstExpr == VariableLiteral(asVar.varName) && !condition.secondExpr.isDependantOnVariable(
+                    asVar.varName
+                )
+            ) {
+                return listOfNotNull(condition.secondExpr.evalAs<Obj?>())
+            }
+
+            if (condition.secondExpr == VariableLiteral(asVar.varName) && !condition.firstExpr.isDependantOnVariable(
+                    asVar.varName
+                )
+            ) {
+                return listOfNotNull(condition.firstExpr.evalAs<Obj?>())
+            }
+        }
+
         val objects = domain.objects.filter { it.isInstanceOf(asVar.className) }
         if (condition == null) return objects.map { it.reference }
         return objects.filter { it.fitsCondition(condition, asVar.varName) }.map { it.reference }
+    }
+
+    private fun Operator.isDependantOnVariable(varName: String): Boolean {
+        if (this is VariableLiteral && this.name == varName) {
+            return true
+        }
+        return this.children.any { it.isDependantOnVariable(varName) }
     }
 
     private val <Def : DomainDef<Def>> DomainRef<Def>.def: Def
